@@ -13,13 +13,13 @@ Core attributes:
 
 Transition probability distribution matrix
 
-|a|b|c|d|e|f|g|sum|
-|-|-|-|-|-|-|-|-|
-|a|0.1|0.2|0|0.5|0.2|0|1|
-|b|...||||||1|
-|c|...||||||1|
-|d|...||||||1|
-|e|...||||||1|
+||a|b|c|d|e|f|g|sum|
+|-|-|-|-|-|-|-|-|-|
+|a|0.1|0.2|0|0.5|0.2|0|0|1|
+|b|...|||||||1|
+|c|...|||||||1|
+|d|...|||||||1|
+|e|...|||||||1|
 
 
 So from any vertex there are edges to other vertices that have weights corresponding to probabilities of the transition. 0-weighted vertices do not exist as they are impossible transitions. There must not be a vertex with no transitions anywhere, i.e. all rows must sum up to exactly 1 (some directed graph check?).
