@@ -11,7 +11,7 @@ Core attributes:
 - In order m Markov chains, the next state depends on the past m states, e.g. a chain of Y_n = (X_n, X_n-1, X_n-2) would be a 2nd degree Markov chain consisting of ordered triplets (3-tuples) of current + 2 past states
 - The state transitions must be described in such a fashion that any transition fulfills the Markov property, e.g. a random draw from a set of coins can be described both non-Markov and Markov way
 
-Transition probability distribution matrix
+Transition probability distribution matrix for a 1st degree Markov chain
 
 ||a|b|c|d|e|f|g|sum|
 |-|-|-|-|-|-|-|-|-|
@@ -21,6 +21,17 @@ Transition probability distribution matrix
 |d|...|||||||1|
 |e|...|||||||1|
 
+Transition probability distribution matrix for a 2nd degree Markov chain
+
+||a|b|c|d|e|f|g|sum|
+|-|-|-|-|-|-|-|-|-|
+|aa|0.1|0.2|0|0.5|0.2|0|0|1|
+|ab|...|||||||1|
+|bc|...|||||||1|
+|dd|...|||||||1|
+|fe|...|||||||1|
+
+Where from every pair of two previous notes there is a transition to a single new note.
 
 So from any vertex there are edges to other vertices that have weights corresponding to probabilities of the transition. 0-weighted vertices do not exist as they are impossible transitions. There must not be a vertex with no transitions anywhere, i.e. all rows must sum up to exactly 1 (some directed graph check?).
 
