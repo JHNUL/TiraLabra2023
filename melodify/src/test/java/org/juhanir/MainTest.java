@@ -10,6 +10,6 @@ class MainTest {
     @Test
     @DisplayName("App tester")
     void doesImportantTests() {
-        assertEquals(2, 1 + 1, "Did the math check out?");
+        assertEquals(2, 1 + 1, "You broke math");
     }
 }

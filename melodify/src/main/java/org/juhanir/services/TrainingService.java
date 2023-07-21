@@ -36,7 +36,7 @@ public class TrainingService {
                 List<String> melodies = this.scoreParser.parse(is);
                 String msg = melodies.toString();
                 trainingLogger.info(msg);
-                // TODO: populate Trie with the melodie n-tuples based on degree of Markov Chain
+                // TODO: populate Trie with the melody n-tuples based on degree of Markov Chain
                 // we're using
             } catch (Exception e) {
                 trainingLogger.severe("Failed to parse file " + filePath);

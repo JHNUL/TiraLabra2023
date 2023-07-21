@@ -6,7 +6,7 @@ Project is implemented in Java. In addition I can do code review for projects im
 
 ## Topic of the project
 
-This project uses Markov's Chain to predict the next note in a melody. The idea is to implement at least 1st and 2nd degree Markov's Chains. I play guitar myself and have studied music in my youth, so the topic of generating music and getting to know something about machine learning in practice made me choose this topic.
+This project uses Markov's Chain to predict the next note in a melody. The idea is to implement at least 1st and 2nd degree Markov's Chains.
 
 ## Data structures and algorithms used
 
@@ -19,8 +19,9 @@ The model is trained on a corpus of songs in musicxml format. I chose this forma
 
 ## Time/space complexities
 
-- Trie insertion O(?)
-- Trie lookup O(?)
+- Trie insertion O(k), where k = key length
+- Trie lookup O(k), where k = key length
+- Trie prefix search O(?) TBA
 
 ## Sources
 
