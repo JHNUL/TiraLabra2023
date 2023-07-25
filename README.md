@@ -1,3 +1,5 @@
+[![unit-tests](https://github.com/JHNUL/TiraLabra2023/actions/workflows/run-unit-tests.yaml/badge.svg?branch=main)](https://github.com/JHNUL/TiraLabra2023/actions/workflows/run_unit_tests.yaml)
+
 # Melodify
 
 Assignment for University of Helsinki CS Data Structures and Algorithms lab.
