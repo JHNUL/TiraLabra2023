@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -28,26 +30,28 @@ class TrieTest {
     @Test
     void canInsertNode() {
         Trie trie = new Trie();
-        int insertions = trie.insert(oneChild);
-        assertEquals(1, insertions);
+        trie.insert(oneChild);
+        assertEquals(2, trie.size());
     }
 
     @Test
     void canInsertNodes() {
         Trie trie = new Trie();
-        int insertions = trie.insert(threeChildren);
-        assertEquals(3, insertions);
+        trie.insert(threeChildren);
+        assertEquals(4, trie.size());
     }
 
     @Test
     void doesNotInsertDuplicates() {
         Trie trie = new Trie();
-        int insertions = trie.insert(oneChild);
-        assertEquals(1, insertions);
-        insertions = trie.insert(twoChildren);
-        assertEquals(1, insertions);
-        insertions = trie.insert(threeChildren);
-        assertEquals(1, insertions);
+        trie.insert(oneChild);
+        assertEquals(2, trie.size());
+        trie.insert(oneChild);
+        assertEquals(2, trie.size());
+        trie.insert(twoChildren);
+        assertEquals(3, trie.size());
+        trie.insert(threeChildren);
+        assertEquals(4, trie.size());
     }
 
     @Test
@@ -85,7 +89,7 @@ class TrieTest {
     void prefixSearchReturnsEmptyListWhenNotFound() {
         Trie trie = new Trie();
         trie.insert(threeChildren);
-        var result = trie.prefixSearch(new String[] { "yi", "er", "san", "si" });
+        List<TrieNode> result = trie.prefixSearch(new String[] { "yi", "er", "san", "si" });
         assertInstanceOf(List.class, result);
         assertEquals(0, result.size());
     }
@@ -94,25 +98,30 @@ class TrieTest {
     void prefixSearchReturnsEmptyListWhenPrefixEqualsKey() {
         Trie trie = new Trie();
         trie.insert(threeChildren);
-        var result = trie.prefixSearch(threeChildren);
+        List<TrieNode> result = trie.prefixSearch(threeChildren);
         assertInstanceOf(List.class, result);
         assertEquals(0, result.size());
     }
 
     @Test
-    void prefixSearchReturnsEmptyListWhenPrefixEmpty() {
+    void emptyPrefixSearchReturnsChildrenOfRoot() {
         Trie trie = new Trie();
-        trie.insert(threeChildren);
-        var result = trie.prefixSearch(new String[] {});
+        trie.insert(new String[] { "A", "B" });
+        trie.insert(new String[] { "B", "B" });
+        trie.insert(new String[] { "C", "B" });
+        List<TrieNode> result = trie.prefixSearch(new String[] {});
         assertInstanceOf(List.class, result);
-        assertEquals(0, result.size());
+        assertEquals(3, result.size());
+        assertEquals("A", result.get(0).getValue());
+        assertEquals("B", result.get(1).getValue());
+        assertEquals("C", result.get(2).getValue());
     }
 
     @Test
     void prefixSearchReturnsImmediateChildrenWithOneNotePrefix() {
         Trie trie = new Trie();
         trie.insert(threeChildren);
-        var result = trie.prefixSearch(new String[] { threeChildren[0] });
+        List<TrieNode> result = trie.prefixSearch(new String[] { threeChildren[0] });
         assertEquals(1, result.size());
         assertEquals(result.get(0).getValue(), threeChildren[1]);
     }
@@ -121,7 +130,7 @@ class TrieTest {
     void prefixSearchReturnsImmediateChildrenWithTwoNotePrefix() {
         Trie trie = new Trie();
         trie.insert(threeChildren);
-        var result = trie.prefixSearch(new String[] { threeChildren[0], threeChildren[1] });
+        List<TrieNode> result = trie.prefixSearch(new String[] { threeChildren[0], threeChildren[1] });
         assertEquals(1, result.size());
         assertEquals(result.get(0).getValue(), threeChildren[2]);
     }
@@ -134,7 +143,7 @@ class TrieTest {
         trie.insert(thirdBranch);
         trie.insert(fourthBranch);
         trie.insert(fifthBranch);
-        var result = trie.prefixSearch(new String[] { "A", "B" });
+        List<TrieNode> result = trie.prefixSearch(new String[] { "A", "B" });
         assertEquals(4, result.size());
         assertEquals("C", result.get(0).getValue());
         assertEquals("D", result.get(1).getValue());
@@ -150,9 +159,72 @@ class TrieTest {
         trie.insert(thirdBranch);
         trie.insert(fourthBranch);
         trie.insert(fifthBranch);
-        var result = trie.prefixSearch(new String[] { "A" });
+        List<TrieNode> result = trie.prefixSearch(new String[] { "A" });
         assertEquals(2, result.size());
         assertEquals("B", result.get(0).getValue());
         assertEquals("C", result.get(1).getValue());
+    }
+
+    @Test
+    void childrenHaveCorrectCounts() {
+        Trie trie = new Trie();
+        trie.insert(firstBranch);
+        trie.insert(secondBranch);
+        trie.insert(thirdBranch);
+        trie.insert(fourthBranch);
+        trie.insert(fifthBranch);
+        List<TrieNode> result = trie.prefixSearch(new String[] { "A" });
+        assertEquals(2, result.size());
+        assertEquals("B", result.get(0).getValue());
+        assertEquals("C", result.get(1).getValue());
+        assertEquals(4, result.get(0).getCount());
+        assertEquals(1, result.get(1).getCount());
+        result = trie.prefixSearch(new String[] { "A", "C" });
+        assertEquals(1, result.size());
+        assertEquals("F#", result.get(0).getValue());
+        assertEquals(1, result.get(0).getCount());
+    }
+
+    @Test
+    void treeHasCorrectSize() {
+        Trie trie = new Trie();
+        trie.insert(firstBranch);
+        trie.insert(secondBranch);
+        trie.insert(thirdBranch);
+        trie.insert(fourthBranch);
+        trie.insert(fifthBranch);
+        assertEquals(9, trie.size());
+    }
+
+    @Test
+    void getProbabilitiesWithEmptyList() {
+        Trie trie = new Trie();
+        Map<String, Double> probs = trie.getProbabilities(Collections.emptyList());
+        assertEquals(0, probs.size());
+    }
+
+    @Test
+    void resolvesProbabilitiesCorrectlyWithOneChild() {
+        Trie trie = new Trie();
+        trie.insert(oneChild);
+        List<TrieNode> children = trie.prefixSearch(new String[] {});
+        Map<String, Double> probs = trie.getProbabilities(children);
+        assertEquals(1, probs.size());
+        assertEquals(1.0, probs.get(oneChild[0]));
+    }
+
+    @Test
+    void resolvesProbabilitiesCorrectlyWithManyChildren() {
+        Trie trie = new Trie();
+        trie.insert(firstBranch);
+        trie.insert(secondBranch);
+        trie.insert(thirdBranch);
+        trie.insert(fourthBranch);
+        trie.insert(fifthBranch);
+        List<TrieNode> children = trie.prefixSearch(new String[] { "A" });
+        Map<String, Double> probs = trie.getProbabilities(children);
+        assertEquals(2, probs.size());
+        assertEquals(0.8, probs.get("B"));
+        assertEquals(0.2, probs.get("C"));
     }
 }
