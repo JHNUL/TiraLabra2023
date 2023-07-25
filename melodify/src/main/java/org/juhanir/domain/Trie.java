@@ -1,5 +1,6 @@
 package org.juhanir.domain;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Trie {
@@ -11,10 +12,10 @@ public class Trie {
     }
 
     /**
-     * Inserts a chord sequence to the Trie. Sequence
+     * Inserts a note sequence to the Trie. Sequence
      * length determines the degree of the Markov Chain.
      * 
-     * @param key sequence of chord strings to save
+     * @param key sequence of note strings to save
      * @return number of insertions made
      */
     public int insert(String[] key) {
@@ -24,6 +25,7 @@ public class Trie {
             String note = key[i];
             if (!node.hasChild(note)) {
                 node.addChild(key[i]);
+                node.setIsLast(false);
                 insertions++;
             }
             node = node.getChild(key[i]);
@@ -33,10 +35,10 @@ public class Trie {
     }
 
     /**
-     * Searches the Trie for the chord sequence. Returns the final note
+     * Searches the Trie for the note sequence. Returns the final note
      * only if the whole sequence exists (there are no more notes after).
      * 
-     * @param key sequence of chord strings to search
+     * @param key sequence of note strings to search
      * @return TrieNode or null if sequence not found
      */
     public TrieNode lookup(String[] key) {
@@ -54,9 +56,25 @@ public class Trie {
         return null;
     }
 
+    /**
+     * Searches the Trie for the melody sequence prefix, returns the child
+     * nodes of the last node in the prefix.
+     *
+     * @param prefix sequence of note strings as prefix to the next note
+     * @return List of TrieNodes (can be empty)
+     */
     public List<TrieNode> prefixSearch(String[] prefix) {
-        // TODO: implement
-        return null;
+        TrieNode node = this.root;
+        if (prefix.length < 1)
+            return Collections.emptyList();
+        for (int i = 0; i < prefix.length; i++) {
+            String note = prefix[i];
+            if (!node.hasChild(note)) {
+                return Collections.emptyList();
+            }
+            node = node.getChild(prefix[i]);
+        }
+        return node.getChildren();
     }
 
 }
