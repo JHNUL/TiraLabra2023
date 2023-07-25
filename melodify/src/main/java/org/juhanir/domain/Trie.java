@@ -1,7 +1,9 @@
 package org.juhanir.domain;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Trie {
 
@@ -15,23 +17,23 @@ public class Trie {
      * Inserts a note sequence to the Trie. Sequence
      * length determines the degree of the Markov Chain.
      * 
+     * Increments each nodes 'count' property when inserting
+     * it as child.
+     *
      * @param key sequence of note strings to save
-     * @return number of insertions made
      */
-    public int insert(String[] key) {
+    public void insert(String[] key) {
         TrieNode node = this.root;
-        int insertions = 0;
         for (int i = 0; i < key.length; i++) {
             String note = key[i];
             if (!node.hasChild(note)) {
                 node.addChild(key[i]);
                 node.setIsLast(false);
-                insertions++;
             }
             node = node.getChild(key[i]);
+            node.incrementCount();
         }
         node.setIsLast(true);
-        return insertions;
     }
 
     /**
@@ -65,8 +67,6 @@ public class Trie {
      */
     public List<TrieNode> prefixSearch(String[] prefix) {
         TrieNode node = this.root;
-        if (prefix.length < 1)
-            return Collections.emptyList();
         for (int i = 0; i < prefix.length; i++) {
             String note = prefix[i];
             if (!node.hasChild(note)) {
@@ -75,6 +75,38 @@ public class Trie {
             node = node.getChild(prefix[i]);
         }
         return node.getChildren();
+    }
+
+    /**
+     * Calculate the probabilities from a list of children.
+     *
+     * @return Map where note value is key and probability is value.
+     */
+    public Map<String, Double> getProbabilities(List<TrieNode> children) {
+        int childCount = children.stream().map(TrieNode::getCount).reduce(0, Integer::sum);
+        Map<String, Double> probabilities = new HashMap<>(childCount);
+        for (TrieNode child : children) {
+            probabilities.put(child.getValue(), (double) child.getCount() / childCount);
+        }
+        return probabilities;
+    }
+
+    /**
+     * Get the size of the whole tree
+     *
+     * @return int size
+     */
+    public int size() {
+        return this.countNodes(this.root);
+    }
+
+    private int countNodes(TrieNode node) {
+        int c = 1;
+        if (node.getChildren().isEmpty())
+            return c;
+        for (TrieNode child : node.getChildren())
+            c += this.countNodes(child);
+        return c;
     }
 
 }

@@ -128,4 +128,21 @@ class TrieNodeTest {
             assertInstanceOf(TrieNode.class, trieNode);
         }
     }
+
+    @Test
+    void hasCountProperty() {
+        String testValue = "E#4quarter";
+        TrieNode node = new TrieNode(testValue);
+        assertEquals(0, node.getCount());
+    }
+
+    @Test
+    void canIncrementCount() {
+        String testValue = "E#4quarter";
+        TrieNode node = new TrieNode(testValue);
+        node.incrementCount();
+        node.incrementCount();
+        node.incrementCount();
+        assertEquals(3, node.getCount());
+    }
 }

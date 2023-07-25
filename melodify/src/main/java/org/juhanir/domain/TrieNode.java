@@ -9,15 +9,25 @@ public class TrieNode {
     private Map<String, TrieNode> children;
     private final String value;
     private boolean isLast;
+    private int count;
 
     public TrieNode(String value) {
         this.value = value;
         this.children = new HashMap<>();
         this.isLast = false;
+        this.count = 0;
     }
 
     public String getValue() {
         return this.value;
+    }
+
+    public int getCount() {
+        return this.count;
+    }
+
+    public void incrementCount() {
+        this.count++;
     }
 
     public void setIsLast(boolean isLast) {
