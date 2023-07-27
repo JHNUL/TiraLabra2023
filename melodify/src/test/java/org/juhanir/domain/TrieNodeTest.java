@@ -7,7 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,59 +18,49 @@ class TrieNodeTest {
 
     @Test
     void canInstantiate() {
-        assertNotNull(new TrieNode(""));
-    }
-
-    @Test
-    void canCreateNewTrieNodeWithEmptyString() {
-        TrieNode node = new TrieNode("");
-        assertEquals("", node.getValue());
+        assertNotNull(new TrieNode(5));
     }
 
     @Test
     void canCreateNewTrieNodeWithValue() {
-        String testValue = "E#4quarter";
-        TrieNode node = new TrieNode(testValue);
-        assertEquals(testValue, node.getValue());
+        TrieNode node = new TrieNode(5);
+        assertEquals(5, node.getValue());
     }
 
     @Test
     void newTrieNodeHasNoChildren() {
-        String testValue = "E#4quarter";
-        TrieNode node = new TrieNode(testValue);
-        assertInstanceOf(List.class, node.getChildren(), "Should be a list");
-        assertEquals(0, node.getChildren().size(), "Should have no children");
+        TrieNode node = new TrieNode(5);
+        assertInstanceOf(TrieNode[].class, node.getChildren(), "Should be an array");
+        assertFalse(node.hasChildren(), "Should have no children");
     }
 
     @Test
     void canAddChildren() {
-        String testValue = "E#4quarter";
-        TrieNode node = new TrieNode(testValue);
-        int size = node.addChild("G#4quarter");
-        assertEquals(1, size, "Should have one child");
-        size = node.addChild("F#4quarter");
-        assertEquals(2, size, "Should have two children");
-        size = node.addChild("A#4quarter");
-        assertEquals(3, size, "Should have three children");
+        TrieNode node = new TrieNode(5);
+        node.addChild(1);
+        assertTrue(node.hasChildren());
+        node.addChild(2);
+        node.addChild(3);
+        long kids = Arrays.stream(node.getChildren()).filter(Objects::nonNull).count();
+        assertEquals(3, kids, "Should have three children");
     }
 
     @Test
     void doesNotAddDuplicates() {
-        String testValue = "E#4quarter";
-        String childValue = "G#4quarter";
+        int testValue = 5;
+        int childValue = 4;
         TrieNode node = new TrieNode(testValue);
-        int size = node.addChild(childValue);
-        assertEquals(1, size);
-        size = node.addChild(childValue);
-        assertEquals(1, size);
-        size = node.addChild(childValue);
-        assertEquals(1, size);
+        node.addChild(childValue);
+        node.addChild(childValue);
+        node.addChild(childValue);
+        long kids = Arrays.stream(node.getChildren()).filter(Objects::nonNull).count();
+        assertEquals(1, kids);
     }
 
     @Test
     void findsChildByValue() {
-        String testValue = "E#4quarter";
-        String[] children = { "G#4quarter", "F#4quarter", "A#4quarter" };
+        int testValue = 5;
+        int[] children = { 1, 2, 3 };
         TrieNode node = new TrieNode(testValue);
         for (int i = 0; i < children.length; i++) {
             node.addChild(children[i]);
@@ -80,20 +73,20 @@ class TrieNodeTest {
 
     @Test
     void doesNotFindNonExistingChild() {
-        String testValue = "E#4quarter";
-        String[] children = { "G#4quarter", "F#4quarter", "A#4quarter" };
+        int testValue = 5;
+        int[] children = { 1, 2, 3 };
         TrieNode node = new TrieNode(testValue);
         for (int i = 0; i < children.length; i++) {
             node.addChild(children[i]);
         }
         assertFalse(node.hasChild(testValue), "Should not find non-existing child");
-        assertFalse(node.hasChild("FooBar"), "Should not find non-existing child");
+        assertFalse(node.hasChild(35), "Should not find non-existing child");
     }
 
     @Test
     void returnsChildWhenFound() {
-        String testValue = "E#4quarter";
-        String[] children = { "G#4quarter", "F#4quarter", "A#4quarter" };
+        int testValue = 5;
+        int[] children = { 1, 2, 3 };
         TrieNode node = new TrieNode(testValue);
         for (int i = 0; i < children.length; i++) {
             node.addChild(children[i]);
@@ -105,8 +98,8 @@ class TrieNodeTest {
 
     @Test
     void returnsNullWhenChildNotFound() {
-        String testValue = "E#4quarter";
-        String[] children = { "G#4quarter", "F#4quarter", "A#4quarter" };
+        int testValue = 5;
+        int[] children = { 1, 2, 3 };
         TrieNode node = new TrieNode(testValue);
         for (int i = 0; i < children.length; i++) {
             node.addChild(children[i]);
@@ -116,13 +109,13 @@ class TrieNodeTest {
 
     @Test
     void returnsAllChildren() {
-        String testValue = "E#4quarter";
-        String[] children = { "G#4quarter", "F#4quarter", "A#4quarter" };
+        int testValue = 5;
+        int[] children = { 1, 2, 3 };
         TrieNode node = new TrieNode(testValue);
         for (int i = 0; i < children.length; i++) {
             node.addChild(children[i]);
         }
-        List<TrieNode> kids = node.getChildren();
+        List<TrieNode> kids = Arrays.stream(node.getChildren()).filter(Objects::nonNull).collect(Collectors.toList());
         assertEquals(3, kids.size());
         for (TrieNode trieNode : kids) {
             assertInstanceOf(TrieNode.class, trieNode);
@@ -131,15 +124,13 @@ class TrieNodeTest {
 
     @Test
     void hasCountProperty() {
-        String testValue = "E#4quarter";
-        TrieNode node = new TrieNode(testValue);
+        TrieNode node = new TrieNode(5);
         assertEquals(0, node.getCount());
     }
 
     @Test
     void canIncrementCount() {
-        String testValue = "E#4quarter";
-        TrieNode node = new TrieNode(testValue);
+        TrieNode node = new TrieNode(5);
         node.incrementCount();
         node.incrementCount();
         node.incrementCount();

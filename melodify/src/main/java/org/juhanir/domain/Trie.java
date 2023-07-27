@@ -1,16 +1,16 @@
 package org.juhanir.domain;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Objects;
+
+import org.juhanir.utils.Constants;
 
 public class Trie {
 
     private final TrieNode root;
 
     public Trie() {
-        this.root = new TrieNode("");
+        this.root = new TrieNode(Integer.MIN_VALUE);
     }
 
     /**
@@ -22,18 +22,16 @@ public class Trie {
      *
      * @param key sequence of note strings to save
      */
-    public void insert(String[] key) {
+    public void insert(int[] key) {
         TrieNode node = this.root;
         for (int i = 0; i < key.length; i++) {
-            String note = key[i];
+            int note = key[i];
             if (!node.hasChild(note)) {
                 node.addChild(key[i]);
-                node.setIsLast(false);
             }
             node = node.getChild(key[i]);
             node.incrementCount();
         }
-        node.setIsLast(true);
     }
 
     /**
@@ -43,16 +41,16 @@ public class Trie {
      * @param key sequence of note strings to search
      * @return TrieNode or null if sequence not found
      */
-    public TrieNode lookup(String[] key) {
+    public TrieNode lookup(int[] key) {
         TrieNode node = this.root;
         for (int i = 0; i < key.length; i++) {
-            String note = key[i];
+            int note = key[i];
             if (!node.hasChild(note)) {
                 return null;
             }
             node = node.getChild(key[i]);
         }
-        if (node.getIsLast()) {
+        if (!node.hasChildren()) {
             return node;
         }
         return null;
@@ -63,14 +61,14 @@ public class Trie {
      * nodes of the last node in the prefix.
      *
      * @param prefix sequence of note strings as prefix to the next note
-     * @return List of TrieNodes (can be empty)
+     * @return Array of TrieNodes (can be empty)
      */
-    public List<TrieNode> prefixSearch(String[] prefix) {
+    public TrieNode[] prefixSearch(int[] prefix) {
         TrieNode node = this.root;
         for (int i = 0; i < prefix.length; i++) {
-            String note = prefix[i];
+            int note = prefix[i];
             if (!node.hasChild(note)) {
-                return Collections.emptyList();
+                return new TrieNode[0];
             }
             node = node.getChild(prefix[i]);
         }
@@ -80,13 +78,18 @@ public class Trie {
     /**
      * Calculate the probabilities from a list of children.
      *
-     * @return Map where note value is key and probability is value.
+     * @return List of notevalue-probability pairs.
      */
-    public Map<String, Double> getProbabilities(List<TrieNode> children) {
-        int childCount = children.stream().map(TrieNode::getCount).reduce(0, Integer::sum);
-        Map<String, Double> probabilities = new HashMap<>(childCount);
-        for (TrieNode child : children) {
-            probabilities.put(child.getValue(), (double) child.getCount() / childCount);
+    public double[] getProbabilities(TrieNode[] children) {
+        int childCount = Arrays.stream(children)
+                .filter(Objects::nonNull)
+                .map(TrieNode::getCount)
+                .reduce(0, Integer::sum);
+        double[] probabilities = new double[Constants.NOTE_ARRAY_SIZE];
+        for (int j = 0; j < children.length; j++) {
+            if (children[j] != null) {
+                probabilities[j] = (double) children[j].getCount() / childCount;
+            }
         }
         return probabilities;
     }
@@ -102,10 +105,13 @@ public class Trie {
 
     private int countNodes(TrieNode node) {
         int c = 1;
-        if (node.getChildren().isEmpty())
+        if (!node.hasChildren())
             return c;
-        for (TrieNode child : node.getChildren())
-            c += this.countNodes(child);
+        for (TrieNode child : node.getChildren()) {
+            if (child != null) {
+                c += this.countNodes(child);
+            }
+        }
         return c;
     }
 

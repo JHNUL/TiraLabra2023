@@ -78,7 +78,7 @@ public class ScoreParserTest {
             int lowest = parser.convertNoteToInt("C", 3, 0);
             int highest = parser.convertNoteToInt("B", 5, 0);
             assertEquals(0, lowest);
-            assertEquals(35, highest);
+            assertEquals(Constants.NOTE_ARRAY_SIZE - 1, highest);
         }
 
     }
