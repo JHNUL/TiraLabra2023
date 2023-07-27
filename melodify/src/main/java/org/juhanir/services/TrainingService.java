@@ -33,9 +33,8 @@ public class TrainingService {
 
         for (final String filePath : filePaths) {
             try (InputStream is = this.fileIo.readFile(filePath)) {
-                List<String> melodies = this.scoreParser.parse(is);
-                String msg = melodies.toString();
-                trainingLogger.info(msg);
+                List<Integer> melodies = this.scoreParser.parse(is);
+                trainingLogger.info(melodies.toString());
                 // TODO: populate Trie with the melody n-tuples based on degree of Markov Chain
                 // we're using
             } catch (Exception e) {
