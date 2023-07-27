@@ -2,6 +2,7 @@ package org.juhanir.ui;
 
 import java.util.List;
 
+import org.juhanir.domain.Trie;
 import org.juhanir.services.TrainingService;
 import org.juhanir.utils.FileIO;
 import org.juhanir.utils.ScoreParser;
@@ -21,8 +22,8 @@ public class Gui extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Trie trie = new Trie()
-        TrainingService trainingService = new TrainingService(new FileIO(), new ScoreParser());
+        Trie trie = new Trie();
+        TrainingService trainingService = new TrainingService(new FileIO(), new ScoreParser(), trie);
         Label label = new Label("Melodify");
         TextField textField = new TextField();
         Button button = new Button("Parse file");
