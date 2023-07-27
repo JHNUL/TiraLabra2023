@@ -1,24 +1,25 @@
 package org.juhanir.domain;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Objects;
+
+import org.juhanir.utils.Constants;
 
 public class TrieNode {
-    private Map<String, TrieNode> children;
-    private final String value;
-    private boolean isLast;
+    private TrieNode[] children;
+    private int value;
     private int count;
 
-    public TrieNode(String value) {
+    public TrieNode(int value) {
         this.value = value;
-        this.children = new HashMap<>();
-        this.isLast = false;
+        this.children = new TrieNode[Constants.NOTE_ARRAY_SIZE];
+        for (int i = 0; i < Constants.NOTE_ARRAY_SIZE; i++) {
+            this.children[i] = null;
+        }
         this.count = 0;
     }
 
-    public String getValue() {
+    public int getValue() {
         return this.value;
     }
 
@@ -30,28 +31,23 @@ public class TrieNode {
         this.count++;
     }
 
-    public void setIsLast(boolean isLast) {
-        this.isLast = isLast;
+    public boolean hasChild(int value) {
+        return this.children[value] != null;
     }
 
-    public boolean getIsLast() {
-        return this.isLast;
+    public boolean hasChildren() {
+        return Arrays.stream(this.children).filter(Objects::nonNull).count() > 0;
     }
 
-    public boolean hasChild(String value) {
-        return this.children.containsKey(value);
+    public TrieNode getChild(int value) {
+        return this.children[value];
     }
 
-    public TrieNode getChild(String value) {
-        return this.children.getOrDefault(value, null);
+    public void addChild(int value) {
+        this.children[value] = new TrieNode(value);
     }
 
-    public int addChild(String value) {
-        this.children.put(value, new TrieNode(value));
-        return this.children.size();
-    }
-
-    public List<TrieNode> getChildren() {
-        return this.children.values().stream().collect(Collectors.toList());
+    public TrieNode[] getChildren() {
+        return this.children;
     }
 }

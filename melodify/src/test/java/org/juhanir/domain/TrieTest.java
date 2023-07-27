@@ -5,22 +5,22 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Objects;
 
+import org.juhanir.utils.Constants;
 import org.junit.jupiter.api.Test;
 
 class TrieTest {
 
-    private final String[] oneChild = { "E#4quarter" };
-    private final String[] twoChildren = { "E#4quarter", "F#4quarter" };
-    private final String[] threeChildren = { "E#4quarter", "F#4quarter", "A#4quarter" };
-    private final String[] firstBranch = { "A", "B", "C" };
-    private final String[] secondBranch = { "A", "B", "D" };
-    private final String[] thirdBranch = { "A", "B", "E" };
-    private final String[] fourthBranch = { "A", "B", "F" };
-    private final String[] fifthBranch = { "A", "C", "F#" };
+    private final int[] oneChild = { 1 };
+    private final int[] twoChildren = { 1, 2 };
+    private final int[] threeChildren = { 1, 2, 3 };
+    private final int[] firstBranch = { 5, 6, 7 };
+    private final int[] secondBranch = { 5, 6, 8 };
+    private final int[] thirdBranch = { 5, 6, 9 };
+    private final int[] fourthBranch = { 5, 6, 10 };
+    private final int[] fifthBranch = { 5, 7, 11 };
 
     @Test
     void canInstantiate() {
@@ -77,62 +77,55 @@ class TrieTest {
     void lookupWithInValidKey() {
         Trie trie = new Trie();
         trie.insert(threeChildren);
-        TrieNode last = trie.lookup(twoChildren);
-        assertNull(last);
-        last = trie.lookup(oneChild);
-        assertNull(last);
-        last = trie.lookup(new String[] { "FOOBAR" });
-        assertNull(last);
+        assertNull(trie.lookup(new int[] { 35 }));
     }
 
     @Test
     void prefixSearchReturnsEmptyListWhenNotFound() {
         Trie trie = new Trie();
         trie.insert(threeChildren);
-        List<TrieNode> result = trie.prefixSearch(new String[] { "yi", "er", "san", "si" });
-        assertInstanceOf(List.class, result);
-        assertEquals(0, result.size());
-    }
-
-    @Test
-    void prefixSearchReturnsEmptyListWhenPrefixEqualsKey() {
-        Trie trie = new Trie();
-        trie.insert(threeChildren);
-        List<TrieNode> result = trie.prefixSearch(threeChildren);
-        assertInstanceOf(List.class, result);
-        assertEquals(0, result.size());
+        TrieNode[] result = trie.prefixSearch(new int[] { 7, 6, 5, 4 });
+        assertEquals(0, result.length);
     }
 
     @Test
     void emptyPrefixSearchReturnsChildrenOfRoot() {
         Trie trie = new Trie();
-        trie.insert(new String[] { "A", "B" });
-        trie.insert(new String[] { "B", "B" });
-        trie.insert(new String[] { "C", "B" });
-        List<TrieNode> result = trie.prefixSearch(new String[] {});
-        assertInstanceOf(List.class, result);
-        assertEquals(3, result.size());
-        assertEquals("A", result.get(0).getValue());
-        assertEquals("B", result.get(1).getValue());
-        assertEquals("C", result.get(2).getValue());
+        trie.insert(new int[] { 1, 2 });
+        trie.insert(new int[] { 2, 2 });
+        trie.insert(new int[] { 3, 2 });
+        TrieNode[] result = trie.prefixSearch(new int[] {});
+        assertEquals(Constants.NOTE_ARRAY_SIZE, result.length);
+        for (int i = 0; i < result.length; i++) {
+            if (i == 1) {
+                assertEquals(1, result[i].getValue());
+                assertEquals(1, result[i].getCount());
+            } else if (i == 2) {
+                assertEquals(2, result[i].getValue());
+                assertEquals(1, result[i].getCount());
+            } else if (i == 3) {
+                assertEquals(3, result[i].getValue());
+                assertEquals(1, result[i].getCount());
+            } else {
+                assertNull(result[i]);
+            }
+        }
     }
 
     @Test
     void prefixSearchReturnsImmediateChildrenWithOneNotePrefix() {
         Trie trie = new Trie();
         trie.insert(threeChildren);
-        List<TrieNode> result = trie.prefixSearch(new String[] { threeChildren[0] });
-        assertEquals(1, result.size());
-        assertEquals(result.get(0).getValue(), threeChildren[1]);
+        TrieNode[] result = trie.prefixSearch(new int[] { threeChildren[0] });
+        assertEquals(threeChildren[1], result[threeChildren[1]].getValue());
     }
 
     @Test
     void prefixSearchReturnsImmediateChildrenWithTwoNotePrefix() {
         Trie trie = new Trie();
         trie.insert(threeChildren);
-        List<TrieNode> result = trie.prefixSearch(new String[] { threeChildren[0], threeChildren[1] });
-        assertEquals(1, result.size());
-        assertEquals(result.get(0).getValue(), threeChildren[2]);
+        TrieNode[] result = trie.prefixSearch(new int[] { threeChildren[0], threeChildren[1] });
+        assertEquals(threeChildren[2], result[threeChildren[2]].getValue());
     }
 
     @Test
@@ -143,12 +136,13 @@ class TrieTest {
         trie.insert(thirdBranch);
         trie.insert(fourthBranch);
         trie.insert(fifthBranch);
-        List<TrieNode> result = trie.prefixSearch(new String[] { "A", "B" });
-        assertEquals(4, result.size());
-        assertEquals("C", result.get(0).getValue());
-        assertEquals("D", result.get(1).getValue());
-        assertEquals("E", result.get(2).getValue());
-        assertEquals("F", result.get(3).getValue());
+        TrieNode[] result = trie.prefixSearch(new int[] { 5, 6 });
+        long kids = Arrays.stream(result).filter(Objects::nonNull).count();
+        assertEquals(4, kids);
+        assertEquals(7, result[7].getValue());
+        assertEquals(8, result[8].getValue());
+        assertEquals(9, result[9].getValue());
+        assertEquals(10, result[10].getValue());
     }
 
     @Test
@@ -159,10 +153,11 @@ class TrieTest {
         trie.insert(thirdBranch);
         trie.insert(fourthBranch);
         trie.insert(fifthBranch);
-        List<TrieNode> result = trie.prefixSearch(new String[] { "A" });
-        assertEquals(2, result.size());
-        assertEquals("B", result.get(0).getValue());
-        assertEquals("C", result.get(1).getValue());
+        TrieNode[] result = trie.prefixSearch(new int[] { 5 });
+        long kids = Arrays.stream(result).filter(Objects::nonNull).count();
+        assertEquals(2, kids);
+        assertEquals(6, result[6].getValue());
+        assertEquals(7, result[7].getValue());
     }
 
     @Test
@@ -173,16 +168,13 @@ class TrieTest {
         trie.insert(thirdBranch);
         trie.insert(fourthBranch);
         trie.insert(fifthBranch);
-        List<TrieNode> result = trie.prefixSearch(new String[] { "A" });
-        assertEquals(2, result.size());
-        assertEquals("B", result.get(0).getValue());
-        assertEquals("C", result.get(1).getValue());
-        assertEquals(4, result.get(0).getCount());
-        assertEquals(1, result.get(1).getCount());
-        result = trie.prefixSearch(new String[] { "A", "C" });
-        assertEquals(1, result.size());
-        assertEquals("F#", result.get(0).getValue());
-        assertEquals(1, result.get(0).getCount());
+        TrieNode[] result = trie.prefixSearch(new int[] { 5 });
+        assertEquals(4, result[6].getCount());
+        assertEquals(1, result[7].getCount());
+        result = trie.prefixSearch(new int[] { 5, 7 });
+        long kids = Arrays.stream(result).filter(Objects::nonNull).count();
+        assertEquals(1, kids);
+        assertEquals(1, result[11].getCount());
     }
 
     @Test
@@ -197,20 +189,13 @@ class TrieTest {
     }
 
     @Test
-    void getProbabilitiesWithEmptyList() {
-        Trie trie = new Trie();
-        Map<String, Double> probs = trie.getProbabilities(Collections.emptyList());
-        assertEquals(0, probs.size());
-    }
-
-    @Test
     void resolvesProbabilitiesCorrectlyWithOneChild() {
         Trie trie = new Trie();
         trie.insert(oneChild);
-        List<TrieNode> children = trie.prefixSearch(new String[] {});
-        Map<String, Double> probs = trie.getProbabilities(children);
-        assertEquals(1, probs.size());
-        assertEquals(1.0, probs.get(oneChild[0]));
+        TrieNode[] children = trie.prefixSearch(new int[] {});
+        double[] probs = trie.getProbabilities(children);
+        assertEquals(Constants.NOTE_ARRAY_SIZE, probs.length);
+        assertEquals(1.0, probs[1]);
     }
 
     @Test
@@ -221,10 +206,9 @@ class TrieTest {
         trie.insert(thirdBranch);
         trie.insert(fourthBranch);
         trie.insert(fifthBranch);
-        List<TrieNode> children = trie.prefixSearch(new String[] { "A" });
-        Map<String, Double> probs = trie.getProbabilities(children);
-        assertEquals(2, probs.size());
-        assertEquals(0.8, probs.get("B"));
-        assertEquals(0.2, probs.get("C"));
+        TrieNode[] children = trie.prefixSearch(new int[] { 5 });
+        double[] probs = trie.getProbabilities(children);
+        assertEquals(0.8, probs[6]);
+        assertEquals(0.2, probs[7]);
     }
 }
