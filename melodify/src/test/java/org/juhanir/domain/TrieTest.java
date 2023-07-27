@@ -180,10 +180,15 @@ class TrieTest {
     @Test
     void treeHasCorrectSize() {
         Trie trie = new Trie();
+        assertEquals(1, trie.size());
         trie.insert(firstBranch);
+        assertEquals(4, trie.size());
         trie.insert(secondBranch);
+        assertEquals(5, trie.size());
         trie.insert(thirdBranch);
+        assertEquals(6, trie.size());
         trie.insert(fourthBranch);
+        assertEquals(7, trie.size());
         trie.insert(fifthBranch);
         assertEquals(9, trie.size());
     }
