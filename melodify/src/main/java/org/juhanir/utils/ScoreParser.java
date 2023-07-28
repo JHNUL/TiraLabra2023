@@ -2,12 +2,15 @@ package org.juhanir.utils;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import org.audiveris.proxymusic.Attributes;
+import org.audiveris.proxymusic.Key;
 import org.audiveris.proxymusic.Note;
 import org.audiveris.proxymusic.Pitch;
 import org.audiveris.proxymusic.ScorePartwise;
@@ -52,6 +55,13 @@ public class ScoreParser {
                 // TODO: If two staves in measure, only get 1st?
                 List<Object> things = measure.getNoteOrBackupOrForward();
                 for (final Object thing : things) {
+                    if (thing instanceof Attributes) {
+                        Attributes attrs = (Attributes) thing;
+                        List<Key> keys = attrs.getKey();
+                        for (Key key : keys) {
+                            BigInteger fifths = key.getFifths();
+                        }
+                    }
                     if (thing instanceof Note) {
                         Note noteThing = (Note) thing;
                         String voice = noteThing.getVoice();
