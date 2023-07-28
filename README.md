@@ -16,3 +16,4 @@ The application will read MusicXML files as training data to populate a stochast
 Select the tag "weekN" to review the repository in the intended state for the week N submission.
 
 [Week 1](/docs/weeklies/week1.md)
+[Week 2](/docs/weeklies/week2.md)

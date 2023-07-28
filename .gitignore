@@ -1,3 +1,5 @@
 **/target
 **/*.local
 .vscode
+data/musicxml/*.xml
+data/musicxml/*.musicxml
