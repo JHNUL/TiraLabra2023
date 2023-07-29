@@ -4,7 +4,9 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -47,21 +49,52 @@ public class ScoreParser {
         return (octave - Constants.OCTAVE_LOWER_BOUND) * 12 + noteNamesToInt.indexOf(step) + alter;
     }
 
+    public Map<String, List<String>> collectFilesPerKey(FileIO reader, List<String> files) {
+        Map<String, List<String>> filesPerKey = new HashMap<>();
+        for (String filePath : files) {
+            try (InputStream is = reader.readFile(filePath)) {
+                String tuneKey = this.getKeyForTune(is);
+                if (!filesPerKey.containsKey(tuneKey)) {
+                    filesPerKey.put(tuneKey, new ArrayList<>());
+                }
+                filesPerKey.get(tuneKey).add(filePath);
+            } catch (Exception e) {
+                parserLogger.severe("Failed to collect from " + filePath);
+                parserLogger.severe(e.toString());
+            }
+        }
+        return filesPerKey;
+    }
+
+    public String getKeyForTune(InputStream source) throws UnmarshallingException {
+        ScorePartwise scorePartwise = (ScorePartwise) Marshalling.unmarshal(source);
+        ArrayList<String> musicalKeys = new ArrayList<>();
+        for (final Part part : scorePartwise.getPart()) {
+            for (final Measure measure : part.getMeasure()) {
+                List<Attributes> attributes = measure.getNoteOrBackupOrForward().stream()
+                        .filter(Attributes.class::isInstance)
+                        .map(c -> (Attributes) c).collect(Collectors.toList());
+                this.resolveKey(attributes, musicalKeys);
+            }
+        }
+        if (musicalKeys.size() > 1) {
+            parserLogger.info(String.format("Found %s musical keys: %s", musicalKeys.size(), musicalKeys.toString()));
+            throw new IllegalArgumentException("Only one key is supported");
+        }
+        return musicalKeys.get(0);
+    }
+
     public List<Integer> parse(InputStream source) throws UnmarshallingException {
         ScorePartwise scorePartwise = (ScorePartwise) Marshalling.unmarshal(source);
         List<Part> parts = scorePartwise.getPart();
         ArrayList<Integer> melodySequence = new ArrayList<>();
-        ArrayList<String> musicalKeys = new ArrayList<>();
         for (final Part part : parts) {
             List<Measure> measures = part.getMeasure();
             for (final Measure measure : measures) {
                 // TODO: If two staves in measure, only get 1st?
                 List<Object> measureContents = measure.getNoteOrBackupOrForward();
-                List<Attributes> attributes = measureContents.stream().filter(Attributes.class::isInstance)
-                        .map(c -> (Attributes) c).collect(Collectors.toList());
                 List<Note> notes = measureContents.stream().filter(Note.class::isInstance).map(c -> (Note) c)
                         .collect(Collectors.toList());
-                this.resolveKey(attributes, musicalKeys);
                 for (final Note note : notes) {
                     Pitch pitch = note.getPitch();
                     String voice = note.getVoice();
@@ -75,10 +108,6 @@ public class ScoreParser {
                     melodySequence.add(finalNote);
                 }
             }
-        }
-        if (musicalKeys.size() > 1) {
-            parserLogger.info(String.format("Found %s musical keys: %s", musicalKeys.size(), musicalKeys.toString()));
-            throw new IllegalArgumentException("Only one key is supported");
         }
         return melodySequence;
     }
