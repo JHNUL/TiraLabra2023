@@ -78,7 +78,7 @@ public class Trie {
     /**
      * Calculate the probabilities from a list of children.
      *
-     * @return List of notevalue-probability pairs.
+     * @return Array of probabilities
      */
     public double[] getProbabilities(TrieNode[] children) {
         int childCount = Arrays.stream(children)
@@ -95,9 +95,9 @@ public class Trie {
     }
 
     /**
-     * Get the size of the whole tree
+     * Get the size of the whole trie
      *
-     * @return int size
+     * @return trie size
      */
     public int size() {
         return this.countNodes(this.root);

@@ -2,12 +2,12 @@ package org.juhanir.utils;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.audiveris.proxymusic.Attributes;
 import org.audiveris.proxymusic.Key;
@@ -25,6 +25,8 @@ public class ScoreParser {
     private static Logger parserLogger = Logger.getLogger(ScoreParser.class.getName());
     private static List<String> noteNamesToInt = Arrays.asList("C", null, "D", null, "E", "F", null, "G", null, "A",
             null, "B");
+    private static String[] cicleOfFifths = new String[] { "F#", "C#", "Ab", "Eb", "Bb", "F", "C", "G", "D", "A",
+            "E", "B", "F#" };
 
     public int convertNoteToInt(String step, int octave, int alter) {
         if (step == null || !noteNamesToInt.contains(step)) {
@@ -39,46 +41,64 @@ public class ScoreParser {
         if (step.equals("B") && alter > 0) {
             throw new IllegalArgumentException("Sharp B not implemented");
         }
-        if (octave < 3 || octave > 5) {
-            throw new IllegalArgumentException("Only octaves 3-5 implemented");
+        if (octave < Constants.OCTAVE_LOWER_BOUND || octave > Constants.OCTAVE_UPPER_BOUND) {
+            throw new IllegalArgumentException(String.format("Not supported octave value %s", octave));
         }
-        return (octave - 3) * 12 + noteNamesToInt.indexOf(step) + alter;
+        return (octave - Constants.OCTAVE_LOWER_BOUND) * 12 + noteNamesToInt.indexOf(step) + alter;
     }
 
     public List<Integer> parse(InputStream source) throws UnmarshallingException {
         ScorePartwise scorePartwise = (ScorePartwise) Marshalling.unmarshal(source);
         List<Part> parts = scorePartwise.getPart();
         ArrayList<Integer> melodySequence = new ArrayList<>();
+        ArrayList<String> musicalKeys = new ArrayList<>();
         for (final Part part : parts) {
             List<Measure> measures = part.getMeasure();
             for (final Measure measure : measures) {
                 // TODO: If two staves in measure, only get 1st?
-                List<Object> things = measure.getNoteOrBackupOrForward();
-                for (final Object thing : things) {
-                    if (thing instanceof Attributes) {
-                        Attributes attrs = (Attributes) thing;
-                        List<Key> keys = attrs.getKey();
-                        for (Key key : keys) {
-                            BigInteger fifths = key.getFifths();
-                        }
+                List<Object> measureContents = measure.getNoteOrBackupOrForward();
+                List<Attributes> attributes = measureContents.stream().filter(Attributes.class::isInstance)
+                        .map(c -> (Attributes) c).collect(Collectors.toList());
+                List<Note> notes = measureContents.stream().filter(Note.class::isInstance).map(c -> (Note) c)
+                        .collect(Collectors.toList());
+                this.resolveKey(attributes, musicalKeys);
+                for (final Note note : notes) {
+                    Pitch pitch = note.getPitch();
+                    String voice = note.getVoice();
+                    // Use voice = 1 check to avoid having to deal with backups for now
+                    if (pitch == null || !voice.equals("1")) {
+                        continue;
                     }
-                    if (thing instanceof Note) {
-                        Note noteThing = (Note) thing;
-                        String voice = noteThing.getVoice();
-                        // Use voice = 1 check to avoid having to deal with backups for now
-                        if (!voice.equals("1"))
-                            continue;
-                        Pitch pitch = noteThing.getPitch();
-                        BigDecimal alter = Optional.ofNullable(pitch.getAlter()).orElse(BigDecimal.valueOf(0.0));
-                        Step step = pitch.getStep();
-                        int note = this.convertNoteToInt(step.value(), pitch.getOctave(), alter.intValueExact());
-                        melodySequence.add(note);
-                        parserLogger.info(String.format("Added note %s", note));
-                    }
+                    BigDecimal alter = Optional.ofNullable(pitch.getAlter()).orElse(BigDecimal.valueOf(0.0));
+                    Step step = pitch.getStep();
+                    int finalNote = this.convertNoteToInt(step.value(), pitch.getOctave(), alter.intValueExact());
+                    melodySequence.add(finalNote);
                 }
             }
         }
+        if (musicalKeys.size() > 1) {
+            parserLogger.info(String.format("Found %s musical keys: %s", musicalKeys.size(), musicalKeys.toString()));
+            throw new IllegalArgumentException("Only one key is supported");
+        }
         return melodySequence;
+    }
+
+    private void resolveKey(List<Attributes> attrs, List<String> musicalKeys) {
+        for (Attributes attributes : attrs) {
+            List<Key> keys = attributes.getKey();
+            for (Key key : keys) {
+                int fifths = key.getFifths().intValue();
+                if (fifths < (-1) * Constants.FIFTHS_SUPPORTED_RANGE || fifths > Constants.FIFTHS_SUPPORTED_RANGE) {
+                    throw new IllegalArgumentException(String.format("Non-supported fifths value %s", fifths));
+                }
+                fifths += Constants.FIFTHS_SUPPORTED_RANGE; // normalize
+                String mKey = cicleOfFifths[fifths];
+                parserLogger.info(String.format("Resolved musical key %s", mKey));
+                if (!musicalKeys.contains(mKey)) {
+                    musicalKeys.add(mKey);
+                }
+            }
+        }
     }
 
 }
