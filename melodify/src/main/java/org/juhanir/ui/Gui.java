@@ -15,9 +15,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-/**
- * JavaFX App
- */
 public class Gui extends Application {
 
     @Override
@@ -26,9 +23,16 @@ public class Gui extends Application {
         TrainingService trainingService = new TrainingService(new FileIO(), new ScoreParser(), trie);
         Label label = new Label("Melodify");
         TextField textField = new TextField();
+        textField.setText("/home/juhanir/Documents/TiraLabra2023/data/musicxml/alphabet-song.xml");
+        TextField degreeField = new TextField();
+        degreeField.setText("2");
         Button button = new Button("Parse file");
-        button.setOnAction(event -> trainingService.trainWith(List.of(textField.getText().strip())));
-        Scene scene = new Scene(new VBox(label, button, textField), 640, 480);
+        button.setOnAction(event -> {
+            trainingService.clear();
+            trainingService.trainWith(List.of(textField.getText().strip()),
+                    Integer.parseInt(degreeField.getText()));
+        });
+        Scene scene = new Scene(new VBox(label, button, textField, degreeField), 640, 480);
         stage.setScene(scene);
         stage.show();
     }
