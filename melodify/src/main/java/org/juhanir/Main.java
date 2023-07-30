@@ -2,10 +2,26 @@ package org.juhanir;
 
 import org.juhanir.ui.Gui;
 
-public class Main {
-    public static void main(String[] args) {
-        Gui gui = new Gui();
-        gui.run();
-    }
+/**
+ * Main class to start the application.
+ */
+final class Main {
+
+  /**
+   * Private constructor.
+   */
+  private Main() {
+
+  }
+
+  /**
+   * Main method that starts the application.
+   *
+   * @param args arguments to the main method
+   */
+  public static void main(final String[] args) {
+    Gui gui = new Gui();
+    gui.run();
+  }
 
 }
