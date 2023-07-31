@@ -32,10 +32,10 @@ Other commands:
 # Run unit tests
 mvn test -f melodify/pom.xml
 
-# Create mutation test report (found in target/pit-reports)
+# Create mutation test report (found in melodify/target/pit-reports)
 mvn test-compile pitest:mutationCoverage -f melodify/pom.xml
 
-# Create site for the project (e.g. checkstyle report found in melodify/target/site folder)
+# Create site for the project (e.g. checkstyle report found in melodify/target/site)
 mvn site -f melodify/pom.xml
 ```
 

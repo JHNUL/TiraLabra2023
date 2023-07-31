@@ -1,14 +1,15 @@
 package org.juhanir.services;
 
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 import org.juhanir.domain.Trie;
-import org.juhanir.utils.Constants;
 import org.juhanir.utils.FileIO;
 import org.juhanir.utils.ScoreParser;
 
+/**
+ * Contains methods to train the model.
+ */
 public class TrainingService {
 
   private static Logger trainingLogger =
@@ -18,6 +19,13 @@ public class TrainingService {
   private final ScoreParser scoreParser;
   private Trie trie;
 
+  /**
+   * Constructor.
+   *
+   * @param fileIo file utility
+   * @param scoreParser score parser
+   * @param trie the data structure for the model
+   */
   public TrainingService(FileIO fileIo, ScoreParser scoreParser, Trie trie) {
     this.fileIo = fileIo;
     this.scoreParser = scoreParser;
@@ -32,11 +40,6 @@ public class TrainingService {
    */
   public void trainWith(List<String> filePaths, int degree) {
 
-    trainingLogger
-        .info(String.format("Training with files %s", filePaths.toString()));
-    trainingLogger
-        .info(String.format("Note array size %s", Constants.NOTE_ARRAY_SIZE));
-
     for (final String filePath : filePaths) {
       try (InputStream is = this.fileIo.readFile(filePath)) {
         List<Integer> melodies = this.scoreParser.parse(is);
@@ -46,8 +49,6 @@ public class TrainingService {
           int[] trainingTuple = melodies.subList(i, i + degree + 1).stream()
               .mapToInt(Integer::intValue).toArray();
           this.trie.insert(trainingTuple);
-          trainingLogger.info(
-              String.format("Inserted %s", Arrays.toString(trainingTuple)));
         }
       } catch (Exception e) {
         trainingLogger.severe("Failed to parse file " + filePath);

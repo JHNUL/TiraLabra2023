@@ -21,14 +21,19 @@ import org.audiveris.proxymusic.Step;
 import org.audiveris.proxymusic.util.Marshalling;
 import org.audiveris.proxymusic.util.Marshalling.UnmarshallingException;
 
+/**
+ * Contains logic for parsing MusicXML files
+ */
 public class ScoreParser {
 
   private static Logger parserLogger =
       Logger.getLogger(ScoreParser.class.getName());
   private static List<String> noteNamesToInt = Arrays.asList("C", null, "D",
       null, "E", "F", null, "G", null, "A", null, "B");
-  private static String[] cicleOfFifths = new String[] {"F#", "C#", "Ab", "Eb",
-      "Bb", "F", "C", "G", "D", "A", "E", "B", "F#"};
+  private static String[] cicleOfFifthsMajor = new String[] { "Gb", "Db", "Ab",
+      "Eb", "Bb", "F", "C", "G", "D", "A", "E", "B", "F#" };
+  private static String[] cicleOfFifthsMinor = new String[] { "Ebm", "Dbm",
+      "Fm", "Cm", "Gm", "Dm", "Am", "Em", "Bm", "F#m", "C#m", "G#m", "D#m" };
 
   public int convertNoteToInt(String step, int octave, int alter) {
     if (step == null || !noteNamesToInt.contains(step)) {
@@ -128,13 +133,19 @@ public class ScoreParser {
       List<Key> keys = attributes.getKey();
       for (Key key : keys) {
         int fifths = key.getFifths().intValue();
+        String mode = Optional.ofNullable(key.getMode()).orElse("major");
         if (fifths < (-1) * Constants.FIFTHS_SUPPORTED_RANGE
             || fifths > Constants.FIFTHS_SUPPORTED_RANGE) {
           throw new IllegalArgumentException(
               String.format("Non-supported fifths value %s", fifths));
         }
+        if (!List.of("major", "minor").contains(mode)) {
+          throw new IllegalArgumentException(
+              String.format("Non-supported mode value %s", mode));
+        }
         fifths += Constants.FIFTHS_SUPPORTED_RANGE; // normalize
-        String musicKey = cicleOfFifths[fifths];
+        String musicKey = (mode.equals("major")) ? cicleOfFifthsMajor[fifths]
+            : cicleOfFifthsMinor[fifths];
         if (!musicalKeys.contains(musicKey)) {
           musicalKeys.add(musicKey);
         }
