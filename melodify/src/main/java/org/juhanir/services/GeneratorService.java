@@ -5,6 +5,9 @@ import java.util.Random;
 import org.juhanir.domain.Trie;
 import org.juhanir.domain.TrieNode;
 
+/**
+ * Contains methods to generate a melody sequence.
+ */
 public class GeneratorService {
 
   private final Trie trie;
@@ -54,8 +57,7 @@ public class GeneratorService {
     TrieNode[] children = this.trie.prefixSearch(prefix);
     double[] probabilities = this.trie.getProbabilities(children);
     double sum = Arrays.stream(probabilities).sum();
-    if (sum == 0.0) { // valid case, since leaf node has a child array with all
-                      // zeroes
+    if (sum == 0.0) { // valid case, since leaves have a child array with zeroes
       return -1;
     } else if (sum != 1.0) {
       throw new IllegalArgumentException("Probabilities must sum up to one");
