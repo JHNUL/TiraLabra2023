@@ -1,6 +1,7 @@
 package org.juhanir.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.juhanir.domain.Trie;
+import org.juhanir.utils.Constants;
 import org.juhanir.utils.FileIO;
 import org.juhanir.utils.ScoreParser;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +32,11 @@ public class TrainingServiceTest {
       fail("Test data file not found " + path);
     }
     this.trainingDataPaths.add(testDataPath);
-
+    this.wholeMelody = Arrays.stream(this.wholeMelody).map(note -> {
+      // Normalize melody to correct octave representation.
+      // All notes in test data song are in octave 4
+      return note + (4 - Constants.OCTAVE_LOWER_BOUND) * 12;
+    }).toArray();
   }
 
   @Test
@@ -66,8 +72,9 @@ public class TrainingServiceTest {
     TrainingService service =
         new TrainingService(new FileIO(), new ScoreParser(), trie);
     service.trainWith(this.trainingDataPaths, 1);
-    for (int i = 0; i < wholeMelody.length - 1; i++) {
-      trie.lookup(Arrays.copyOfRange(wholeMelody, i, i + 2));
+    for (int i = 0; i < this.wholeMelody.length - 1; i++) {
+      assertNotNull(
+          trie.lookup(Arrays.copyOfRange(this.wholeMelody, i, i + 2)));
     }
   }
 
@@ -77,8 +84,9 @@ public class TrainingServiceTest {
     TrainingService service =
         new TrainingService(new FileIO(), new ScoreParser(), trie);
     service.trainWith(this.trainingDataPaths, 2);
-    for (int i = 0; i < wholeMelody.length - 2; i++) {
-      trie.lookup(Arrays.copyOfRange(wholeMelody, i, i + 3));
+    for (int i = 0; i < this.wholeMelody.length - 2; i++) {
+      assertNotNull(
+          trie.lookup(Arrays.copyOfRange(this.wholeMelody, i, i + 3)));
     }
   }
 
@@ -88,8 +96,9 @@ public class TrainingServiceTest {
     TrainingService service =
         new TrainingService(new FileIO(), new ScoreParser(), trie);
     service.trainWith(this.trainingDataPaths, 3);
-    for (int i = 0; i < wholeMelody.length - 3; i++) {
-      trie.lookup(Arrays.copyOfRange(wholeMelody, i, i + 4));
+    for (int i = 0; i < this.wholeMelody.length - 3; i++) {
+      assertNotNull(
+          trie.lookup(Arrays.copyOfRange(this.wholeMelody, i, i + 4)));
     }
   }
 
@@ -99,8 +108,9 @@ public class TrainingServiceTest {
     TrainingService service =
         new TrainingService(new FileIO(), new ScoreParser(), trie);
     service.trainWith(this.trainingDataPaths, 4);
-    for (int i = 0; i < wholeMelody.length - 4; i++) {
-      trie.lookup(Arrays.copyOfRange(wholeMelody, i, i + 5));
+    for (int i = 0; i < this.wholeMelody.length - 4; i++) {
+      assertNotNull(
+          trie.lookup(Arrays.copyOfRange(this.wholeMelody, i, i + 5)));
     }
   }
 }

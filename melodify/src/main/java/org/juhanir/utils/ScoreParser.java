@@ -22,7 +22,7 @@ import org.audiveris.proxymusic.util.Marshalling;
 import org.audiveris.proxymusic.util.Marshalling.UnmarshallingException;
 
 /**
- * Contains logic for parsing MusicXML files
+ * Contains logic for parsing MusicXML files.
  */
 public class ScoreParser {
 
