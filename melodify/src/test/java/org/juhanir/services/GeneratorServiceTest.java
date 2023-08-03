@@ -3,14 +3,21 @@ package org.juhanir.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import org.juhanir.domain.Trie;
+import org.juhanir.utils.Constants;
+import org.juhanir.utils.FileIO;
+import org.juhanir.utils.ScoreParser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -22,11 +29,11 @@ public class GeneratorServiceTest {
 
   @BeforeEach
   void setUp() {
-    final int[] firstBranch = {5, 6, 7};
-    final int[] secondBranch = {5, 6, 8};
-    final int[] thirdBranch = {5, 6, 9};
-    final int[] fourthBranch = {5, 6, 10};
-    final int[] fifthBranch = {5, 7, 11};
+    final int[] firstBranch = { 5, 6, 7 };
+    final int[] secondBranch = { 5, 6, 8 };
+    final int[] thirdBranch = { 5, 6, 9 };
+    final int[] fourthBranch = { 5, 6, 10 };
+    final int[] fifthBranch = { 5, 7, 11 };
     this.trie = new Trie();
     this.trie.insert(firstBranch);
     this.trie.insert(secondBranch);
@@ -39,17 +46,20 @@ public class GeneratorServiceTest {
   void predictionThrowsWhenProbabilitySumNotEqualToOne() {
     Trie mockTrie = mock(Trie.class);
     GeneratorService generator = new GeneratorService(mockTrie, new Random());
-    when(mockTrie.getProbabilities(any())).thenReturn(new double[] {0.0, 0.2, 0.5})
-        .thenReturn(new double[] {0.0, 0.8, 0.5});
-    assertThrows(IllegalArgumentException.class, () -> generator.predictNextNote(new int[] {5, 6}));
-    assertThrows(IllegalArgumentException.class, () -> generator.predictNextNote(new int[] {5, 6}));
+    when(mockTrie.getProbabilities(any()))
+        .thenReturn(new double[] { 0.0, 0.2, 0.5 })
+        .thenReturn(new double[] { 0.0, 0.8, 0.5 });
+    assertThrows(IllegalArgumentException.class,
+        () -> generator.predictNextNote(new int[] { 5, 6 }));
+    assertThrows(IllegalArgumentException.class,
+        () -> generator.predictNextNote(new int[] { 5, 6 }));
   }
 
   @Test
   void predictionWithNonExistingPrefix() {
     GeneratorService generator = new GeneratorService(this.trie, new Random());
-    List<int[]> inputs = List.of(new int[] {1, 1, 1}, new int[] {7, 11}, new int[] {6, 7},
-        new int[] {5, 8}, new int[] {6, 5});
+    List<int[]> inputs = List.of(new int[] { 1, 1, 1 }, new int[] { 7, 11 },
+        new int[] { 6, 7 }, new int[] { 5, 8 }, new int[] { 6, 5 });
     for (int[] input : inputs) {
       int result = generator.predictNextNote(input);
       assertEquals(-1, result);
@@ -63,7 +73,7 @@ public class GeneratorServiceTest {
   @Test
   void predictionWithExistingPrefixAndNoChildren() {
     GeneratorService generator = new GeneratorService(this.trie, new Random());
-    int result = generator.predictNextNote(new int[] {5, 6, 7});
+    int result = generator.predictNextNote(new int[] { 5, 6, 7 });
     assertEquals(-1, result);
   }
 
@@ -83,7 +93,7 @@ public class GeneratorServiceTest {
     GeneratorService generator = new GeneratorService(this.trie, new Random());
     List<Integer> expectedValues = List.of(6, 7);
     for (int i = 0; i < 100; i++) {
-      int result = generator.predictNextNote(new int[] {5});
+      int result = generator.predictNextNote(new int[] { 5 });
       assertTrue(expectedValues.contains(result));
     }
     // {root}
@@ -96,7 +106,7 @@ public class GeneratorServiceTest {
   void predictionWithValidPrefix2() {
     GeneratorService generator = new GeneratorService(this.trie, new Random());
     for (int i = 0; i < 100; i++) {
-      int result = generator.predictNextNote(new int[] {5, 7});
+      int result = generator.predictNextNote(new int[] { 5, 7 });
       assertEquals(11, result);
     }
     // {root}
@@ -110,7 +120,7 @@ public class GeneratorServiceTest {
     GeneratorService generator = new GeneratorService(this.trie, new Random());
     List<Integer> expectedValues = List.of(7, 8, 9, 10);
     for (int i = 0; i < 100; i++) {
-      int result = generator.predictNextNote(new int[] {5, 6});
+      int result = generator.predictNextNote(new int[] { 5, 6 });
       assertTrue(expectedValues.contains(result));
     }
     // {root}
@@ -155,17 +165,24 @@ public class GeneratorServiceTest {
           .thenReturn(0.4321324)
           .thenReturn(0.0);
       double[] probs = { 0.0, 0.0, 0.1, 0.32, 0.08, 0.4, 0.2, 0.0 };
-      assertEquals(0.2, probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
-      assertEquals(0.32, probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
-      assertEquals(0.32, probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
-      assertEquals(0.32, probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
-      assertEquals(0.08, probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
-      assertEquals(0.1, probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
+      assertEquals(0.2,
+          probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
+      assertEquals(0.32,
+          probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
+      assertEquals(0.32,
+          probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
+      assertEquals(0.32,
+          probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
+      assertEquals(0.08,
+          probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
+      assertEquals(0.1,
+          probs[this.generatorWithMockRandom.getIndexOfSelectedNote(probs)]);
     }
 
     @Test
     void returnsIndexOfNonZeroValue() {
-      double[] testProbabilities = {0.05, 0.0, 0.1, 0.0, 0.32, 0.08, 0.0, 0.35, 0.2, 0.0};
+      double[] testProbabilities =
+          { 0.05, 0.0, 0.1, 0.0, 0.32, 0.08, 0.0, 0.35, 0.2, 0.0 };
       List<Double> expectedValues = List.of(0.1, 0.32, 0.08, 0.35, 0.2, 0.05);
       for (int i = 0; i < 100; i++) {
         int res = this.generator.getIndexOfSelectedNote(testProbabilities);
@@ -177,7 +194,8 @@ public class GeneratorServiceTest {
     void moreProbableNoteGetsPickedSanityTest() {
       // Bad idea to test with randomness, but hopefully after ten thousand
       // iterations we see that 0.2 is always picked less often than 0.35
-      double[] testProbabilities = {0.05, 0.0, 0.1, 0.0, 0.32, 0.08, 0.0, 0.35, 0.2, 0.0};
+      double[] testProbabilities =
+          { 0.05, 0.0, 0.1, 0.0, 0.32, 0.08, 0.0, 0.35, 0.2, 0.0 };
       int countOfMostProbable = 0;
       int countOfLessProbable = 0;
       for (int i = 0; i < 10000; i++) {
@@ -193,4 +211,64 @@ public class GeneratorServiceTest {
     }
   }
 
+  @Nested
+  class WithRealData {
+
+    private List<String> trainingDataPaths = new ArrayList<>();
+    private int[] wholeMelody =
+        { 2, 2, 9, 9, 11, 11, 9, 7, 7, 6, 6, 4, 4, 4, 4, 2, 9, 9, 7, 6, 6, 6, 4,
+            9, 9, 7, 7, 6, 6, 4, 2, 2, 9, 9, 11, 11, 9, 7, 7, 6, 6, 4, 4, 2 };
+
+    @BeforeEach
+    void setUp() {
+      String path = "src/test/resources/alphabet-song.xml";
+      File file = new File(path);
+      String testDataPath = file.getAbsolutePath();
+      if (!new File(testDataPath).exists()) {
+        fail("Test data file not found " + path);
+      }
+      this.trainingDataPaths.add(testDataPath);
+      // Normalize melody to correct octave representation.
+      // All notes in test data song are in octave 4
+      this.wholeMelody =
+          Arrays.stream(this.wholeMelody).map(this::normalize).toArray();
+    }
+
+    int normalize(int note) {
+      return note + (4 - Constants.OCTAVE_LOWER_BOUND) * 12;
+    }
+
+    boolean arrayHasSubArray(int[] array, int[] subArray) {
+      for (int i = 0; i < array.length - subArray.length + 1; i++) {
+        if (Arrays.equals(array, i, i + subArray.length, subArray, 0,
+            subArray.length)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    void allGenerationsAreInTrainingData(int degree) {
+      Trie trie = new Trie();
+      TrainingService service =
+          new TrainingService(new FileIO(), new ScoreParser(), trie);
+      service.trainWith(this.trainingDataPaths, degree);
+      GeneratorService generator = new GeneratorService(trie, new Random());
+      for (int i = 0; i < this.wholeMelody.length - degree; i++) {
+        int[] prefix = Arrays.copyOfRange(this.wholeMelody, i, i + degree);
+        int nextNote = generator.predictNextNote(prefix);
+        int[] generation = Arrays.copyOf(prefix, prefix.length + 1);
+        generation[generation.length - 1] = nextNote;
+        assertTrue(this.arrayHasSubArray(this.wholeMelody, generation));
+      }
+    }
+
+    @Test
+    void allNthDegreeGenerationsAreInTrainingData() {
+      for (int i = 1; i < 4; i++) {
+        this.allGenerationsAreInTrainingData(i);
+      }
+    }
+
+  }
 }

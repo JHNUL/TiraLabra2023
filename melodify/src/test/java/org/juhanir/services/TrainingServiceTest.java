@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.juhanir.domain.Trie;
+import org.juhanir.domain.TrieNode;
 import org.juhanir.utils.Constants;
 import org.juhanir.utils.FileIO;
 import org.juhanir.utils.ScoreParser;
@@ -32,11 +33,14 @@ public class TrainingServiceTest {
       fail("Test data file not found " + path);
     }
     this.trainingDataPaths.add(testDataPath);
-    this.wholeMelody = Arrays.stream(this.wholeMelody).map(note -> {
-      // Normalize melody to correct octave representation.
-      // All notes in test data song are in octave 4
-      return note + (4 - Constants.OCTAVE_LOWER_BOUND) * 12;
-    }).toArray();
+    // Normalize melody to correct octave representation.
+    // All notes in test data song are in octave 4
+    this.wholeMelody =
+        Arrays.stream(this.wholeMelody).map(this::normalize).toArray();
+  }
+
+  int normalize(int note) {
+    return note + (4 - Constants.OCTAVE_LOWER_BOUND) * 12;
   }
 
   @Test
@@ -66,51 +70,24 @@ public class TrainingServiceTest {
     assertEquals(70, trie.size());
   }
 
-  @Test
-  void allFirstDegreeSequencesAreInTrie() {
+  void allSequencesAreInTrie(int degree) {
     Trie trie = new Trie();
     TrainingService service =
         new TrainingService(new FileIO(), new ScoreParser(), trie);
-    service.trainWith(this.trainingDataPaths, 1);
-    for (int i = 0; i < this.wholeMelody.length - 1; i++) {
-      assertNotNull(
-          trie.lookup(Arrays.copyOfRange(this.wholeMelody, i, i + 2)));
+    service.trainWith(this.trainingDataPaths, degree);
+    for (int i = 0; i < this.wholeMelody.length - degree; i++) {
+      TrieNode last =
+          trie.lookup(Arrays.copyOfRange(this.wholeMelody, i, i + degree + 1));
+      assertNotNull(last);
+      assertEquals(this.wholeMelody[i + degree], last.getValue());
     }
   }
 
   @Test
-  void allSecondDegreeSequencesAreInTrie() {
-    Trie trie = new Trie();
-    TrainingService service =
-        new TrainingService(new FileIO(), new ScoreParser(), trie);
-    service.trainWith(this.trainingDataPaths, 2);
-    for (int i = 0; i < this.wholeMelody.length - 2; i++) {
-      assertNotNull(
-          trie.lookup(Arrays.copyOfRange(this.wholeMelody, i, i + 3)));
+  void allNthDegreeSequencesAreInTrie() {
+    for (int i = 1; i < 5; i++) {
+      this.allSequencesAreInTrie(i);
     }
   }
 
-  @Test
-  void allThirdDegreeSequencesAreInTrie() {
-    Trie trie = new Trie();
-    TrainingService service =
-        new TrainingService(new FileIO(), new ScoreParser(), trie);
-    service.trainWith(this.trainingDataPaths, 3);
-    for (int i = 0; i < this.wholeMelody.length - 3; i++) {
-      assertNotNull(
-          trie.lookup(Arrays.copyOfRange(this.wholeMelody, i, i + 4)));
-    }
-  }
-
-  @Test
-  void allFourthDegreeSequencesAreInTrie() {
-    Trie trie = new Trie();
-    TrainingService service =
-        new TrainingService(new FileIO(), new ScoreParser(), trie);
-    service.trainWith(this.trainingDataPaths, 4);
-    for (int i = 0; i < this.wholeMelody.length - 4; i++) {
-      assertNotNull(
-          trie.lookup(Arrays.copyOfRange(this.wholeMelody, i, i + 5)));
-    }
-  }
 }
