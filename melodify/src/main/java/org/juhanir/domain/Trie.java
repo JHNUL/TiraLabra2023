@@ -93,7 +93,7 @@ public class Trie {
     double[] probabilities = new double[Constants.NOTE_ARRAY_SIZE];
     for (int j = 0; j < children.length; j++) {
       if (children[j] != null) {
-        probabilities[j] = (double) children[j].getCount() / childCount;
+        probabilities[j] = children[j].getCount() * 1.0 / childCount;
       }
     }
     return probabilities;

@@ -56,11 +56,15 @@ public class GeneratorService {
   public int predictNextNote(int[] prefix) {
     TrieNode[] children = this.trie.prefixSearch(prefix);
     double[] probabilities = this.trie.getProbabilities(children);
+    // To work around the minor rounding errors, use threshold for comparison
+    // https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/DoubleStream.html#sum()
     double sum = Arrays.stream(probabilities).sum();
-    if (sum == 0.0) { // valid case, since leaves have a child array with zeroes
+    double epsilon = 1e-10;
+    if (sum == 0.0) { // this is zero, valid case for no children
       return -1;
-    } else if (sum != 1.0) {
-      throw new IllegalArgumentException("Probabilities must sum up to one");
+    } else if (Math.abs(1.0 - sum) > epsilon) {
+      throw new IllegalArgumentException(
+          "Probabilities must sum up to one " + Arrays.toString(probabilities));
     }
     return this.getIndexOfSelectedNote(probabilities);
   }
