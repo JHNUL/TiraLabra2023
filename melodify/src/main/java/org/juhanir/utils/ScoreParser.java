@@ -20,6 +20,7 @@ import org.audiveris.proxymusic.ScorePartwise.Part.Measure;
 import org.audiveris.proxymusic.Step;
 import org.audiveris.proxymusic.util.Marshalling;
 import org.audiveris.proxymusic.util.Marshalling.UnmarshallingException;
+import org.juhanir.domain.MelodyNote;
 
 /**
  * Contains logic for parsing MusicXML files.
@@ -28,15 +29,14 @@ public class ScoreParser {
 
   private static Logger parserLogger =
       Logger.getLogger(ScoreParser.class.getName());
-  private static List<String> noteNamesToInt = Arrays.asList("C", null, "D",
-      null, "E", "F", null, "G", null, "A", null, "B");
-  private static String[] cicleOfFifthsMajor = new String[] { "Gb", "Db", "Ab",
-      "Eb", "Bb", "F", "C", "G", "D", "A", "E", "B", "F#" };
-  private static String[] cicleOfFifthsMinor = new String[] { "Ebm", "Dbm",
-      "Fm", "Cm", "Gm", "Dm", "Am", "Em", "Bm", "F#m", "C#m", "G#m", "D#m" };
+  private static String[] cicleOfFifthsMajor = new String[] { "Cb", "Gb", "Db",
+      "Ab", "Eb", "Bb", "F", "C", "G", "D", "A", "E", "B", "F#", "C#" };
+  private static String[] cicleOfFifthsMinor =
+      new String[] { "Abm", "Ebm", "Bbm", "Fm", "Cm", "Gm", "Dm", "Am", "Em",
+          "Bm", "F#m", "C#m", "G#m", "D#m", "A#m" };
 
   public int convertNoteToInt(String step, int octave, int alter) {
-    if (step == null || !noteNamesToInt.contains(step)) {
+    if (step == null || !Constants.noteNames.contains(step)) {
       throw new IllegalArgumentException(
           String.format("Unsupported step value %s", step));
     }
@@ -56,7 +56,51 @@ public class ScoreParser {
           String.format("Not supported octave value %s", octave));
     }
     return (octave - Constants.OCTAVE_LOWER_BOUND) * 12
-        + noteNamesToInt.indexOf(step) + alter;
+        + Constants.noteNames.indexOf(step) + alter;
+  }
+
+  private boolean isFlat(String musicalKey) {
+    for (int i = 0; i < cicleOfFifthsMajor.length; i++) {
+      if (cicleOfFifthsMajor[i].equals(musicalKey) && i < 7
+          || cicleOfFifthsMinor[i].equals(musicalKey) && i < 7) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * <p>
+   * Convert note from integer format to something playable.
+   * </p>
+   * <p>
+   * When it is not clear what the note is, e.g. the int value alone cannot say
+   * if half step above C is C# or Db, check if key is flat and use (note)b, otherwise
+   * always use sharp.
+   * </p>
+   *
+   * @param numericalNote numerical value of the note
+   * @param musicalKey key of the tune
+   * @return MelodyNote
+   */
+  public MelodyNote convertIntToNote(int numericalNote, String musicalKey) {
+
+    int noteValue = numericalNote % 12;
+    int octave =
+        (int) Math.floor(numericalNote / 12) + Constants.OCTAVE_LOWER_BOUND;
+    String stepValue = Constants.noteNames.get(noteValue);
+    int alter = 0;
+    if (stepValue == null) {
+      if (this.isFlat(musicalKey)) {
+        stepValue = Constants.noteNames.get(noteValue + 1);
+        alter = -1;
+      } else {
+        stepValue = Constants.noteNames.get(noteValue - 1);
+        alter = 1;
+      }
+    }
+
+    return new MelodyNote(stepValue, alter, octave);
   }
 
   public Map<String, List<String>> collectFilesPerKey(FileIO reader,
