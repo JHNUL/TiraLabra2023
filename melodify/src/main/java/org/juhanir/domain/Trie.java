@@ -2,6 +2,7 @@ package org.juhanir.domain;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Random;
 import org.juhanir.utils.Constants;
 
 /**
@@ -9,7 +10,7 @@ import org.juhanir.utils.Constants;
  */
 public class Trie {
 
-  private final TrieNode root;
+  private TrieNode root;
 
   public Trie() {
     this.root = new TrieNode(Integer.MIN_VALUE);
@@ -106,6 +107,33 @@ public class Trie {
    */
   public int size() {
     return this.countNodes(this.root);
+  }
+
+  /**
+   * Get a random sequence of the argument length.
+   *
+   * @param length length of the sequence.
+   * @return sequence
+   */
+  public int[] getRandomSequence(int length) {
+    TrieNode node = this.root;
+    int[] sequence = new int[length];
+    Random rand = new Random();
+    for (int i = 0; i < length; i++) {
+      TrieNode[] children = Arrays.stream(node.getChildren())
+          .filter(Objects::nonNull).toArray(TrieNode[]::new);
+      TrieNode selected = children[rand.nextInt(children.length)];
+      sequence[i] = selected.getValue();
+      node = selected;
+    }
+    return sequence;
+  }
+
+  /**
+   * Clear the existing trie by resetting the root node.
+   */
+  public void clear() {
+    this.root = new TrieNode(Integer.MIN_VALUE);
   }
 
   private int countNodes(TrieNode node) {

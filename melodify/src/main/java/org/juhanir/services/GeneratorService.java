@@ -1,7 +1,9 @@
 package org.juhanir.services;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.logging.Logger;
 import org.juhanir.domain.Trie;
 import org.juhanir.domain.TrieNode;
 
@@ -12,6 +14,8 @@ public class GeneratorService {
 
   private final Trie trie;
   private final Random random;
+  private static Logger generatorLogger =
+      Logger.getLogger(GeneratorService.class.getName());
 
   public GeneratorService(Trie trie, Random rand) {
     this.trie = trie;
@@ -60,12 +64,32 @@ public class GeneratorService {
     // https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/DoubleStream.html#sum()
     double sum = Arrays.stream(probabilities).sum();
     double epsilon = 1e-10;
-    if (sum == 0.0) { // this is zero, valid case for no children
+    if (sum == 0.0) { // this a valid case for no children
       return -1;
     } else if (Math.abs(1.0 - sum) > epsilon) {
       throw new IllegalArgumentException(
           "Probabilities must sum up to one " + Arrays.toString(probabilities));
     }
     return this.getIndexOfSelectedNote(probabilities);
+  }
+
+  /**
+   * <p>
+   * Predict a melody sequence of input length.
+   * </p>
+   *
+   * @param initialPrefix starting notes of the sequence
+   * @param length length of the sequence
+   * @return sequence of notes in integer representation
+   */
+  public int[] predictSequence(int[] initialPrefix, int length) {
+    int[] result = Arrays.copyOf(initialPrefix, length);
+    for (int i = initialPrefix.length; i < result.length; i++) {
+      int[] generationPrefix =
+          Arrays.copyOfRange(result, i - initialPrefix.length, i);
+      // TODO: must handle case when no next note (is -1)
+      result[i] = this.predictNextNote(generationPrefix);
+    }
+    return result;
   }
 }
