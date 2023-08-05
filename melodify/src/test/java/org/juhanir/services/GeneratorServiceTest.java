@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Random;
 import org.juhanir.domain.Trie;
 import org.juhanir.utils.Constants;
-import org.juhanir.utils.FileIO;
+import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -251,7 +251,7 @@ public class GeneratorServiceTest {
     void allGenerationsAreInTrainingData(int degree) {
       Trie trie = new Trie();
       TrainingService service =
-          new TrainingService(new FileIO(), new ScoreParser(), trie);
+          new TrainingService(new FileIo(), new ScoreParser(), trie);
       service.trainWith(this.trainingDataPaths, degree);
       GeneratorService generator = new GeneratorService(trie, new Random());
       for (int i = 0; i < this.wholeMelody.length - degree; i++) {

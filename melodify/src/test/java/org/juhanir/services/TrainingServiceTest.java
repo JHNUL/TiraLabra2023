@@ -11,7 +11,7 @@ import java.util.List;
 import org.juhanir.domain.Trie;
 import org.juhanir.domain.TrieNode;
 import org.juhanir.utils.Constants;
-import org.juhanir.utils.FileIO;
+import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,7 +47,7 @@ public class TrainingServiceTest {
   void trieSizeIsCorrectForFirstDegree() {
     Trie trie = new Trie();
     TrainingService service =
-        new TrainingService(new FileIO(), new ScoreParser(), trie);
+        new TrainingService(new FileIo(), new ScoreParser(), trie);
     service.trainWith(this.trainingDataPaths, 1);
     assertEquals(21, trie.size());
   }
@@ -56,7 +56,7 @@ public class TrainingServiceTest {
   void trieSizeIsCorrectForSecondDegree() {
     Trie trie = new Trie();
     TrainingService service =
-        new TrainingService(new FileIO(), new ScoreParser(), trie);
+        new TrainingService(new FileIo(), new ScoreParser(), trie);
     service.trainWith(this.trainingDataPaths, 2);
     assertEquals(42, trie.size());
   }
@@ -65,7 +65,7 @@ public class TrainingServiceTest {
   void trieSizeIsCorrectForThirdDegree() {
     Trie trie = new Trie();
     TrainingService service =
-        new TrainingService(new FileIO(), new ScoreParser(), trie);
+        new TrainingService(new FileIo(), new ScoreParser(), trie);
     service.trainWith(this.trainingDataPaths, 3);
     assertEquals(70, trie.size());
   }
@@ -73,7 +73,7 @@ public class TrainingServiceTest {
   void allSequencesAreInTrie(int degree) {
     Trie trie = new Trie();
     TrainingService service =
-        new TrainingService(new FileIO(), new ScoreParser(), trie);
+        new TrainingService(new FileIo(), new ScoreParser(), trie);
     service.trainWith(this.trainingDataPaths, degree);
     for (int i = 0; i < this.wholeMelody.length - degree; i++) {
       TrieNode last =

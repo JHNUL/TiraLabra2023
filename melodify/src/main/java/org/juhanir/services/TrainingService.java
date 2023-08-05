@@ -1,10 +1,11 @@
 package org.juhanir.services;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 import org.juhanir.domain.Trie;
-import org.juhanir.utils.FileIO;
+import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
 
 /**
@@ -15,7 +16,7 @@ public class TrainingService {
   private static Logger trainingLogger =
       Logger.getLogger(TrainingService.class.getName());
 
-  private final FileIO fileIo;
+  private final FileIo fileIo;
   private final ScoreParser scoreParser;
   private Trie trie;
 
@@ -26,7 +27,7 @@ public class TrainingService {
    * @param scoreParser score parser
    * @param trie the data structure for the model
    */
-  public TrainingService(FileIO fileIo, ScoreParser scoreParser, Trie trie) {
+  public TrainingService(FileIo fileIo, ScoreParser scoreParser, Trie trie) {
     this.fileIo = fileIo;
     this.scoreParser = scoreParser;
     this.trie = trie;
@@ -48,6 +49,7 @@ public class TrainingService {
         for (int i = 0; i < melodies.size() - degree; i++) {
           int[] trainingTuple = melodies.subList(i, i + degree + 1).stream()
               .mapToInt(Integer::intValue).toArray();
+          trainingLogger.info(String.format("Inserting: %s", Arrays.toString(trainingTuple)));
           this.trie.insert(trainingTuple);
         }
       } catch (Exception e) {
@@ -57,12 +59,5 @@ public class TrainingService {
 
     }
 
-  }
-
-  /**
-   * Clear the existing trie.
-   */
-  public void clear() {
-    this.trie = new Trie();
   }
 }

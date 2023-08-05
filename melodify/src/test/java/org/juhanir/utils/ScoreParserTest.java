@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Arrays;
 
 import org.juhanir.domain.MelodyNote;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -105,9 +106,19 @@ public class ScoreParserTest {
   @Nested
   class ConvertIntToNote {
     private final ScoreParser parser = new ScoreParser();
-    private final int[] alphabetSong = { 14, 14, 21, 21, 23, 23, 21, 19, 19, 18,
-        18, 16, 16, 16, 16, 14, 21, 21, 19, 18, 18, 18, 16, 21, 21, 19, 19, 18,
-        18, 16, 14, 14, 21, 21, 23, 23, 21, 19, 19, 18, 18, 16, 16, 14 };
+    private int[] alphabetSong =
+        { 2, 2, 9, 9, 11, 11, 9, 7, 7, 6, 6, 4, 4, 4, 4, 2, 9, 9, 7, 6, 6, 6, 4,
+            9, 9, 7, 7, 6, 6, 4, 2, 2, 9, 9, 11, 11, 9, 7, 7, 6, 6, 4, 4, 2 };
+
+    @BeforeEach
+    void setUp() {
+      this.alphabetSong =
+          Arrays.stream(this.alphabetSong).map(this::normalize).toArray();
+    }
+
+    int normalize(int note) {
+      return note + (4 - Constants.OCTAVE_LOWER_BOUND) * 12;
+    }
 
     @Test
     void resolvesOctaveCorrectly() {
@@ -151,9 +162,9 @@ public class ScoreParserTest {
 
     @Test
     void resolvesNotes() {
-      MelodyNote[] notes = new MelodyNote[alphabetSong.length];
-      for (int i = 0; i < alphabetSong.length; i++) {
-        notes[i] = parser.convertIntToNote(alphabetSong[i], "D");
+      MelodyNote[] notes = new MelodyNote[this.alphabetSong.length];
+      for (int i = 0; i < this.alphabetSong.length; i++) {
+        notes[i] = parser.convertIntToNote(this.alphabetSong[i], "D");
       }
       String[] expected = { "D", "D", "A", "A", "B", "B", "A", "G", "G", "F#",
           "F#", "E", "E", "E", "E", "D", "A", "A", "G", "F#", "F#", "F#", "E",

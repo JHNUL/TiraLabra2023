@@ -70,16 +70,6 @@ public class ScoreParser {
         + Constants.noteNames.indexOf(step) + alter;
   }
 
-  private boolean isFlat(String musicalKey) {
-    for (int i = 0; i < cicleOfFifthsMajor.length; i++) {
-      if (cicleOfFifthsMajor[i].equals(musicalKey) && i < 7
-          || cicleOfFifthsMinor[i].equals(musicalKey) && i < 7) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   /**
    * <p>
    * Convert note from integer format to something playable.
@@ -121,7 +111,7 @@ public class ScoreParser {
    * @param files list of file names
    * @return Map of filenames per key
    */
-  public Map<String, List<String>> collectFilesPerKey(FileIO reader,
+  public Map<String, List<String>> collectFilesPerKey(FileIo reader,
       List<String> files) {
     Map<String, List<String>> filesPerKey = new HashMap<>();
     for (String filePath : files) {
@@ -144,7 +134,7 @@ public class ScoreParser {
    *
    * @param source song to parse as inputstream from a MusicXML file.
    * @return key name
-   * @throws UnmarshallingException
+   * @throws UnmarshallingException if cannot parse input to partwise score
    */
   public String getKeyForTune(InputStream source)
       throws UnmarshallingException {
@@ -171,7 +161,7 @@ public class ScoreParser {
    *
    * @param source MusicXML file as inputstream.
    * @return List of integers representing the melody sequence.
-   * @throws UnmarshallingException
+   * @throws UnmarshallingException if cannot parse input to partwise score
    */
   public List<Integer> parse(InputStream source) throws UnmarshallingException {
     ScorePartwise scorePartwise = (ScorePartwise) Marshalling.unmarshal(source);
@@ -227,6 +217,16 @@ public class ScoreParser {
         }
       }
     }
+  }
+
+  private boolean isFlat(String musicalKey) {
+    for (int i = 0; i < cicleOfFifthsMajor.length; i++) {
+      if (cicleOfFifthsMajor[i].equals(musicalKey) && i < 7
+          || cicleOfFifthsMinor[i].equals(musicalKey) && i < 7) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }
