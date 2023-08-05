@@ -1,7 +1,10 @@
 package org.juhanir.utils;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Arrays;
 
 import org.juhanir.domain.MelodyNote;
 import org.junit.jupiter.api.Nested;
@@ -102,6 +105,9 @@ public class ScoreParserTest {
   @Nested
   class ConvertIntToNote {
     private final ScoreParser parser = new ScoreParser();
+    private final int[] alphabetSong = { 14, 14, 21, 21, 23, 23, 21, 19, 19, 18,
+        18, 16, 16, 16, 16, 14, 21, 21, 19, 18, 18, 18, 16, 21, 21, 19, 19, 18,
+        18, 16, 14, 14, 21, 21, 23, 23, 21, 19, 19, 18, 18, 16, 16, 14 };
 
     @Test
     void resolvesOctaveCorrectly() {
@@ -141,6 +147,24 @@ public class ScoreParserTest {
       assertEquals(0, note.getAlter());
       note = parser.convertIntToNote(0, "Bb");
       assertEquals(0, note.getAlter());
+    }
+
+    @Test
+    void resolvesNotes() {
+      MelodyNote[] notes = new MelodyNote[alphabetSong.length];
+      for (int i = 0; i < alphabetSong.length; i++) {
+        notes[i] = parser.convertIntToNote(alphabetSong[i], "D");
+      }
+      String[] expected = { "D", "D", "A", "A", "B", "B", "A", "G", "G", "F#",
+          "F#", "E", "E", "E", "E", "D", "A", "A", "G", "F#", "F#", "F#", "E",
+          "A", "A", "G", "G", "F#", "F#", "E", "D", "D", "A", "A", "B", "B",
+          "A", "G", "G", "F#", "F#", "E", "E", "D" };
+      assertArrayEquals(expected,
+          Arrays.stream(notes).map(MelodyNote::toString).toArray());
+      for (MelodyNote note : notes) {
+        assertEquals(4, note.getOctave());
+      }
+
     }
 
   }

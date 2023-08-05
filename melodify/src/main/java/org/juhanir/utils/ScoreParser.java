@@ -23,7 +23,8 @@ import org.audiveris.proxymusic.util.Marshalling.UnmarshallingException;
 import org.juhanir.domain.MelodyNote;
 
 /**
- * Contains logic for parsing MusicXML files.
+ * Contains logic for parsing MusicXML files and converting internal note
+ * representation back to 'note' elements that can be serialized to MusicXML.
  */
 public class ScoreParser {
 
@@ -35,6 +36,16 @@ public class ScoreParser {
       new String[] { "Abm", "Ebm", "Bbm", "Fm", "Cm", "Gm", "Dm", "Am", "Em",
           "Bm", "F#m", "C#m", "G#m", "D#m", "A#m" };
 
+  /**
+   * <p>
+   * Convert a MusicXML note to internal representation.
+   * </p>
+   *
+   * @param step the note name
+   * @param octave octave value
+   * @param alter flat/sharp
+   * @return note as integer representation
+   */
   public int convertNoteToInt(String step, int octave, int alter) {
     if (step == null || !Constants.noteNames.contains(step)) {
       throw new IllegalArgumentException(
@@ -75,8 +86,8 @@ public class ScoreParser {
    * </p>
    * <p>
    * When it is not clear what the note is, e.g. the int value alone cannot say
-   * if half step above C is C# or Db, check if key is flat and use (note)b, otherwise
-   * always use sharp.
+   * if half step above C is C# or Db, check if key is flat and use (note)b,
+   * otherwise always use sharp.
    * </p>
    *
    * @param numericalNote numerical value of the note
@@ -103,6 +114,13 @@ public class ScoreParser {
     return new MelodyNote(stepValue, alter, octave);
   }
 
+  /**
+   * Goes through a list of files and groups them per key.
+   *
+   * @param reader file reader
+   * @param files list of file names
+   * @return Map of filenames per key
+   */
   public Map<String, List<String>> collectFilesPerKey(FileIO reader,
       List<String> files) {
     Map<String, List<String>> filesPerKey = new HashMap<>();
@@ -121,6 +139,13 @@ public class ScoreParser {
     return filesPerKey;
   }
 
+  /**
+   * Resolves the musical key for a song.
+   *
+   * @param source song to parse as inputstream from a MusicXML file.
+   * @return key name
+   * @throws UnmarshallingException
+   */
   public String getKeyForTune(InputStream source)
       throws UnmarshallingException {
     ScorePartwise scorePartwise = (ScorePartwise) Marshalling.unmarshal(source);
@@ -141,6 +166,13 @@ public class ScoreParser {
     return musicalKeys.get(0);
   }
 
+  /**
+   * Parses a MusicXML source file and extracts the notes.
+   *
+   * @param source MusicXML file as inputstream.
+   * @return List of integers representing the melody sequence.
+   * @throws UnmarshallingException
+   */
   public List<Integer> parse(InputStream source) throws UnmarshallingException {
     ScorePartwise scorePartwise = (ScorePartwise) Marshalling.unmarshal(source);
     List<Part> parts = scorePartwise.getPart();
