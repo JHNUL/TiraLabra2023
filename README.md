@@ -44,10 +44,12 @@ Tested on the following operating systems: Debian 12
 ## Documentation
 
 [Specification (määrittelydokumentti)](/docs/specifications.md)
+[Testing](/docs/testing.md)
 
 #### Weeklies
 
 - [Week 1](/docs/weeklies/week1.md)
 - [Week 2](/docs/weeklies/week2.md)
+- [Week 3](/docs/weeklies/week3.md)
 
 Select the commit with tag "weekN" to review the repository in the intended state for the week N submission.

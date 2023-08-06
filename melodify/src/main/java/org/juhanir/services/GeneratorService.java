@@ -55,12 +55,13 @@ public class GeneratorService {
    *
    * @param prefix sequence whose next note we are predicting
    * @return value of the note, -1 if no children
+   * @throws IllegalArgumentException if prefix has children whose probabilities
+   *         do not add up to one.
    */
   public int predictNextNote(int[] prefix) {
     TrieNode[] children = this.trie.prefixSearch(prefix);
     double[] probabilities = this.trie.getProbabilities(children);
-    // To work around the minor rounding errors, use threshold for comparison
-    // https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/DoubleStream.html#sum()
+    // Use threshold for comparison because of floating point precision
     double sum = Arrays.stream(probabilities).sum();
     double epsilon = 1e-10;
     if (sum == 0.0) { // this is a valid case for no children
@@ -74,11 +75,12 @@ public class GeneratorService {
 
   /**
    * <p>
-   * Predict a melody sequence of input length.
+   * Predict a melody sequence of input length. Will produce a shorter
+   * sequence if a next note cannot be predicted.
    * </p>
    *
    * @param initialPrefix starting notes of the sequence
-   * @param length length of the sequence
+   * @param length maximum length of the sequence
    * @return sequence of notes in integer representation
    */
   public int[] predictSequence(int[] initialPrefix, int length) {
@@ -86,8 +88,11 @@ public class GeneratorService {
     for (int i = initialPrefix.length; i < result.length; i++) {
       int[] generationPrefix =
           Arrays.copyOfRange(result, i - initialPrefix.length, i);
-      // TODO: must handle case when no next note (is -1)
-      result[i] = this.predictNextNote(generationPrefix);
+      int nextNote = this.predictNextNote(generationPrefix);
+      if (nextNote < 0) {
+        return Arrays.copyOfRange(result, 0, i);
+      }
+      result[i] = nextNote;
     }
     return result;
   }

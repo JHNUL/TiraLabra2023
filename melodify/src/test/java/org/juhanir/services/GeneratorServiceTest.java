@@ -1,5 +1,6 @@
 package org.juhanir.services;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -268,6 +269,48 @@ public class GeneratorServiceTest {
       for (int i = 1; i < 4; i++) {
         this.allGenerationsAreInTrainingData(i);
       }
+    }
+
+    void allPredictedSequencesAreInTrainingData(int degree) {
+      Trie trie = new Trie();
+      TrainingService service =
+          new TrainingService(new FileIo(), new ScoreParser(), trie);
+      service.trainWith(this.trainingDataPaths, degree);
+      GeneratorService generator = new GeneratorService(trie, new Random());
+      int[] prefix = Arrays.copyOfRange(this.wholeMelody, 0, degree);
+      System.out.println(Arrays.toString(prefix));
+      int[] generation =
+          generator.predictSequence(prefix, this.wholeMelody.length);
+      assertEquals(this.wholeMelody.length, generation.length);
+      assertArrayEquals(prefix, Arrays.copyOfRange(generation, 0, degree));
+      for (int i = 0; i < generation.length - degree; i++) {
+        int[] subArray = Arrays.copyOfRange(generation, i, i + degree + 1);
+        assertTrue(this.arrayHasSubArray(this.wholeMelody, subArray));
+      }
+    }
+
+    @Test
+    void predictSequenceResultsAreInTrainingData() {
+      // up to 3rd degree all sequences are in the test data,
+      // 4th degree has an ending sequence that has no children
+      for (int i = 1; i < 4; i++) {
+        this.allPredictedSequencesAreInTrainingData(i);
+      }
+    }
+
+    @Test
+    void predictSequenceStopsIfNoChildrenForSequence() {
+      Trie trie = new Trie();
+      TrainingService service =
+          new TrainingService(new FileIo(), new ScoreParser(), trie);
+      service.trainWith(this.trainingDataPaths, 4);
+      GeneratorService generator = new GeneratorService(trie, new Random());
+      // From the end of training data, non-repeating sequence
+      int[] prefix = Arrays.copyOfRange(this.wholeMelody,
+          this.wholeMelody.length - 5, this.wholeMelody.length);
+      int[] generation =
+          generator.predictSequence(prefix, this.wholeMelody.length);
+      assertArrayEquals(prefix, generation);
     }
 
   }

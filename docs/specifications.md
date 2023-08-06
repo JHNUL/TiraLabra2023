@@ -15,13 +15,15 @@ This project uses Markov's Chain to predict the next note in a melody. The idea 
 
 ## Inputs
 
-The model is trained on a corpus of songs in musicxml format. I chose this format because I deemed it the least painful to parse. User inputs TBA.
+The model is trained on a corpus of songs in musicxml format. I chose this format because I deemed it the least painful to parse. User selects:
+- musical key
+- markov chain degree
 
 ## Time/space complexities
 
 - Trie insertion O(k), where k = key length
 - Trie lookup O(k), where k = key length
-- Trie prefix search O(?) TBA
+- Trie prefix search O(k), where k = key length
 
 ## Sources
 
