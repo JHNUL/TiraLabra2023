@@ -43,8 +43,8 @@ Tested on the following operating systems: Debian 12
 
 ## Documentation
 
-[Specification (määrittelydokumentti)](/docs/specifications.md)
-[Testing](/docs/testing.md)
+- [Specification (määrittelydokumentti)](/docs/specifications.md)
+- [Testing](/docs/testing.md)
 
 #### Weeklies
 
