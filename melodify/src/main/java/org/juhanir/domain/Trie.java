@@ -90,7 +90,7 @@ public class Trie {
    */
   public double[] getProbabilities(TrieNode[] children) {
     int childCount = Arrays.stream(children).filter(Objects::nonNull)
-        .map(TrieNode::getCount).reduce(0, Integer::sum);
+        .mapToInt(TrieNode::getCount).sum();
     double[] probabilities = new double[Constants.NOTE_ARRAY_SIZE];
     for (int j = 0; j < children.length; j++) {
       if (children[j] != null) {
@@ -116,12 +116,18 @@ public class Trie {
    * @return sequence
    */
   public int[] getRandomSequence(int length) {
+    if (length <= 0) {
+      return new int[] {};
+    }
     TrieNode node = this.root;
     int[] sequence = new int[length];
     Random rand = new Random();
     for (int i = 0; i < length; i++) {
       TrieNode[] children = Arrays.stream(node.getChildren())
           .filter(Objects::nonNull).toArray(TrieNode[]::new);
+      if (children.length == 0) {
+        return sequence;
+      }
       TrieNode selected = children[rand.nextInt(children.length)];
       sequence[i] = selected.getValue();
       node = selected;

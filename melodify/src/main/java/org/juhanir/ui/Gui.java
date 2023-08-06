@@ -97,11 +97,16 @@ public class Gui extends Application {
         return;
       }
       errorLabel.setVisible(false);
-      TrainingService trainer = new TrainingService(reader, parser, trie);
-      trie.clear();
-      String selectedKey = musicalKeySelect.getValue().split(" ")[0].strip();
-      trainer.trainWith(filesPerKey.get(selectedKey), degree);
-      generateButton.setVisible(true);
+      try {
+        TrainingService trainer = new TrainingService(reader, parser, trie);
+        trie.clear();
+        String selectedKey = musicalKeySelect.getValue().split(" ")[0].strip();
+        trainer.trainWith(filesPerKey.get(selectedKey), degree);
+        generateButton.setVisible(true);
+      } catch (Exception e) {
+        errorLabel.setText(String.format("Fatal error: %s", e.getMessage()));
+        errorLabel.setVisible(true);
+      }
     });
 
     generateButton.setOnAction(event -> {
@@ -110,18 +115,24 @@ public class Gui extends Application {
         return;
       }
       int[] initialSequence = trie.getRandomSequence(degree);
-      GeneratorService generator = new GeneratorService(trie, new Random());
-      int[] melody = generator.predictSequence(initialSequence, 50);
-      String selectedKey = musicalKeySelect.getValue().split(" ")[0].strip();
-      String[] notes = Arrays.stream(melody)
-          .mapToObj(note -> parser.convertIntToNote(note, selectedKey).toString())
-          .toArray(String[]::new);
-      System.out
-          .println(String.format("Whole melody %s", Arrays.toString(notes)));
-      LocalDateTime now = LocalDateTime.now();
-      reader.writeToFile(Constants.OUTPUT_DATA_PATH, selectedKey + "_generation_"
-              + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss")),
-          String.join(" ", notes));
+      try {
+        GeneratorService generator = new GeneratorService(trie, new Random());
+        int[] melody = generator.predictSequence(initialSequence, 50);
+        System.out.println(Arrays.toString(melody));
+        String selectedKey = musicalKeySelect.getValue().split(" ")[0].strip();
+        String[] notes = Arrays.stream(melody)
+            .mapToObj(
+                note -> parser.convertIntToNote(note, selectedKey).toString())
+            .toArray(String[]::new);
+        LocalDateTime now = LocalDateTime.now();
+        String fileName = selectedKey + "_generation_"
+            + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss"));
+        reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName,
+            String.join(" ", notes));
+      } catch (Exception e) {
+        errorLabel.setText(String.format("Fatal error: %s", e.getMessage()));
+        errorLabel.setVisible(true);
+      }
     });
 
     Scene scene = new Scene(new VBox(keyLabel, musicalKeySelect, degreeLabel,
