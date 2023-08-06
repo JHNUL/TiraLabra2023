@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml" xmlns="http://javafx.com/javafx"
+    fx:controller="org.juhanir.view.AppController"
+    prefHeight="400.0" prefWidth="600.0">
+    <children>
+
+        <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.leftAnchor="10.0"
+            AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+            <children>
+                <Label text="Select key" />
+                <ComboBox fx:id="musicalKeySelect" />
+                <Label text="Select Markov Chain degree" />
+                <TextField fx:id="degreeField" />
+                <Label fx:id="infoLabel" />
+                <Button fx:id="trainButton" text="Train"/>
+                <Button fx:id="generateButton" text="Generate"/>
+            </children>
+        </VBox>
+
+    </children>
+</AnchorPane>

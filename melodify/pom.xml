@@ -51,6 +51,11 @@
             <version>17.0.8</version>
         </dependency>
         <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>17.0.8</version>
+        </dependency>
+        <dependency>
             <groupId>jfugue</groupId>
             <artifactId>jfugue</artifactId>
             <version>5.0.9</version>
@@ -62,6 +67,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.3.0</version>
+                <configuration>
+                    <configLocation>google_checks_mod.xml</configLocation>
+                </configuration>
             </plugin>
         </plugins>
     </reporting>

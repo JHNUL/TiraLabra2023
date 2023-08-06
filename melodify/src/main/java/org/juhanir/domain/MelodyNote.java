@@ -1,8 +1,8 @@
 package org.juhanir.domain;
 
 /**
- * A representation of a note containing enough data to be played. Serializable
- * to MusicXML pitch element.
+ * A representation of a note containing enough data to be played. Serializable to MusicXML pitch
+ * element.
  */
 public class MelodyNote {
 

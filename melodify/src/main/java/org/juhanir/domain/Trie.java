@@ -17,9 +17,8 @@ public class Trie {
   }
 
   /**
-   * Inserts a note sequence to the Trie. Sequence length determines the degree
-   * of the Markov Chain. Increments each nodes 'count' property when inserting
-   * it as child.
+   * Inserts a note sequence to the Trie. Sequence length determines the degree of the Markov Chain.
+   * Increments each nodes 'count' property when inserting it as child.
    *
    * @param key sequence of note strings to save
    */
@@ -40,8 +39,7 @@ public class Trie {
    * Searches the Trie for the note sequence.
    * </p>
    * <p>
-   * Returns the final note only if the whole sequence exists and there are no
-   * more notes after.
+   * Returns the final note only if the whole sequence exists and there are no more notes after.
    * </p>
    *
    * @param key sequence of note strings to search
@@ -64,8 +62,8 @@ public class Trie {
 
   /**
    * <p>
-   * Searches the Trie for the melody sequence prefix and returns the child
-   * nodes of the last node in the prefix.
+   * Searches the Trie for the melody sequence prefix and returns the child nodes of the last node
+   * in the prefix.
    * </p>
    *
    * @param prefix sequence of note strings as prefix to the next note
@@ -89,8 +87,8 @@ public class Trie {
    * @return Array of probabilities
    */
   public double[] getProbabilities(TrieNode[] children) {
-    int childCount = Arrays.stream(children).filter(Objects::nonNull)
-        .mapToInt(TrieNode::getCount).sum();
+    int childCount =
+        Arrays.stream(children).filter(Objects::nonNull).mapToInt(TrieNode::getCount).sum();
     double[] probabilities = new double[Constants.NOTE_ARRAY_SIZE];
     for (int j = 0; j < children.length; j++) {
       if (children[j] != null) {
@@ -123,8 +121,8 @@ public class Trie {
     int[] sequence = new int[length];
     Random rand = new Random();
     for (int i = 0; i < length; i++) {
-      TrieNode[] children = Arrays.stream(node.getChildren())
-          .filter(Objects::nonNull).toArray(TrieNode[]::new);
+      TrieNode[] children =
+          Arrays.stream(node.getChildren()).filter(Objects::nonNull).toArray(TrieNode[]::new);
       if (children.length == 0) {
         return sequence;
       }

@@ -47,21 +47,19 @@ public class FileIo {
    * @param content content
    * @throws IOException if write fails
    */
-  public void writeToFile(String folderPath, String fileName, String content)
-      throws IOException {
+  public void writeToFile(String folderPath, String fileName, String content) throws IOException {
     String path = this.getFolderPath(folderPath);
     File dataFolder = new File(path);
     if (dataFolder.exists() && dataFolder.isDirectory()) {
-      PrintWriter pw = new PrintWriter(new FileWriter(
-          String.format("%s%s%s", path, File.separator, fileName)));
+      PrintWriter pw =
+          new PrintWriter(new FileWriter(String.format("%s%s%s", path, File.separator, fileName)));
       pw.print(content);
       pw.close();
     }
   }
 
   private String getFolderPath(String folderPath) {
-    String parentPath =
-        Paths.get(System.getProperty("user.dir")).getParent().toString();
+    String parentPath = Paths.get(System.getProperty("user.dir")).getParent().toString();
     return String.format("%s%s%s", parentPath, File.separator, folderPath);
   }
 
