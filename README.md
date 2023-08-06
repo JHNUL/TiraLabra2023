@@ -51,5 +51,6 @@ Tested on the following operating systems: Debian 12
 - [Week 1](/docs/weeklies/week1.md)
 - [Week 2](/docs/weeklies/week2.md)
 - [Week 3](/docs/weeklies/week3.md)
+- [Week 4](/docs/weeklies/week4.md)
 
 Select the commit with tag "weekN" to review the repository in the intended state for the week N submission.

@@ -13,8 +13,7 @@ import org.juhanir.utils.ScoreParser;
  */
 public class TrainingService {
 
-  private static Logger trainingLogger =
-      Logger.getLogger(TrainingService.class.getName());
+  private static Logger trainingLogger = Logger.getLogger(TrainingService.class.getName());
 
   private final FileIo fileIo;
   private final ScoreParser scoreParser;
@@ -47,8 +46,8 @@ public class TrainingService {
         trainingLogger.info(melodies.toString());
         trainingLogger.info(String.format("Len melodies: %s", melodies.size()));
         for (int i = 0; i < melodies.size() - degree; i++) {
-          int[] trainingTuple = melodies.subList(i, i + degree + 1).stream()
-              .mapToInt(Integer::intValue).toArray();
+          int[] trainingTuple =
+              melodies.subList(i, i + degree + 1).stream().mapToInt(Integer::intValue).toArray();
           trainingLogger.info(String.format("Inserting: %s", Arrays.toString(trainingTuple)));
           this.trie.insert(trainingTuple);
         }

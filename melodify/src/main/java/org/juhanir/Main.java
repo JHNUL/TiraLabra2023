@@ -1,27 +1,29 @@
 package org.juhanir;
 
-import org.juhanir.ui.Gui;
+import java.io.IOException;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 /**
- * Main class to start the application.
+ * Main application class.
  */
-final class Main {
+public class Main extends Application {
 
-  /**
-   * Private constructor.
-   */
-  private Main() {
-
+  @Override
+  public void start(Stage stage) throws IOException {
+    FXMLLoader loader = new FXMLLoader(Main.class.getResource("/AppController.fxml"));
+    AnchorPane view = (AnchorPane) loader.load();
+    Scene scene = new Scene(view);
+    stage.setTitle("MELODIFY");
+    stage.setScene(scene);
+    stage.show();
   }
 
-  /**
-   * Main method that starts the application.
-   *
-   * @param args arguments to the main method
-   */
-  public static void main(final String[] args) {
-    Gui gui = new Gui();
-    gui.run();
+  public void run() {
+    launch();
   }
 
 }

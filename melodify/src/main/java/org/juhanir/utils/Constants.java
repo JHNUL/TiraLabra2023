@@ -14,21 +14,20 @@ public class Constants {
   public static final int MARKOV_CHAIN_DEGREE_MAX = 6;
   public static final int OCTAVE_LOWER_BOUND = 2;
   public static final int OCTAVE_UPPER_BOUND = 5;
-  public static final int NOTE_ARRAY_SIZE =
-      (OCTAVE_UPPER_BOUND - OCTAVE_LOWER_BOUND + 1) * 12;
+  public static final int NOTE_ARRAY_SIZE = (OCTAVE_UPPER_BOUND - OCTAVE_LOWER_BOUND + 1) * 12;
   public static final String TRAINING_DATA_PATH = "data/musicxml";
   public static final String OUTPUT_DATA_PATH = "data/output";
 
   /**
    * <p>
-   * Note names (without sharp/flat) as list where the index of the name
-   * specifies the note base value as int (to be incremented with octave).
+   * Note names (without sharp/flat) as list where the index of the name specifies the note base
+   * value as int (to be incremented with octave).
    * </p>
    * <p>
    * Where there is a whole step between notes the value is null.
    * </p>
    */
-  public static final List<String> noteNames = Arrays.asList("C", null, "D",
-      null, "E", "F", null, "G", null, "A", null, "B");
+  public static final List<String> noteNames =
+      Arrays.asList("C", null, "D", null, "E", "F", null, "G", null, "A", null, "B");
 
 }

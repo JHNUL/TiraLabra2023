@@ -13,8 +13,7 @@ public class GeneratorService {
 
   private final Trie trie;
   private final Random random;
-  private static Logger generatorLogger =
-      Logger.getLogger(GeneratorService.class.getName());
+  private static Logger generatorLogger = Logger.getLogger(GeneratorService.class.getName());
 
   public GeneratorService(Trie trie, Random rand) {
     this.trie = trie;
@@ -23,16 +22,16 @@ public class GeneratorService {
 
   /**
    * <p>
-   * Calculates the point in the array of probabilities where the cumulative
-   * probability passes the threshold.
+   * Calculates the point in the array of probabilities where the cumulative probability passes the
+   * threshold.
    * </p>
    * <p>
    * Caller must make sure the probabilities add up to exactly 1.
    * </p>
    *
    * @param probabilities array of probabilities
-   * @return index of the selected element or -1 if threshold was never passed
-   *         (should not happen if called with legal argument)
+   * @return index of the selected element or -1 if threshold was never passed (should not happen if
+   *         called with legal argument)
    */
   public int getIndexOfSelectedNote(double[] probabilities) {
     double threshold = this.random.nextDouble();
@@ -48,15 +47,14 @@ public class GeneratorService {
 
   /**
    * <p>
-   * Predicts the next note of a prefix sequence. The prediction happens
-   * according to the probability distribution of the child notes of the last
-   * note in the input sequence.
+   * Predicts the next note of a prefix sequence. The prediction happens according to the
+   * probability distribution of the child notes of the last note in the input sequence.
    * </p>
    *
    * @param prefix sequence whose next note we are predicting
    * @return value of the note, -1 if no children
-   * @throws IllegalArgumentException if prefix has children whose probabilities
-   *         do not add up to one.
+   * @throws IllegalArgumentException if prefix has children whose probabilities do not add up to
+   *         one.
    */
   public int predictNextNote(int[] prefix) {
     TrieNode[] children = this.trie.prefixSearch(prefix);
@@ -75,8 +73,8 @@ public class GeneratorService {
 
   /**
    * <p>
-   * Predict a melody sequence of input length. Will produce a shorter
-   * sequence if a next note cannot be predicted.
+   * Predict a melody sequence of input length. Will produce a shorter sequence if a next note
+   * cannot be predicted.
    * </p>
    *
    * @param initialPrefix starting notes of the sequence
@@ -86,8 +84,7 @@ public class GeneratorService {
   public int[] predictSequence(int[] initialPrefix, int length) {
     int[] result = Arrays.copyOf(initialPrefix, length);
     for (int i = initialPrefix.length; i < result.length; i++) {
-      int[] generationPrefix =
-          Arrays.copyOfRange(result, i - initialPrefix.length, i);
+      int[] generationPrefix = Arrays.copyOfRange(result, i - initialPrefix.length, i);
       int nextNote = this.predictNextNote(generationPrefix);
       if (nextNote < 0) {
         return Arrays.copyOfRange(result, 0, i);
