@@ -1,25 +1,28 @@
 package org.juhanir.domain;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import org.juhanir.utils.Constants;
 import org.junit.jupiter.api.Test;
 
 class TrieTest {
 
-  private final int[] oneChild = {1};
-  private final int[] twoChildren = {1, 2};
-  private final int[] threeChildren = {1, 2, 3};
-  private final int[] firstBranch = {5, 6, 7};
-  private final int[] secondBranch = {5, 6, 8};
-  private final int[] thirdBranch = {5, 6, 9};
-  private final int[] fourthBranch = {5, 6, 10};
-  private final int[] fifthBranch = {5, 7, 11};
+  private final int[] oneChild = { 1 };
+  private final int[] twoChildren = { 1, 2 };
+  private final int[] threeChildren = { 1, 2, 3 };
+  private final int[] firstBranch = { 5, 6, 7 };
+  private final int[] secondBranch = { 5, 6, 8 };
+  private final int[] thirdBranch = { 5, 6, 9 };
+  private final int[] fourthBranch = { 5, 6, 10 };
+  private final int[] fifthBranch = { 5, 7, 11 };
 
   @Test
   void canInstantiate() {
@@ -76,23 +79,23 @@ class TrieTest {
   void lookupWithInValidKey() {
     Trie trie = new Trie();
     trie.insert(threeChildren);
-    assertNull(trie.lookup(new int[] {35}));
+    assertNull(trie.lookup(new int[] { 35 }));
   }
 
   @Test
   void prefixSearchReturnsEmptyListWhenNotFound() {
     Trie trie = new Trie();
     trie.insert(threeChildren);
-    TrieNode[] result = trie.prefixSearch(new int[] {7, 6, 5, 4});
+    TrieNode[] result = trie.prefixSearch(new int[] { 7, 6, 5, 4 });
     assertEquals(0, result.length);
   }
 
   @Test
   void emptyPrefixSearchReturnsChildrenOfRoot() {
     Trie trie = new Trie();
-    trie.insert(new int[] {1, 2});
-    trie.insert(new int[] {2, 2});
-    trie.insert(new int[] {3, 2});
+    trie.insert(new int[] { 1, 2 });
+    trie.insert(new int[] { 2, 2 });
+    trie.insert(new int[] { 3, 2 });
     TrieNode[] result = trie.prefixSearch(new int[] {});
     assertEquals(Constants.NOTE_ARRAY_SIZE, result.length);
     for (int i = 0; i < result.length; i++) {
@@ -115,7 +118,7 @@ class TrieTest {
   void prefixSearchReturnsImmediateChildrenWithOneNotePrefix() {
     Trie trie = new Trie();
     trie.insert(threeChildren);
-    TrieNode[] result = trie.prefixSearch(new int[] {threeChildren[0]});
+    TrieNode[] result = trie.prefixSearch(new int[] { threeChildren[0] });
     assertEquals(threeChildren[1], result[threeChildren[1]].getValue());
   }
 
@@ -123,7 +126,8 @@ class TrieTest {
   void prefixSearchReturnsImmediateChildrenWithTwoNotePrefix() {
     Trie trie = new Trie();
     trie.insert(threeChildren);
-    TrieNode[] result = trie.prefixSearch(new int[] {threeChildren[0], threeChildren[1]});
+    TrieNode[] result =
+        trie.prefixSearch(new int[] { threeChildren[0], threeChildren[1] });
     assertEquals(threeChildren[2], result[threeChildren[2]].getValue());
   }
 
@@ -135,7 +139,7 @@ class TrieTest {
     trie.insert(thirdBranch);
     trie.insert(fourthBranch);
     trie.insert(fifthBranch);
-    TrieNode[] result = trie.prefixSearch(new int[] {5, 6});
+    TrieNode[] result = trie.prefixSearch(new int[] { 5, 6 });
     long kids = Arrays.stream(result).filter(Objects::nonNull).count();
     assertEquals(4, kids);
     assertEquals(7, result[7].getValue());
@@ -152,7 +156,7 @@ class TrieTest {
     trie.insert(thirdBranch);
     trie.insert(fourthBranch);
     trie.insert(fifthBranch);
-    TrieNode[] result = trie.prefixSearch(new int[] {5});
+    TrieNode[] result = trie.prefixSearch(new int[] { 5 });
     long kids = Arrays.stream(result).filter(Objects::nonNull).count();
     assertEquals(2, kids);
     assertEquals(6, result[6].getValue());
@@ -167,10 +171,10 @@ class TrieTest {
     trie.insert(thirdBranch);
     trie.insert(fourthBranch);
     trie.insert(fifthBranch);
-    TrieNode[] result = trie.prefixSearch(new int[] {5});
+    TrieNode[] result = trie.prefixSearch(new int[] { 5 });
     assertEquals(4, result[6].getCount());
     assertEquals(1, result[7].getCount());
-    result = trie.prefixSearch(new int[] {5, 7});
+    result = trie.prefixSearch(new int[] { 5, 7 });
     long kids = Arrays.stream(result).filter(Objects::nonNull).count();
     assertEquals(1, kids);
     assertEquals(1, result[11].getCount());
@@ -210,9 +214,65 @@ class TrieTest {
     trie.insert(thirdBranch);
     trie.insert(fourthBranch);
     trie.insert(fifthBranch);
-    TrieNode[] children = trie.prefixSearch(new int[] {5});
+    TrieNode[] children = trie.prefixSearch(new int[] { 5 });
     double[] probs = trie.getProbabilities(children);
     assertEquals(0.8, probs[6]);
     assertEquals(0.2, probs[7]);
+  }
+
+  @Test
+  void producesRandomSequenceFromExistingSequences() {
+    Trie trie = new Trie();
+    trie.insert(firstBranch);
+    trie.insert(secondBranch);
+    trie.insert(thirdBranch);
+    trie.insert(fourthBranch);
+    int[] seq = trie.getRandomSequence(1);
+    assertArrayEquals(new int[] { 5 }, seq);
+    seq = trie.getRandomSequence(2);
+    assertArrayEquals(new int[] { 5, 6 }, seq);
+    seq = trie.getRandomSequence(3);
+    assertEquals(5, seq[0]);
+    assertEquals(6, seq[1]);
+    assertTrue(List.of(7, 8, 9, 10).contains(seq[2]));
+  }
+
+  @Test
+  void getRandomSequenceWithZeroOrNegativeLength() {
+    Trie trie = new Trie();
+    trie.insert(firstBranch);
+    trie.insert(secondBranch);
+    trie.insert(thirdBranch);
+    trie.insert(fourthBranch);
+    int[] seq = trie.getRandomSequence(0);
+    assertArrayEquals(new int[] {}, seq);
+    seq = trie.getRandomSequence(-1);
+    assertArrayEquals(new int[] {}, seq);
+  }
+
+  @Test
+  void getRandomSequenceWithExceedingLength() {
+    Trie trie = new Trie();
+    trie.insert(firstBranch);
+    trie.insert(secondBranch);
+    trie.insert(thirdBranch);
+    trie.insert(fourthBranch);
+    int[] seq = trie.getRandomSequence(4);
+    assertEquals(5, seq[0]);
+    assertEquals(6, seq[1]);
+    assertTrue(List.of(7, 8, 9, 10).contains(seq[2]));
+  }
+
+  @Test
+  void trieCanBeCleared() {
+    Trie trie = new Trie();
+    trie.insert(firstBranch);
+    trie.insert(secondBranch);
+    trie.insert(thirdBranch);
+    trie.insert(fourthBranch);
+    trie.insert(fifthBranch);
+    assertEquals(9, trie.size());
+    trie.clear();
+    assertEquals(1, trie.size());
   }
 }

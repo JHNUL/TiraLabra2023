@@ -1,6 +1,5 @@
 package org.juhanir.services;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -64,7 +63,7 @@ public class GeneratorService {
     // https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/DoubleStream.html#sum()
     double sum = Arrays.stream(probabilities).sum();
     double epsilon = 1e-10;
-    if (sum == 0.0) { // this a valid case for no children
+    if (sum == 0.0) { // this is a valid case for no children
       return -1;
     } else if (Math.abs(1.0 - sum) > epsilon) {
       throw new IllegalArgumentException(
