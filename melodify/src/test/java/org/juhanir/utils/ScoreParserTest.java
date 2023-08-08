@@ -2,10 +2,11 @@ package org.juhanir.utils;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
-
+import org.audiveris.proxymusic.ScorePartwise;
 import org.juhanir.domain.MelodyNote;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -178,6 +179,22 @@ public class ScoreParserTest {
 
     }
 
+  }
+
+  @Nested
+  class ConvertMelodyToMusicXml {
+
+    private final ScoreParser parser = new ScoreParser();
+
+    @Test
+    void oneNoteInAllOctaves() {
+      int numberOfOctaves = Constants.OCTAVE_UPPER_BOUND - Constants.OCTAVE_LOWER_BOUND + 1;
+      int[] melody = new int[numberOfOctaves];
+      for (int i = 0; i < numberOfOctaves; i++) {
+        melody[i] = i * 12;
+      }
+      assertInstanceOf(ScorePartwise.class, parser.convertMelodyToScorePartwise(melody, "C"));
+    }
   }
 
 }

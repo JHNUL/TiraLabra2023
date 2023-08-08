@@ -20,19 +20,33 @@ import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
 
 
-
+/**
+ * Event handlers for UI elements.
+ */
 public class AppEventHandler {
 
   private final Trie trie;
   private final IntegerProperty degree;
   private final StringProperty musicalKey;
 
+  /**
+   * Constructor.
+   *
+   * @param trie Trie data structure
+   * @param degree Markov Chain degree
+   * @param musicalKey Key that the user selected
+   */
   public AppEventHandler(Trie trie, IntegerProperty degree, StringProperty musicalKey) {
     this.trie = trie;
     this.degree = degree;
     this.musicalKey = musicalKey;
   }
 
+  /**
+   * Event handler for degree textfield.
+   *
+   * @param degreeField UI element
+   */
   public void handleDegreeFieldChange(TextField degreeField) {
     degreeField.textProperty().addListener((observable, oldValue, newValue) -> {
       try {
@@ -46,6 +60,11 @@ public class AppEventHandler {
     });
   }
 
+  /**
+   * Event handler for musical key dropdown.
+   *
+   * @param musicalKeySelect UI element
+   */
   public void handleKeySelectChange(ComboBox<String> musicalKeySelect) {
     musicalKeySelect.valueProperty().addListener((observable, oldValue, newValue) -> {
       String key = newValue.split(" ")[0].strip();
@@ -53,6 +72,12 @@ public class AppEventHandler {
     });
   }
 
+  /**
+   * Event handler for train button.
+   *
+   * @param trainButton UI element
+   * @param filesPerKey Training data files grouped per musical key
+   */
   public void handleTrainButtonClick(Button trainButton, Map<String, List<String>> filesPerKey) {
     trainButton.setOnAction(event -> {
       List<String> files = filesPerKey.getOrDefault(musicalKey.get(), Collections.emptyList());
@@ -74,6 +99,12 @@ public class AppEventHandler {
     });
   }
 
+  /**
+   * Event handler for generate button.
+   *
+   * @param generateButton UI element
+   * @param filesPerKey Training data files grouped per musical key
+   */
   public void handleGenerateButtonClick(Button generateButton,
       Map<String, List<String>> filesPerKey) {
     generateButton.setOnAction(event -> {
@@ -84,7 +115,6 @@ public class AppEventHandler {
       try {
         GeneratorService generator = new GeneratorService(trie, new Random());
         ScoreParser parser = new ScoreParser();
-        FileIo reader = new FileIo();
         int[] melody = generator.predictSequence(initialSequence, 50);
         String[] notes = Arrays.stream(melody)
             .mapToObj(note -> parser.convertIntToNote(note, musicalKey.get()).toString())
@@ -92,6 +122,7 @@ public class AppEventHandler {
         LocalDateTime now = LocalDateTime.now();
         String fileName = musicalKey.get() + "_generation_"
             + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss"));
+        FileIo reader = new FileIo();
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName, String.join(" ", notes));
       } catch (Exception e) {
         // TODO: report to the UI

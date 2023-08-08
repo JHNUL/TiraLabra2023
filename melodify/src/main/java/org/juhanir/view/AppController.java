@@ -23,6 +23,9 @@ import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
 
 
+/**
+ * Controllers for UI elements.
+ */
 public class AppController {
 
   @FXML

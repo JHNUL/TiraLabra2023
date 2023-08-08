@@ -1,5 +1,7 @@
 package org.juhanir.domain;
 
+import org.audiveris.proxymusic.Step;
+
 /**
  * A representation of a note containing enough data to be played. Serializable to MusicXML pitch
  * element.
@@ -26,6 +28,33 @@ public class MelodyNote {
 
   public String getStep() {
     return this.step;
+  }
+
+  /**
+   * Get stem as MusicXML enum.
+   *
+   * @return step value
+   */
+  public Step getStepEnum() {
+    switch (this.step) {
+      case "C":
+        return Step.C;
+      case "D":
+        return Step.D;
+      case "E":
+        return Step.E;
+      case "F":
+        return Step.F;
+      case "G":
+        return Step.G;
+      case "A":
+        return Step.A;
+      case "B":
+        return Step.B;
+      default:
+        break;
+    }
+    return null;
   }
 
   public int getAlter() {

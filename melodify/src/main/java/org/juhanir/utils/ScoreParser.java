@@ -2,6 +2,7 @@ package org.juhanir.utils;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,18 +14,25 @@ import java.util.stream.Collectors;
 import org.audiveris.proxymusic.Attributes;
 import org.audiveris.proxymusic.Key;
 import org.audiveris.proxymusic.Note;
+import org.audiveris.proxymusic.NoteType;
+import org.audiveris.proxymusic.ObjectFactory;
+import org.audiveris.proxymusic.PartList;
+import org.audiveris.proxymusic.PartName;
 import org.audiveris.proxymusic.Pitch;
+import org.audiveris.proxymusic.ScorePart;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.audiveris.proxymusic.ScorePartwise.Part;
 import org.audiveris.proxymusic.ScorePartwise.Part.Measure;
 import org.audiveris.proxymusic.Step;
+import org.audiveris.proxymusic.Time;
+import org.audiveris.proxymusic.Work;
 import org.audiveris.proxymusic.util.Marshalling;
 import org.audiveris.proxymusic.util.Marshalling.UnmarshallingException;
 import org.juhanir.domain.MelodyNote;
 
 /**
  * Contains logic for parsing MusicXML files and converting internal note representation back to
- * 'note' elements that can be serialized to MusicXML.
+ * 'MelodyNote' objects that can be serialized to MusicXML notes.
  */
 public class ScoreParser {
 
@@ -205,14 +213,125 @@ public class ScoreParser {
     }
   }
 
+  /**
+   * Converts melody as integer array to a ScorePartwise.
+   *
+   * @param melody the melody
+   * @param musicalKey selected musical key
+   * @return ScorePartwise
+   */
+  public ScorePartwise convertMelodyToScorePartwise(int[] melody, String musicalKey) {
+    MelodyNote[] notes =
+        Arrays.stream(melody).<MelodyNote>mapToObj(note -> this.convertIntToNote(note, musicalKey))
+            .toArray(MelodyNote[]::new);
+    try {
+      BigInteger fifths = new BigInteger(String.valueOf(this.getFifths(musicalKey)));
+      if (fifths.intValue() < -7) {
+        throw new Exception(String.format("Could not resolve fifths value from %s", musicalKey));
+      }
+      var score = this.getScorePartwise(notes, fifths);
+      new FileIo().writeToFile(Constants.OUTPUT_DATA_PATH, "foo.xml", score);
+      return score;
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
+    }
+    return null;
+  }
+
   private boolean isFlat(String musicalKey) {
     for (int i = 0; i < cicleOfFifthsMajor.length; i++) {
-      if (cicleOfFifthsMajor[i].equals(musicalKey) && i < 7
-          || cicleOfFifthsMinor[i].equals(musicalKey) && i < 7) {
+      if (cicleOfFifthsMajor[i].equals(musicalKey) && i < Constants.FIFTHS_SUPPORTED_RANGE
+          || cicleOfFifthsMinor[i].equals(musicalKey) && i < Constants.FIFTHS_SUPPORTED_RANGE) {
         return true;
       }
     }
     return false;
+  }
+
+  private int getFifths(String musicalKey) {
+    int res = Integer.MIN_VALUE;
+    for (int i = 0; i < cicleOfFifthsMajor.length; i++) {
+      if (cicleOfFifthsMajor[i].equals(musicalKey) || cicleOfFifthsMinor[i].equals(musicalKey)) {
+        res = (-1) * Constants.FIFTHS_SUPPORTED_RANGE + i;
+        break;
+      }
+    }
+    return res;
+  }
+
+  private ScorePartwise getScorePartwise(MelodyNote[] notes, BigInteger fifths) {
+    // Generated factory for all proxymusic elements
+    ObjectFactory factory = new ObjectFactory();
+
+    // Allocate the score partwise
+    ScorePartwise scorePartwise = factory.createScorePartwise();
+
+    // Work
+    Work work = factory.createWork();
+    scorePartwise.setWork(work);
+    work.setWorkTitle("Title for the work");
+    work.setWorkNumber("Number for the work");
+
+    // PartList
+    PartList partList = factory.createPartList();
+    scorePartwise.setPartList(partList);
+
+    // Scorepart in partList
+    ScorePart scorePart = factory.createScorePart();
+    partList.getPartGroupOrScorePart().add(scorePart);
+    scorePart.setId("P1");
+
+    PartName partName = factory.createPartName();
+    scorePart.setPartName(partName);
+    partName.setValue("Music");
+
+    // ScorePart in scorePartwise
+    ScorePartwise.Part part = factory.createScorePartwisePart();
+    scorePartwise.getPart().add(part);
+    part.setId(scorePart);
+
+    // Measure
+    Measure measure = factory.createScorePartwisePartMeasure();
+    part.getMeasure().add(measure);
+    measure.setNumber("1");
+
+    // Attributes
+    Attributes attributes = factory.createAttributes();
+    measure.getNoteOrBackupOrForward().add(attributes);
+
+    // Divisions
+    attributes.setDivisions(new BigDecimal(1));
+
+    // Key
+    Key key = factory.createKey();
+    attributes.getKey().add(key);
+    key.setFifths(fifths);
+
+    // Time
+    Time time = factory.createTime();
+    attributes.getTime().add(time);
+    time.getTimeSignature().add(factory.createTimeBeats("4"));
+    time.getTimeSignature().add(factory.createTimeBeatType("4"));
+
+    for (MelodyNote melodyNote : notes) {
+
+      Note note = factory.createNote();
+      measure.getNoteOrBackupOrForward().add(note);
+
+      Pitch pitch = factory.createPitch();
+      note.setPitch(pitch);
+      pitch.setStep(melodyNote.getStepEnum());
+      pitch.setOctave(melodyNote.getOctave());
+      pitch.setAlter(new BigDecimal(melodyNote.getAlter()));
+
+      note.setDuration(new BigDecimal(4));
+
+      NoteType type = factory.createNoteType();
+      type.setValue("whole");
+      note.setType(type);
+    }
+
+    return scorePartwise;
   }
 
 }
