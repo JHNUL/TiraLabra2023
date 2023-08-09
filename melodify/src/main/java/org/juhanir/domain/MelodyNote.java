@@ -52,9 +52,8 @@ public class MelodyNote {
       case "B":
         return Step.B;
       default:
-        break;
+        return null;
     }
-    return null;
   }
 
   public int getAlter() {
