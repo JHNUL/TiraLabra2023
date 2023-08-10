@@ -45,11 +45,31 @@ public class FileIo {
   }
 
   /**
+   * Collect all files with certain extension in the specified folder.
+   *
+   * @param folderPath path to the folder
+   * @param extension  file extension
+   * @return list of filepaths as string
+   */
+  public List<String> getAllFilePathsInFolder(String folderPath, String extension) {
+    // TODO: Change to work with built project as well
+    String path = this.getFolderPath(folderPath);
+    File dataFolder = new File(path);
+    if (dataFolder.exists() && dataFolder.isDirectory()) {
+      return Arrays.stream(dataFolder.listFiles())
+          .filter(file -> file.getName().endsWith(extension))
+          .map(File::getAbsolutePath)
+          .collect(Collectors.toList());
+    }
+    return new ArrayList<>();
+  }
+
+  /**
    * Write string content to a file.
    *
    * @param folderPath path to the folder
-   * @param fileName file name
-   * @param content content
+   * @param fileName   file name
+   * @param content    content
    * @throws IOException if write fails
    */
   public void writeToFile(String folderPath, String fileName, String content) throws IOException {
@@ -69,9 +89,9 @@ public class FileIo {
    * Write ScorePartwise content to a file.
    *
    * @param folderPath path to the folder
-   * @param fileName file name
-   * @param score content in ScorePartwise format
-   * @throws IOException if write fails
+   * @param fileName   file name
+   * @param score      content in ScorePartwise format
+   * @throws IOException          if write fails
    * @throws MarshallingException if marshalling the scorepartwise to xml fails
    */
   public void writeToFile(String folderPath, String fileName, ScorePartwise score)

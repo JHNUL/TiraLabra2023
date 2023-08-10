@@ -229,9 +229,7 @@ public class ScoreParser {
       if (fifths.intValue() < -7) {
         throw new Exception(String.format("Could not resolve fifths value from %s", musicalKey));
       }
-      var score = this.getScorePartwise(notes, fifths);
-      new FileIo().writeToFile(Constants.OUTPUT_DATA_PATH, "foo.xml", score);
-      return score;
+      return this.getScorePartwise(notes, fifths);
     } catch (Exception e) {
       System.out.println(e.getMessage());
     }

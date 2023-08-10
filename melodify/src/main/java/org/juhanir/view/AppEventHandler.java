@@ -7,11 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.StringProperty;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+
+import org.audiveris.proxymusic.ScorePartwise;
 import org.juhanir.domain.Trie;
 import org.juhanir.services.GeneratorService;
 import org.juhanir.services.TrainingService;
@@ -19,6 +16,12 @@ import org.juhanir.utils.Constants;
 import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.ObservableList;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 
 /**
  * Event handlers for UI elements.
@@ -28,18 +31,21 @@ public class AppEventHandler {
   private final Trie trie;
   private final IntegerProperty degree;
   private final StringProperty musicalKey;
+  private final StringProperty playbackFile;
 
   /**
    * Constructor.
    *
-   * @param trie Trie data structure
-   * @param degree Markov Chain degree
-   * @param musicalKey Key that the user selected
+   * @param trie         Trie data structure
+   * @param degree       Markov Chain degree
+   * @param musicalKey   Key the user selected
+   * @param playbackFile File the user selected for playback
    */
-  public AppEventHandler(Trie trie, IntegerProperty degree, StringProperty musicalKey) {
+  public AppEventHandler(Trie trie, IntegerProperty degree, StringProperty musicalKey, StringProperty playbackFile) {
     this.trie = trie;
     this.degree = degree;
     this.musicalKey = musicalKey;
+    this.playbackFile = playbackFile;
   }
 
   /**
@@ -69,6 +75,19 @@ public class AppEventHandler {
     musicalKeySelect.valueProperty().addListener((observable, oldValue, newValue) -> {
       String key = newValue.split(" ")[0].strip();
       musicalKey.set(key);
+    });
+  }
+
+  /**
+   * Event handler for playback file dropdown.
+   *
+   * @param playbackSelect UI element
+   */
+  public void handlePlaybackSelectChange(ComboBox<String> playbackSelect) {
+    playbackSelect.valueProperty().addListener((observable, oldValue, newValue) -> {
+      if (newValue != null) {
+        playbackFile.set(newValue);
+      }
     });
   }
 
@@ -103,10 +122,10 @@ public class AppEventHandler {
    * Event handler for generate button.
    *
    * @param generateButton UI element
-   * @param filesPerKey Training data files grouped per musical key
+   * @param filesPerKey    Training data files grouped per musical key
    */
   public void handleGenerateButtonClick(Button generateButton,
-      Map<String, List<String>> filesPerKey) {
+      Map<String, List<String>> filesPerKey, ObservableList<String> playbackFiles) {
     generateButton.setOnAction(event -> {
       if (degree.get() < 0) {
         return;
@@ -116,18 +135,29 @@ public class AppEventHandler {
         GeneratorService generator = new GeneratorService(trie, new Random());
         ScoreParser parser = new ScoreParser();
         int[] melody = generator.predictSequence(initialSequence, 50);
-        String[] notes = Arrays.stream(melody)
-            .mapToObj(note -> parser.convertIntToNote(note, musicalKey.get()).toString())
-            .toArray(String[]::new);
+        ScorePartwise score = parser.convertMelodyToScorePartwise(melody, musicalKey.get());
         LocalDateTime now = LocalDateTime.now();
         String fileName = musicalKey.get() + "_generation_"
-            + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss"));
+            + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss.SSS"));
         FileIo reader = new FileIo();
-        reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName, String.join(" ", notes));
+        reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".xml", score);
+        playbackFiles.add(fileName + ".xml");
+        reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName, Arrays.toString(melody));
       } catch (Exception e) {
         // TODO: report to the UI
         System.out.println(e.getMessage());
       }
+    });
+  }
+
+  /**
+   * Event handler for playback button.
+   *
+   * @param playButton UI element
+   */
+  public void handlePlayButtonClick(Button playButton) {
+    playButton.setOnAction(event -> {
+      System.out.println(playbackFile.get());
     });
   }
 

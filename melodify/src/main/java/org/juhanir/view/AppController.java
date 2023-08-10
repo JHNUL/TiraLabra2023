@@ -1,6 +1,8 @@
 package org.juhanir.view;
 
+import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.MapProperty;
@@ -22,7 +24,6 @@ import org.juhanir.utils.Constants;
 import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
 
-
 /**
  * Controllers for UI elements.
  */
@@ -43,17 +44,24 @@ public class AppController {
   @FXML
   private Button generateButton;
 
-  private ObservableList<String> keys =
-      FXCollections.observableList(FXCollections.observableArrayList());
+  @FXML
+  private Button playButton;
+
+  @FXML
+  private ComboBox<String> playbackSelect;
+
+  private ObservableList<String> keys = FXCollections.observableList(FXCollections.observableArrayList());
+  private ObservableList<String> playbackFiles = FXCollections.observableList(FXCollections.observableArrayList());
   private IntegerProperty degree = new SimpleIntegerProperty();
   private StringProperty musicalKey = new SimpleStringProperty();
+  private StringProperty playbackFile = new SimpleStringProperty();
   private MapProperty<String, List<String>> filesPerKey = new SimpleMapProperty<>();
   private AppEventHandler eventHandler;
   private final Trie trie;
 
   public AppController() {
     this.trie = new Trie();
-    this.eventHandler = new AppEventHandler(trie, degree, musicalKey);
+    this.eventHandler = new AppEventHandler(trie, degree, musicalKey, playbackFile);
   }
 
   @FXML
@@ -61,27 +69,36 @@ public class AppController {
     this.eventHandler.handleDegreeFieldChange(this.degreeField);
     this.eventHandler.handleKeySelectChange(this.musicalKeySelect);
     this.eventHandler.handleTrainButtonClick(this.trainButton, this.filesPerKey);
-    this.eventHandler.handleGenerateButtonClick(this.generateButton, this.filesPerKey);
+    this.eventHandler.handleGenerateButtonClick(this.generateButton, this.filesPerKey, this.playbackFiles);
+    this.eventHandler.handlePlayButtonClick(this.playButton);
+    this.eventHandler.handlePlaybackSelectChange(this.playbackSelect);
     this.groupDataByKey();
   }
 
   private void groupDataByKey() {
 
-    Task<ObservableMap<String, List<String>>> bgTask =
-        new Task<ObservableMap<String, List<String>>>() {
-          @Override
-          protected ObservableMap<String, List<String>> call() throws Exception {
-            updateMessage("Reading training data");
-            FileIo reader = new FileIo();
-            List<String> files = reader.getAllFilePathsInFolder(Constants.TRAINING_DATA_PATH);
-            ScoreParser parser = new ScoreParser();
-            updateMessage("");
-            return FXCollections.observableMap(parser.collectFilesPerKey(reader, files));
-          }
-        };
+    Task<Map<String, List<String>>> bgTask = new Task<Map<String, List<String>>>() {
+      @Override
+      protected Map<String, List<String>> call() throws Exception {
+        updateMessage("Reading training data");
+        FileIo reader = new FileIo();
+        List<String> sourceFiles = reader.getAllFilePathsInFolder(Constants.TRAINING_DATA_PATH);
+        List<String> generatedFiles = reader.getAllFilePathsInFolder(Constants.OUTPUT_DATA_PATH, ".xml").stream()
+            .map(filePath -> filePath.substring(filePath.lastIndexOf(File.separator) + 1)).collect(Collectors.toList());
+        ScoreParser parser = new ScoreParser();
+        Map<String, List<String>> fileMap = parser.collectFilesPerKey(reader, sourceFiles);
+        fileMap.put("generatedFiles", generatedFiles);
+        updateMessage("");
+        return fileMap;
+      }
+    };
 
     bgTask.setOnSucceeded(event -> {
-      this.filesPerKey.set(bgTask.getValue());
+      Map<String, List<String>> taskResult = bgTask.getValue();
+      List<String> existingGenerations = taskResult.remove("generatedFiles");
+      this.playbackFiles.addAll(existingGenerations);
+      this.playbackSelect.setItems(this.playbackFiles);
+      this.filesPerKey.set(FXCollections.observableMap(taskResult));
       this.keys = FXCollections.observableArrayList(this.filesPerKey.getValue().entrySet().stream()
           .map(es -> String.format("%s (%s)", es.getKey(), es.getValue().size()))
           .collect(Collectors.toList()));

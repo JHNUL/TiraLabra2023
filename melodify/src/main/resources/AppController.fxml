@@ -21,6 +21,8 @@
                 <Label fx:id="infoLabel" />
                 <Button fx:id="trainButton" text="Train"/>
                 <Button fx:id="generateButton" text="Generate"/>
+                <ComboBox fx:id="playbackSelect" />
+                <Button fx:id="playButton" text="Play"/>
             </children>
         </VBox>
 
