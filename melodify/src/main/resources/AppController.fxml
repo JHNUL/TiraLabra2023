@@ -8,16 +8,22 @@
 <?import javafx.scene.layout.*?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml" xmlns="http://javafx.com/javafx"
     fx:controller="org.juhanir.view.AppController"
-    prefHeight="400.0" prefWidth="600.0">
+    prefHeight="400.0" prefWidth="640.0">
     <children>
 
-        <VBox id="VBox" alignment="CENTER" spacing="5.0" AnchorPane.leftAnchor="10.0"
-            AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+        <VBox id="VBox" alignment="CENTER" spacing="8.0" AnchorPane.leftAnchor="16.0"
+            AnchorPane.rightAnchor="16.0" AnchorPane.topAnchor="16.0">
             <children>
-                <Label text="Select key" />
-                <ComboBox fx:id="musicalKeySelect" />
-                <Label text="Select Markov Chain degree" />
-                <TextField fx:id="degreeField" />
+                <HBox alignment="CENTER" spacing="8.0" >
+                    <VBox>
+                        <Label text="Key" />
+                        <ComboBox fx:id="musicalKeySelect" prefWidth="160.0" />
+                    </VBox>
+                    <VBox>
+                        <Label text="Markov Chain degree" />
+                        <TextField fx:id="degreeField" prefWidth="160.0" />
+                    </VBox>
+                </HBox>
                 <Label fx:id="infoLabel" />
                 <Button fx:id="trainButton" text="Train"/>
                 <Button fx:id="generateButton" text="Generate"/>
