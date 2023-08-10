@@ -83,10 +83,10 @@ public class AppController {
   private void initialize() {
     this.eventHandler.handleDegreeFieldChange(this.degreeField);
     this.eventHandler.handleKeySelectChange(this.musicalKeySelect);
-    this.eventHandler.handleTrainButtonClick(this.trainButton, this.filesPerKey);
-    this.eventHandler.handleGenerateButtonClick(this.generateButton, this.filesPerKey,
+    this.eventHandler.handleTrainButton(this.trainButton, this.filesPerKey);
+    this.eventHandler.handleGenerateButton(this.generateButton, this.filesPerKey,
         this.playbackFiles);
-    this.eventHandler.handlePlayButtonClick(this.playButton, this.innerContainer);
+    this.eventHandler.handlePlayButton(this.playButton, this.innerContainer);
     this.eventHandler.handlePlaybackSelectChange(this.playbackSelect);
     this.eventHandler.handleProgressIndicator(this.progressIndicator, this.container);
     this.groupDataByKey();

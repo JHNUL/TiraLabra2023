@@ -20,6 +20,7 @@ import org.juhanir.utils.ScoreParser;
 import org.staccato.StaccatoParserListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -39,6 +40,7 @@ public class AppEventHandler {
   private final StringProperty musicalKey;
   private final StringProperty playbackFile;
   private final BooleanProperty isLoading;
+  private BooleanProperty preventTrain;
 
   /**
    * Constructor.
@@ -55,6 +57,7 @@ public class AppEventHandler {
     this.musicalKey = musicalKey;
     this.playbackFile = playbackFile;
     this.isLoading = isLoading;
+    this.preventTrain = new SimpleBooleanProperty(true);
   }
 
   /**
@@ -66,11 +69,18 @@ public class AppEventHandler {
     degreeField.textProperty().addListener((observable, oldValue, newValue) -> {
       try {
         int value = Integer.parseInt(newValue.strip());
+        if (value < 1 || value > 6) {
+          throw new Exception();
+        }
         degree.set(value);
         degreeField.setStyle("-fx-border-color: none;");
+        if (musicalKey.get() != null) {
+          preventTrain.set(false);
+        }
       } catch (Exception e) {
         degree.set(0);
         degreeField.setStyle("-fx-border-color: red;");
+        preventTrain.set(true);
       }
     });
   }
@@ -84,6 +94,9 @@ public class AppEventHandler {
     musicalKeySelect.valueProperty().addListener((observable, oldValue, newValue) -> {
       String key = newValue.split(" ")[0].strip();
       musicalKey.set(key);
+      if (degree.get() > 0 && degree.get() < 7) {
+          preventTrain.set(true);
+        }
     });
   }
 
@@ -106,7 +119,8 @@ public class AppEventHandler {
    * @param trainButton UI element
    * @param filesPerKey Training data files grouped per musical key
    */
-  public void handleTrainButtonClick(Button trainButton, Map<String, List<String>> filesPerKey) {
+  public void handleTrainButton(Button trainButton, Map<String, List<String>> filesPerKey) {
+    trainButton.disableProperty().bind(preventTrain);
     trainButton.setOnAction(event -> {
       try {
         List<String> files = filesPerKey.getOrDefault(musicalKey.get(), Collections.emptyList());
@@ -152,7 +166,7 @@ public class AppEventHandler {
    * @param generateButton UI element
    * @param filesPerKey Training data files grouped per musical key
    */
-  public void handleGenerateButtonClick(Button generateButton,
+  public void handleGenerateButton(Button generateButton,
       Map<String, List<String>> filesPerKey, ObservableList<String> playbackFiles) {
     generateButton.setOnAction(event -> {
       if (degree.get() < 0) {
@@ -183,7 +197,7 @@ public class AppEventHandler {
    *
    * @param playButton UI element
    */
-  public void handlePlayButtonClick(Button playButton, VBox innerContainer) {
+  public void handlePlayButton(Button playButton, VBox innerContainer) {
     playButton.setOnAction(event -> {
       try {
         Task<Void> playbackTask = new Task<Void>() {
