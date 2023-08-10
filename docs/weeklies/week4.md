@@ -6,5 +6,5 @@ Use FXML files to describe UI and controller classes to handle functionality. Ad
 |-|-|
 |4|UI refactoring to FXML|
 |2|Generate XML and save to file|
-|TBA|Play generated file(s)|
+|5|Play generated file(s), use concurrency for UI-blocking jobs, ability to stop playback|
 |||
