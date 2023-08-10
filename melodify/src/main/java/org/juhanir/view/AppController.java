@@ -4,8 +4,10 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.MapProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,7 +19,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import org.juhanir.domain.Trie;
 import org.juhanir.utils.Constants;
 import org.juhanir.utils.FileIo;
@@ -49,18 +53,30 @@ public class AppController {
   @FXML
   private ComboBox<String> playbackSelect;
 
-  private ObservableList<String> keys = FXCollections.observableList(FXCollections.observableArrayList());
-  private ObservableList<String> playbackFiles = FXCollections.observableList(FXCollections.observableArrayList());
+  @FXML
+  private VBox container;
+
+  @FXML
+  private VBox innerContainer;
+
+  @FXML
+  private ProgressIndicator progressIndicator;
+
+  private ObservableList<String> keys =
+      FXCollections.observableList(FXCollections.observableArrayList());
+  private ObservableList<String> playbackFiles =
+      FXCollections.observableList(FXCollections.observableArrayList());
   private IntegerProperty degree = new SimpleIntegerProperty();
   private StringProperty musicalKey = new SimpleStringProperty();
   private StringProperty playbackFile = new SimpleStringProperty();
+  private BooleanProperty isLoading = new SimpleBooleanProperty(false);
   private MapProperty<String, List<String>> filesPerKey = new SimpleMapProperty<>();
   private AppEventHandler eventHandler;
   private final Trie trie;
 
   public AppController() {
     this.trie = new Trie();
-    this.eventHandler = new AppEventHandler(trie, degree, musicalKey, playbackFile);
+    this.eventHandler = new AppEventHandler(trie, degree, musicalKey, playbackFile, isLoading);
   }
 
   @FXML
@@ -68,9 +84,11 @@ public class AppController {
     this.eventHandler.handleDegreeFieldChange(this.degreeField);
     this.eventHandler.handleKeySelectChange(this.musicalKeySelect);
     this.eventHandler.handleTrainButtonClick(this.trainButton, this.filesPerKey);
-    this.eventHandler.handleGenerateButtonClick(this.generateButton, this.filesPerKey, this.playbackFiles);
-    this.eventHandler.handlePlayButtonClick(this.playButton);
+    this.eventHandler.handleGenerateButtonClick(this.generateButton, this.filesPerKey,
+        this.playbackFiles);
+    this.eventHandler.handlePlayButtonClick(this.playButton, this.innerContainer);
     this.eventHandler.handlePlaybackSelectChange(this.playbackSelect);
+    this.eventHandler.handleProgressIndicator(this.progressIndicator, this.container);
     this.groupDataByKey();
   }
 
@@ -82,8 +100,10 @@ public class AppController {
         updateMessage("Reading training data");
         FileIo reader = new FileIo();
         List<String> sourceFiles = reader.getAllFilePathsInFolder(Constants.TRAINING_DATA_PATH);
-        List<String> generatedFiles = reader.getAllFilePathsInFolder(Constants.OUTPUT_DATA_PATH, ".xml").stream()
-            .map(filePath -> filePath.substring(filePath.lastIndexOf(File.separator) + 1)).collect(Collectors.toList());
+        List<String> generatedFiles =
+            reader.getAllFilePathsInFolder(Constants.OUTPUT_DATA_PATH, ".xml").stream()
+                .map(filePath -> filePath.substring(filePath.lastIndexOf(File.separator) + 1))
+                .collect(Collectors.toList());
         ScoreParser parser = new ScoreParser();
         Map<String, List<String>> fileMap = parser.collectFilesPerKey(reader, sourceFiles);
         fileMap.put("generatedFiles", generatedFiles);
@@ -105,8 +125,16 @@ public class AppController {
       this.musicalKeySelect.setValue(this.keys.get(0));
     });
 
+    bgTask.setOnFailed(event -> {
+      this.infoLabel.setText("Failed to parse files");
+    });
+
     bgTask.messageProperty().addListener((observable, oldValue, newValue) -> {
       this.infoLabel.setText(newValue);
+    });
+
+    bgTask.runningProperty().addListener((observable, oldValue, newValue) -> {
+      this.isLoading.set(newValue);
     });
 
     Thread thread = new Thread(bgTask);

@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
 import org.audiveris.proxymusic.ScorePartwise;
 import org.jfugue.integration.MusicXmlParser;
 import org.jfugue.pattern.Pattern;
@@ -19,14 +18,16 @@ import org.juhanir.utils.Constants;
 import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
 import org.staccato.StaccatoParserListener;
-
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 
 /**
  * Event handlers for UI elements.
@@ -37,20 +38,23 @@ public class AppEventHandler {
   private final IntegerProperty degree;
   private final StringProperty musicalKey;
   private final StringProperty playbackFile;
+  private final BooleanProperty isLoading;
 
   /**
    * Constructor.
    *
-   * @param trie         Trie data structure
-   * @param degree       Markov Chain degree
-   * @param musicalKey   Key the user selected
+   * @param trie Trie data structure
+   * @param degree Markov Chain degree
+   * @param musicalKey Key the user selected
    * @param playbackFile File the user selected for playback
    */
-  public AppEventHandler(Trie trie, IntegerProperty degree, StringProperty musicalKey, StringProperty playbackFile) {
+  public AppEventHandler(Trie trie, IntegerProperty degree, StringProperty musicalKey,
+      StringProperty playbackFile, BooleanProperty isLoading) {
     this.trie = trie;
     this.degree = degree;
     this.musicalKey = musicalKey;
     this.playbackFile = playbackFile;
+    this.isLoading = isLoading;
   }
 
   /**
@@ -104,21 +108,40 @@ public class AppEventHandler {
    */
   public void handleTrainButtonClick(Button trainButton, Map<String, List<String>> filesPerKey) {
     trainButton.setOnAction(event -> {
-      List<String> files = filesPerKey.getOrDefault(musicalKey.get(), Collections.emptyList());
-      System.out.println("Files");
-      System.out.println(files);
-      if (files.isEmpty() || degree.get() < 1) {
-        return;
-      }
       try {
-        FileIo reader = new FileIo();
-        ScoreParser parser = new ScoreParser();
-        TrainingService trainer = new TrainingService(reader, parser, this.trie);
-        this.trie.clear();
-        trainer.trainWith(files, degree.get());
+        List<String> files = filesPerKey.getOrDefault(musicalKey.get(), Collections.emptyList());
+        if (files.isEmpty() || degree.get() < 1) {
+          return;
+        }
+        Task<Void> trainingTask = new Task<Void>() {
+          @Override
+          protected Void call() throws Exception {
+            TrainingService trainer = new TrainingService(new FileIo(), new ScoreParser(), trie);
+            trie.clear();
+            trainer.trainWith(files, degree.get());
+            return null;
+          }
+        };
+
+        trainingTask.setOnFailed(taskEvent -> {
+          // TODO: some UI effect on failure
+        });
+
+        trainingTask.setOnSucceeded(taskEvent -> {
+          // TODO: some UI effect on success
+        });
+
+        trainingTask.runningProperty().addListener((observable, oldValue, newValue) -> {
+          this.isLoading.set(newValue);
+        });
+
+        Thread thread = new Thread(trainingTask);
+        thread.setDaemon(true);
+        thread.start();
+
       } catch (Exception e) {
         // TODO: report to the UI
-        System.out.println(e.getMessage());
+        System.out.println(e);
       }
     });
   }
@@ -127,7 +150,7 @@ public class AppEventHandler {
    * Event handler for generate button.
    *
    * @param generateButton UI element
-   * @param filesPerKey    Training data files grouped per musical key
+   * @param filesPerKey Training data files grouped per musical key
    */
   public void handleGenerateButtonClick(Button generateButton,
       Map<String, List<String>> filesPerKey, ObservableList<String> playbackFiles) {
@@ -150,7 +173,7 @@ public class AppEventHandler {
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName, Arrays.toString(melody));
       } catch (Exception e) {
         // TODO: report to the UI
-        System.out.println(e.getMessage());
+        System.out.println(e);
       }
     });
   }
@@ -160,7 +183,7 @@ public class AppEventHandler {
    *
    * @param playButton UI element
    */
-  public void handlePlayButtonClick(Button playButton) {
+  public void handlePlayButtonClick(Button playButton, VBox innerContainer) {
     playButton.setOnAction(event -> {
       try {
         Task<Void> playbackTask = new Task<Void>() {
@@ -188,6 +211,10 @@ public class AppEventHandler {
           // TODO: some UI effect on message
         });
 
+        playbackTask.runningProperty().addListener((observable, oldValue, newValue) -> {
+          innerContainer.setDisable(newValue);
+        });
+
         Thread thread = new Thread(playbackTask);
         thread.setDaemon(true);
         thread.start();
@@ -196,6 +223,13 @@ public class AppEventHandler {
         // TODO: report to the UI
         System.out.println(e);
       }
+    });
+  }
+
+  public void handleProgressIndicator(ProgressIndicator spinner, VBox container) {
+    this.isLoading.addListener((observable, oldvalue, newValue) -> {
+      spinner.setVisible(newValue);
+      container.setDisable(newValue);
     });
   }
 
