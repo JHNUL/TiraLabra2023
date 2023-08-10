@@ -42,6 +42,7 @@ public class AppEventHandler {
   private final BooleanProperty isLoading;
   private BooleanProperty canTrainModel;
   private BooleanProperty isModelTrained;
+  private BooleanProperty canStartPlayback;
 
   /**
    * Constructor.
@@ -59,6 +60,7 @@ public class AppEventHandler {
     this.playbackFile = playbackFile;
     this.isLoading = isLoading;
     this.canTrainModel = new SimpleBooleanProperty(false);
+    this.canStartPlayback = new SimpleBooleanProperty(false);
     this.isModelTrained = new SimpleBooleanProperty(false);
   }
 
@@ -111,6 +113,9 @@ public class AppEventHandler {
     playbackSelect.valueProperty().addListener((observable, oldValue, newValue) -> {
       if (newValue != null) {
         playbackFile.set(newValue);
+        canStartPlayback.set(true);
+      } else {
+        canStartPlayback.set(false);
       }
     });
   }
@@ -203,6 +208,7 @@ public class AppEventHandler {
    * @param playButton UI element
    */
   public void handlePlayButton(Button playButton, VBox innerContainer) {
+    playButton.disableProperty().bind(this.canStartPlayback.not());
     playButton.setOnAction(event -> {
       try {
         Task<Void> playbackTask = new Task<Void>() {
