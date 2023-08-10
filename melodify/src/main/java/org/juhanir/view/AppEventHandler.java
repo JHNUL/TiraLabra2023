@@ -40,7 +40,8 @@ public class AppEventHandler {
   private final StringProperty musicalKey;
   private final StringProperty playbackFile;
   private final BooleanProperty isLoading;
-  private BooleanProperty preventTrain;
+  private BooleanProperty canTrainModel;
+  private BooleanProperty isModelTrained;
 
   /**
    * Constructor.
@@ -57,7 +58,8 @@ public class AppEventHandler {
     this.musicalKey = musicalKey;
     this.playbackFile = playbackFile;
     this.isLoading = isLoading;
-    this.preventTrain = new SimpleBooleanProperty(true);
+    this.canTrainModel = new SimpleBooleanProperty(false);
+    this.isModelTrained = new SimpleBooleanProperty(false);
   }
 
   /**
@@ -75,12 +77,12 @@ public class AppEventHandler {
         degree.set(value);
         degreeField.setStyle("-fx-border-color: none;");
         if (musicalKey.get() != null) {
-          preventTrain.set(false);
+          canTrainModel.set(true);
         }
       } catch (Exception e) {
         degree.set(0);
         degreeField.setStyle("-fx-border-color: red;");
-        preventTrain.set(true);
+        canTrainModel.set(false);
       }
     });
   }
@@ -94,9 +96,9 @@ public class AppEventHandler {
     musicalKeySelect.valueProperty().addListener((observable, oldValue, newValue) -> {
       String key = newValue.split(" ")[0].strip();
       musicalKey.set(key);
-      if (degree.get() > 0 && degree.get() < 7) {
-          preventTrain.set(true);
-        }
+      if (1 < degree.get() && degree.get() > 6) {
+        canTrainModel.set(false);
+      }
     });
   }
 
@@ -120,13 +122,14 @@ public class AppEventHandler {
    * @param filesPerKey Training data files grouped per musical key
    */
   public void handleTrainButton(Button trainButton, Map<String, List<String>> filesPerKey) {
-    trainButton.disableProperty().bind(preventTrain);
+    trainButton.disableProperty().bind(this.canTrainModel.not());
     trainButton.setOnAction(event -> {
       try {
         List<String> files = filesPerKey.getOrDefault(musicalKey.get(), Collections.emptyList());
         if (files.isEmpty() || degree.get() < 1) {
           return;
         }
+        this.isModelTrained.set(false);
         Task<Void> trainingTask = new Task<Void>() {
           @Override
           protected Void call() throws Exception {
@@ -142,6 +145,7 @@ public class AppEventHandler {
         });
 
         trainingTask.setOnSucceeded(taskEvent -> {
+          this.isModelTrained.set(true);
           // TODO: some UI effect on success
         });
 
@@ -166,8 +170,9 @@ public class AppEventHandler {
    * @param generateButton UI element
    * @param filesPerKey Training data files grouped per musical key
    */
-  public void handleGenerateButton(Button generateButton,
-      Map<String, List<String>> filesPerKey, ObservableList<String> playbackFiles) {
+  public void handleGenerateButton(Button generateButton, Map<String, List<String>> filesPerKey,
+      ObservableList<String> playbackFiles) {
+    generateButton.disableProperty().bind(this.isModelTrained.not());
     generateButton.setOnAction(event -> {
       if (degree.get() < 0) {
         return;
