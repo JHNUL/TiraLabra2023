@@ -2,6 +2,7 @@ package org.juhanir;
 
 import java.io.IOException;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
@@ -17,6 +18,11 @@ public class Main extends Application {
     FXMLLoader loader = new FXMLLoader(Main.class.getResource("/AppController.fxml"));
     AnchorPane view = (AnchorPane) loader.load();
     Scene scene = new Scene(view);
+    // Making sure that threads close with the application
+    stage.setOnCloseRequest(event -> {
+      Platform.exit();
+      System.exit(0);
+    });
     stage.setTitle("MELODIFY");
     stage.setScene(scene);
     stage.show();

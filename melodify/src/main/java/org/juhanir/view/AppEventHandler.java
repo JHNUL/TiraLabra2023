@@ -9,16 +9,21 @@ import java.util.Map;
 import java.util.Random;
 
 import org.audiveris.proxymusic.ScorePartwise;
+import org.jfugue.integration.MusicXmlParser;
+import org.jfugue.pattern.Pattern;
+import org.jfugue.player.Player;
 import org.juhanir.domain.Trie;
 import org.juhanir.services.GeneratorService;
 import org.juhanir.services.TrainingService;
 import org.juhanir.utils.Constants;
 import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
+import org.staccato.StaccatoParserListener;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -157,7 +162,40 @@ public class AppEventHandler {
    */
   public void handlePlayButtonClick(Button playButton) {
     playButton.setOnAction(event -> {
-      System.out.println(playbackFile.get());
+      try {
+        Task<Void> playbackTask = new Task<Void>() {
+          @Override
+          protected Void call() throws Exception {
+            updateMessage("Playing generated file");
+            MusicXmlParser mxmlParser = new MusicXmlParser();
+            StaccatoParserListener listener = new StaccatoParserListener();
+            FileIo reader = new FileIo();
+            mxmlParser.addParserListener(listener);
+            mxmlParser.parse(reader.readFile(Constants.OUTPUT_DATA_PATH, playbackFile.get()));
+            Pattern staccatoPattern = listener.getPattern();
+            Player player = new Player();
+            player.play(staccatoPattern);
+            updateMessage("");
+            return null;
+          }
+        };
+
+        playbackTask.setOnSucceeded(taskEvent -> {
+          // TODO: some UI effect on success
+        });
+
+        playbackTask.messageProperty().addListener((observable, oldValue, newValue) -> {
+          // TODO: some UI effect on message
+        });
+
+        Thread thread = new Thread(playbackTask);
+        thread.setDaemon(true);
+        thread.start();
+
+      } catch (Exception e) {
+        // TODO: report to the UI
+        System.out.println(e);
+      }
     });
   }
 

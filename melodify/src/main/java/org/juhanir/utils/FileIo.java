@@ -27,6 +27,11 @@ public class FileIo {
     return new FileInputStream(new File(filePath));
   }
 
+  public FileInputStream readFile(String folderPath, String fileName) throws FileNotFoundException {
+    String path = this.getFolderPath(folderPath);
+    return new FileInputStream(new File(path + File.separator + fileName));
+  }
+
   /**
    * Collect all files in the specified folder.
    *
