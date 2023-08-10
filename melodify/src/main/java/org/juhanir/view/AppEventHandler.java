@@ -10,6 +10,7 @@ import java.util.Random;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.jfugue.integration.MusicXmlParser;
 import org.jfugue.pattern.Pattern;
+import org.jfugue.player.ManagedPlayer;
 import org.jfugue.player.Player;
 import org.juhanir.domain.Trie;
 import org.juhanir.services.GeneratorService;
@@ -212,6 +213,7 @@ public class AppEventHandler {
     stopButton.setDisable(true);
     playButton.setOnAction(event -> {
       try {
+        Player player = new Player();
         Task<Void> playbackTask = new Task<Void>() {
           @Override
           protected Void call() throws Exception {
@@ -222,7 +224,6 @@ public class AppEventHandler {
             mxmlParser.addParserListener(listener);
             mxmlParser.parse(reader.readFile(Constants.OUTPUT_DATA_PATH, playbackFile.get()));
             Pattern staccatoPattern = listener.getPattern();
-            Player player = new Player();
             player.play(staccatoPattern);
             updateMessage("");
             return null;
@@ -244,7 +245,10 @@ public class AppEventHandler {
         stopButton.disableProperty().bind(playbackTask.runningProperty().not());
 
         stopButton.setOnAction(stopBtnEvent -> {
-          playbackTask.cancel(true);
+          ManagedPlayer mPlayer = player.getManagedPlayer();
+          if (!mPlayer.isFinished()) {
+            mPlayer.finish();
+          }
         });
 
         Thread thread = new Thread(playbackTask);
