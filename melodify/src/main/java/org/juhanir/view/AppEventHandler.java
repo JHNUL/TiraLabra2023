@@ -207,8 +207,9 @@ public class AppEventHandler {
    *
    * @param playButton UI element
    */
-  public void handlePlayButton(Button playButton, VBox innerContainer) {
+  public void handlePlayButton(Button playButton, Button stopButton, VBox innerContainer) {
     playButton.disableProperty().bind(this.canStartPlayback.not());
+    stopButton.setDisable(true);
     playButton.setOnAction(event -> {
       try {
         Task<Void> playbackTask = new Task<Void>() {
@@ -238,6 +239,12 @@ public class AppEventHandler {
 
         playbackTask.runningProperty().addListener((observable, oldValue, newValue) -> {
           innerContainer.setDisable(newValue);
+        });
+
+        stopButton.disableProperty().bind(playbackTask.runningProperty().not());
+
+        stopButton.setOnAction(stopBtnEvent -> {
+          playbackTask.cancel(true);
         });
 
         Thread thread = new Thread(playbackTask);

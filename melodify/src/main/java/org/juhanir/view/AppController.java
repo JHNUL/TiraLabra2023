@@ -51,6 +51,9 @@ public class AppController {
   private Button playButton;
 
   @FXML
+  private Button stopButton;
+
+  @FXML
   private ComboBox<String> playbackSelect;
 
   @FXML
@@ -86,7 +89,7 @@ public class AppController {
     this.eventHandler.handleTrainButton(this.trainButton, this.filesPerKey);
     this.eventHandler.handleGenerateButton(this.generateButton, this.filesPerKey,
         this.playbackFiles);
-    this.eventHandler.handlePlayButton(this.playButton, this.innerContainer);
+    this.eventHandler.handlePlayButton(this.playButton, this.stopButton, this.innerContainer);
     this.eventHandler.handlePlaybackSelectChange(this.playbackSelect);
     this.eventHandler.handleProgressIndicator(this.progressIndicator, this.container);
     this.groupDataByKey();
@@ -119,7 +122,7 @@ public class AppController {
       this.playbackSelect.setItems(this.playbackFiles);
       this.filesPerKey.set(FXCollections.observableMap(taskResult));
       this.keys = FXCollections.observableArrayList(this.filesPerKey.getValue().entrySet().stream()
-          .map(es -> String.format("%s (%s)", es.getKey(), es.getValue().size()))
+          .map(es -> String.format("%s (%s songs)", es.getKey(), es.getValue().size()))
           .collect(Collectors.toList()));
       this.musicalKeySelect.setItems(FXCollections.observableList(this.keys));
       this.musicalKeySelect.setValue(this.keys.get(0));
