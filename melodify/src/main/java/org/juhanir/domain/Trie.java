@@ -134,6 +134,35 @@ public class Trie {
   }
 
   /**
+   * Get a random sequence of the argument length starting with the provided note. Provided note
+   * must be present in the first level of the trie.
+   *
+   * @param startingNote note that starts the sequence.
+   * @param length length of the sequence.
+   * @return sequence
+   */
+  public int[] getRandomSequenceStartingWith(int startingNote, int length) {
+    if (length <= 1) {
+      return new int[] { startingNote };
+    }
+    int[] sequence = new int[length];
+    sequence[0] = startingNote;
+    TrieNode node = this.root.getChildren()[startingNote];
+    Random rand = new Random();
+    for (int i = 1; i < length; i++) {
+      TrieNode[] children =
+          Arrays.stream(node.getChildren()).filter(Objects::nonNull).toArray(TrieNode[]::new);
+      if (children.length == 0) {
+        return sequence;
+      }
+      TrieNode selected = children[rand.nextInt(children.length)];
+      sequence[i] = selected.getValue();
+      node = selected;
+    }
+    return sequence;
+  }
+
+  /**
    * Clear the existing trie by resetting the root node.
    */
   public void clear() {

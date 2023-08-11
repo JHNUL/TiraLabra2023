@@ -4,11 +4,19 @@ import java.util.Arrays;
 import java.util.Objects;
 import org.juhanir.utils.Constants;
 
+/**
+ * A node in the trie. Represents a note.
+ */
 public class TrieNode {
   private TrieNode[] children;
   private int value;
   private int count;
 
+  /**
+   * Constructor for TrieNode.
+   *
+   * @param value the integer value of the note.
+   */
   public TrieNode(int value) {
     this.value = value;
     this.children = new TrieNode[Constants.NOTE_ARRAY_SIZE];

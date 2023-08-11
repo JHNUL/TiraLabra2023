@@ -126,8 +126,7 @@ class TrieTest {
   void prefixSearchReturnsImmediateChildrenWithTwoNotePrefix() {
     Trie trie = new Trie();
     trie.insert(threeChildren);
-    TrieNode[] result =
-        trie.prefixSearch(new int[] { threeChildren[0], threeChildren[1] });
+    TrieNode[] result = trie.prefixSearch(new int[] { threeChildren[0], threeChildren[1] });
     assertEquals(threeChildren[2], result[threeChildren[2]].getValue());
   }
 
@@ -275,4 +274,39 @@ class TrieTest {
     trie.clear();
     assertEquals(1, trie.size());
   }
+
+  @Test
+  void producesRandomSequenceWithStartingNote() {
+    Trie trie = new Trie();
+    trie.insert(new int[] { 5, 6, 7 });
+    trie.insert(new int[] { 5, 6, 8 });
+    trie.insert(new int[] { 6, 6, 9 });
+    trie.insert(new int[] { 8, 6, 10 });
+    trie.insert(new int[] { 5, 7, 11 });
+    for (int i = 0; i < 100; i++) {
+      int[] seq = trie.getRandomSequenceStartingWith(5, 3);
+      assertEquals(5, seq[0]);
+      assertTrue(List.of(6, 7).contains(seq[1]));
+      assertTrue(List.of(7, 8, 11).contains(seq[2]));
+    }
+    for (int i = 0; i < 100; i++) {
+      int[] seq = trie.getRandomSequenceStartingWith(8, 3);
+      assertArrayEquals(new int[] { 8, 6, 10 }, seq);
+    }
+  }
+
+  @Test
+  void producesRandomSequenceWithStartingNoteInvalidLength() {
+    Trie trie = new Trie();
+    trie.insert(new int[] { 5, 6, 7 });
+    trie.insert(new int[] { 5, 6, 8 });
+    trie.insert(new int[] { 6, 6, 9 });
+    trie.insert(new int[] { 8, 6, 10 });
+    trie.insert(new int[] { 5, 7, 11 });
+    int[] seq = trie.getRandomSequenceStartingWith(5, 1);
+    assertArrayEquals(new int[] {5}, seq);
+    seq = trie.getRandomSequenceStartingWith(5, 0);
+    assertArrayEquals(new int[] {5}, seq);
+  }
+
 }

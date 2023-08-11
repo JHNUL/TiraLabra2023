@@ -202,8 +202,8 @@ public class ScoreParserTest {
         assertEquals(new BigDecimal(0), notes[i].getPitch().getAlter());
         assertEquals(Step.C, notes[i].getPitch().getStep());
         assertEquals(Constants.OCTAVE_LOWER_BOUND + i, notes[i].getPitch().getOctave());
-        assertEquals(new BigDecimal(4), notes[i].getDuration());
-        assertEquals("whole", notes[i].getType().getValue());
+        assertEquals(new BigDecimal(60), notes[i].getDuration());
+        assertEquals("eighth", notes[i].getType().getValue());
       }
     }
 
@@ -233,8 +233,8 @@ public class ScoreParserTest {
         assertEquals(alters[i], notes[i].getPitch().getAlter());
         assertEquals(steps[i], notes[i].getPitch().getStep());
         assertEquals(4, notes[i].getPitch().getOctave());
-        assertEquals(new BigDecimal(4), notes[i].getDuration());
-        assertEquals("whole", notes[i].getType().getValue());
+        assertEquals(new BigDecimal(60), notes[i].getDuration());
+        assertEquals("eighth", notes[i].getType().getValue());
       }
     }
   }

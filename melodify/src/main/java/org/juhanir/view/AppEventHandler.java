@@ -7,6 +7,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.jfugue.integration.MusicXmlParser;
 import org.jfugue.pattern.Pattern;
@@ -19,17 +30,6 @@ import org.juhanir.utils.Constants;
 import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
 import org.staccato.StaccatoParserListener;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
 
 /**
  * Event handlers for UI elements.
@@ -72,9 +72,11 @@ public class AppEventHandler {
    */
   public void handleDegreeFieldChange(TextField degreeField) {
     degreeField.textProperty().addListener((observable, oldValue, newValue) -> {
+      // TODO: disable generate button if these are changed
       try {
         int value = Integer.parseInt(newValue.strip());
-        if (value < 1 || value > 6) {
+        if (value < Constants.MARKOV_CHAIN_DEGREE_MIN
+            || value > Constants.MARKOV_CHAIN_DEGREE_MAX) {
           throw new Exception();
         }
         degree.set(value);
@@ -99,7 +101,8 @@ public class AppEventHandler {
     musicalKeySelect.valueProperty().addListener((observable, oldValue, newValue) -> {
       String key = newValue.split(" ")[0].strip();
       musicalKey.set(key);
-      if (1 < degree.get() && degree.get() > 6) {
+      if (Constants.MARKOV_CHAIN_DEGREE_MIN < degree.get()
+          && degree.get() > Constants.MARKOV_CHAIN_DEGREE_MAX) {
         canTrainModel.set(false);
       }
     });
@@ -132,7 +135,7 @@ public class AppEventHandler {
     trainButton.setOnAction(event -> {
       try {
         List<String> files = filesPerKey.getOrDefault(musicalKey.get(), Collections.emptyList());
-        if (files.isEmpty() || degree.get() < 1) {
+        if (files.isEmpty() || degree.get() < Constants.MARKOV_CHAIN_DEGREE_MIN) {
           return;
         }
         this.isModelTrained.set(false);
@@ -180,12 +183,17 @@ public class AppEventHandler {
       ObservableList<String> playbackFiles) {
     generateButton.disableProperty().bind(this.isModelTrained.not());
     generateButton.setOnAction(event -> {
-      if (degree.get() < 0) {
+      if (degree.get() < Constants.MARKOV_CHAIN_DEGREE_MIN) {
         return;
       }
-      int[] initialSequence = this.trie.getRandomSequence(degree.get());
       try {
         GeneratorService generator = new GeneratorService(trie, new Random());
+        int startingNote = generator.getBaseNoteOfKey(musicalKey.get());
+        // Should not be possible in practice to not have any base note of the key (e.g. songs in
+        // C major without any C notes), but cannot be guaranteed so default to any random sequence.
+        int[] initialSequence =
+            startingNote >= 0 ? trie.getRandomSequenceStartingWith(startingNote, degree.get())
+                : trie.getRandomSequence(degree.get());
         ScoreParser parser = new ScoreParser();
         int[] melody = generator.predictSequence(initialSequence, 50);
         ScorePartwise score = parser.convertMelodyToScorePartwise(melody, musicalKey.get());
@@ -245,9 +253,9 @@ public class AppEventHandler {
         stopButton.disableProperty().bind(playbackTask.runningProperty().not());
 
         stopButton.setOnAction(stopBtnEvent -> {
-          ManagedPlayer mPlayer = player.getManagedPlayer();
-          if (!mPlayer.isFinished()) {
-            mPlayer.finish();
+          ManagedPlayer managedPlayer = player.getManagedPlayer();
+          if (!managedPlayer.isFinished()) {
+            managedPlayer.finish();
           }
         });
 
@@ -262,6 +270,12 @@ public class AppEventHandler {
     });
   }
 
+  /**
+   * Event handler for progress indicator.
+   *
+   * @param spinner indicator
+   * @param container UI element to disable when indicator is showing
+   */
   public void handleProgressIndicator(ProgressIndicator spinner, VBox container) {
     this.isLoading.addListener((observable, oldvalue, newValue) -> {
       spinner.setVisible(newValue);

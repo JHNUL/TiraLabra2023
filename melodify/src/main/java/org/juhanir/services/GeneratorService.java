@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.logging.Logger;
 import org.juhanir.domain.Trie;
 import org.juhanir.domain.TrieNode;
+import org.juhanir.utils.Constants;
 
 /**
  * Contains methods to generate a melody sequence.
@@ -87,10 +88,35 @@ public class GeneratorService {
       int[] generationPrefix = Arrays.copyOfRange(result, i - initialPrefix.length, i);
       int nextNote = this.predictNextNote(generationPrefix);
       if (nextNote < 0) {
+        generatorLogger.info(String.format("Could not continue generation of %s",
+            Arrays.toString(generationPrefix)));
         return Arrays.copyOfRange(result, 0, i);
       }
       result[i] = nextNote;
     }
     return result;
+  }
+
+  /**
+   * <p>
+   * Get the base note of the given key from the most popular octave in the training data.
+   * </p>
+   *
+   * @param musicalKey name of the key, e.g. C, A#m etc
+   * @return starting note integer value, -1 if no base note found for that key
+   */
+  public int getBaseNoteOfKey(String musicalKey) {
+    int baseNote = Constants.musicalKeyBaseNotes.get(musicalKey);
+    TrieNode[] firstNotes = trie.prefixSearch(new int[0]); // empty prefix gets children of root
+    int popularity = 0;
+    int startingNote = -1;
+    for (int i = baseNote; i < firstNotes.length; i += 12) {
+      TrieNode note = firstNotes[i];
+      if (note != null && note.getCount() > popularity) {
+        startingNote = i;
+        popularity = note.getCount();
+      }
+    }
+    return startingNote;
   }
 }

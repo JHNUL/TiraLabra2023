@@ -36,11 +36,11 @@ import org.juhanir.domain.MelodyNote;
  */
 public class ScoreParser {
 
-  private static Logger parserLogger = Logger.getLogger(ScoreParser.class.getName());
-  private static String[] cicleOfFifthsMajor = new String[] { "Cb", "Gb", "Db", "Ab", "Eb", "Bb",
-      "F", "C", "G", "D", "A", "E", "B", "F#", "C#" };
-  private static String[] cicleOfFifthsMinor = new String[] { "Abm", "Ebm", "Bbm", "Fm", "Cm", "Gm",
-      "Dm", "Am", "Em", "Bm", "F#m", "C#m", "G#m", "D#m", "A#m" };
+  private static final Logger parserLogger = Logger.getLogger(ScoreParser.class.getName());
+  private static final String[] cicleOfFifthsMajor = new String[] { "Cb", "Gb", "Db", "Ab", "Eb",
+      "Bb", "F", "C", "G", "D", "A", "E", "B", "F#", "C#" };
+  private static final String[] cicleOfFifthsMinor = new String[] { "Abm", "Ebm", "Bbm", "Fm", "Cm",
+      "Gm", "Dm", "Am", "Em", "Bm", "F#m", "C#m", "G#m", "D#m", "A#m" };
 
   /**
    * <p>
@@ -120,8 +120,7 @@ public class ScoreParser {
         }
         filesPerKey.get(tuneKey).add(filePath);
       } catch (Exception e) {
-        parserLogger.severe("Failed to collect from " + filePath);
-        parserLogger.severe(e.toString());
+        parserLogger.severe("Failed to collect from " + filePath + ": " + e.getMessage());
       }
     }
     return filesPerKey;
@@ -200,12 +199,12 @@ public class ScoreParser {
           throw new IllegalArgumentException(
               String.format("Non-supported fifths value %s", fifths));
         }
-        if (!List.of("major", "minor").contains(mode)) {
+        if (!Constants.modes.contains(mode)) {
           throw new IllegalArgumentException(String.format("Non-supported mode value %s", mode));
         }
         fifths += Constants.FIFTHS_SUPPORTED_RANGE; // normalize
         String musicKey =
-            (mode.equals("major")) ? cicleOfFifthsMajor[fifths] : cicleOfFifthsMinor[fifths];
+            (mode.equals("minor")) ? cicleOfFifthsMinor[fifths] : cicleOfFifthsMajor[fifths];
         if (!musicalKeys.contains(musicKey)) {
           musicalKeys.add(musicKey);
         }
@@ -298,7 +297,7 @@ public class ScoreParser {
     measure.getNoteOrBackupOrForward().add(attributes);
 
     // Divisions
-    attributes.setDivisions(new BigDecimal(1));
+    attributes.setDivisions(new BigDecimal(120));
 
     // Key
     Key key = factory.createKey();
@@ -322,10 +321,10 @@ public class ScoreParser {
       pitch.setOctave(melodyNote.getOctave());
       pitch.setAlter(new BigDecimal(melodyNote.getAlter()));
 
-      note.setDuration(new BigDecimal(4));
+      note.setDuration(new BigDecimal(60));
 
       NoteType type = factory.createNoteType();
-      type.setValue("whole");
+      type.setValue("eighth");
       note.setType(type);
     }
 
