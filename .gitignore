@@ -3,3 +3,4 @@
 .vscode
 **/musicxml
 data/output/*_generation_*
+**/*.log

@@ -43,7 +43,7 @@ public class TrainingService {
     for (final String filePath : filePaths) {
       try (InputStream is = this.fileIo.readFile(filePath)) {
         List<Integer> melodies = this.scoreParser.parse(is);
-        trainingLogger.info(melodies.toString());
+        // trainingLogger.info(melodies.toString());
         // trainingLogger.info(String.format("Len melodies: %s", melodies.size()));
         for (int i = 0; i < melodies.size() - degree; i++) {
           int[] trainingTuple =

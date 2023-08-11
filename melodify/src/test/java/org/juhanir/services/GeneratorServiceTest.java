@@ -47,8 +47,7 @@ public class GeneratorServiceTest {
   void predictionThrowsWhenProbabilitySumNotEqualToOne() {
     Trie mockTrie = mock(Trie.class);
     GeneratorService generator = new GeneratorService(mockTrie, new Random());
-    when(mockTrie.getProbabilities(any()))
-        .thenReturn(new double[] { 0.0, 0.2, 0.5 })
+    when(mockTrie.getProbabilities(any())).thenReturn(new double[] { 0.0, 0.2, 0.5 })
         .thenReturn(new double[] { 0.0, 0.8, 0.5 });
     assertThrows(IllegalArgumentException.class,
         () -> generator.predictNextNote(new int[] { 5, 6 }));
@@ -59,8 +58,8 @@ public class GeneratorServiceTest {
   @Test
   void predictionWithNonExistingPrefix() {
     GeneratorService generator = new GeneratorService(this.trie, new Random());
-    List<int[]> inputs = List.of(new int[] { 1, 1, 1 }, new int[] { 7, 11 },
-        new int[] { 6, 7 }, new int[] { 5, 8 }, new int[] { 6, 5 });
+    List<int[]> inputs = List.of(new int[] { 1, 1, 1 }, new int[] { 7, 11 }, new int[] { 6, 7 },
+        new int[] { 5, 8 }, new int[] { 6, 5 });
     for (int[] input : inputs) {
       int result = generator.predictNextNote(input);
       assertEquals(-1, result);
@@ -130,6 +129,78 @@ public class GeneratorServiceTest {
     // {7}{8}{9}{10} {11}
   }
 
+  @Test
+  void noBaseNoteOfKey() {
+    GeneratorService generator = new GeneratorService(this.trie, new Random());
+    int res = generator.getBaseNoteOfKey("C");
+    assertEquals(-1, res);
+    // {root}
+    // {5}
+    // {6}___________{7}
+    // {7}{8}{9}{10} {11}
+  }
+
+  @Test
+  void findsBaseNoteOfKey() {
+    GeneratorService generator = new GeneratorService(this.trie, new Random());
+    int res = generator.getBaseNoteOfKey("F");
+    assertEquals(5, res);
+    // {root}
+    // {5}
+    // {6}___________{7}
+    // {7}{8}{9}{10} {11}
+  }
+
+  @Test
+  void findsBaseNoteOfKeys() {
+    Trie testTrie = new Trie();
+    for (int i = 0; i < Constants.NOTE_ARRAY_SIZE; i++) {
+      testTrie.insert(new int[] { i, 6 });
+      // add all notes twice in the first octave
+      if (i < 12) {
+        testTrie.insert(new int[] { i, 6 });
+      }
+      // add every other note three times in the last octave
+      if (i >= Constants.NOTE_ARRAY_SIZE - 12 && i % 2 == 0) {
+        testTrie.insert(new int[] { i, 6 });
+        testTrie.insert(new int[] { i, 6 });
+      }
+    }
+    GeneratorService generator = new GeneratorService(testTrie, new Random());
+    // Expected in the lowest octave
+    assertEquals(1, generator.getBaseNoteOfKey("C#"));
+    assertEquals(1, generator.getBaseNoteOfKey("C#m"));
+    assertEquals(1, generator.getBaseNoteOfKey("Db"));
+    assertEquals(3, generator.getBaseNoteOfKey("D#m"));
+    assertEquals(3, generator.getBaseNoteOfKey("Eb"));
+    assertEquals(3, generator.getBaseNoteOfKey("Ebm"));
+    assertEquals(5, generator.getBaseNoteOfKey("F"));
+    assertEquals(5, generator.getBaseNoteOfKey("Fm"));
+    assertEquals(7, generator.getBaseNoteOfKey("G"));
+    assertEquals(7, generator.getBaseNoteOfKey("Gm"));
+    assertEquals(9, generator.getBaseNoteOfKey("A"));
+    assertEquals(9, generator.getBaseNoteOfKey("Am"));
+    assertEquals(11, generator.getBaseNoteOfKey("B"));
+    assertEquals(11, generator.getBaseNoteOfKey("Bm"));
+    assertEquals(11, generator.getBaseNoteOfKey("Cb"));
+    // Expected in the highest octave
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 12, generator.getBaseNoteOfKey("C"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 12, generator.getBaseNoteOfKey("Cm"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 10, generator.getBaseNoteOfKey("D"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 10, generator.getBaseNoteOfKey("Dm"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 8, generator.getBaseNoteOfKey("E"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 8, generator.getBaseNoteOfKey("Em"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 6, generator.getBaseNoteOfKey("F#"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 6, generator.getBaseNoteOfKey("F#m"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 6, generator.getBaseNoteOfKey("Gb"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 4, generator.getBaseNoteOfKey("G#m"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 4, generator.getBaseNoteOfKey("Ab"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 4, generator.getBaseNoteOfKey("Abm"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 2, generator.getBaseNoteOfKey("A#m"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 2, generator.getBaseNoteOfKey("Bb"));
+    assertEquals(Constants.NOTE_ARRAY_SIZE - 2, generator.getBaseNoteOfKey("Bbm"));
+  }
+
   @Nested
   class WeightedProbabilitySelection {
 
@@ -182,8 +253,7 @@ public class GeneratorServiceTest {
 
     @Test
     void returnsIndexOfNonZeroValue() {
-      double[] testProbabilities =
-          { 0.05, 0.0, 0.1, 0.0, 0.32, 0.08, 0.0, 0.35, 0.2, 0.0 };
+      double[] testProbabilities = { 0.05, 0.0, 0.1, 0.0, 0.32, 0.08, 0.0, 0.35, 0.2, 0.0 };
       List<Double> expectedValues = List.of(0.1, 0.32, 0.08, 0.35, 0.2, 0.05);
       for (int i = 0; i < 100; i++) {
         int res = this.generator.getIndexOfSelectedNote(testProbabilities);
@@ -195,8 +265,7 @@ public class GeneratorServiceTest {
     void moreProbableNoteGetsPickedSanityTest() {
       // Bad idea to test with randomness, but hopefully after ten thousand
       // iterations we see that 0.2 is always picked less often than 0.35
-      double[] testProbabilities =
-          { 0.05, 0.0, 0.1, 0.0, 0.32, 0.08, 0.0, 0.35, 0.2, 0.0 };
+      double[] testProbabilities = { 0.05, 0.0, 0.1, 0.0, 0.32, 0.08, 0.0, 0.35, 0.2, 0.0 };
       int countOfMostProbable = 0;
       int countOfLessProbable = 0;
       for (int i = 0; i < 10000; i++) {
@@ -216,9 +285,8 @@ public class GeneratorServiceTest {
   class WithRealData {
 
     private List<String> trainingDataPaths = new ArrayList<>();
-    private int[] wholeMelody =
-        { 2, 2, 9, 9, 11, 11, 9, 7, 7, 6, 6, 4, 4, 4, 4, 2, 9, 9, 7, 6, 6, 6, 4,
-            9, 9, 7, 7, 6, 6, 4, 2, 2, 9, 9, 11, 11, 9, 7, 7, 6, 6, 4, 4, 2 };
+    private int[] wholeMelody = { 2, 2, 9, 9, 11, 11, 9, 7, 7, 6, 6, 4, 4, 4, 4, 2, 9, 9, 7, 6, 6,
+        6, 4, 9, 9, 7, 7, 6, 6, 4, 2, 2, 9, 9, 11, 11, 9, 7, 7, 6, 6, 4, 4, 2 };
 
     @BeforeEach
     void setUp() {
@@ -231,8 +299,7 @@ public class GeneratorServiceTest {
       this.trainingDataPaths.add(testDataPath);
       // Normalize melody to correct octave representation.
       // All notes in test data song are in octave 4
-      this.wholeMelody =
-          Arrays.stream(this.wholeMelody).map(this::normalize).toArray();
+      this.wholeMelody = Arrays.stream(this.wholeMelody).map(this::normalize).toArray();
     }
 
     int normalize(int note) {
@@ -241,8 +308,7 @@ public class GeneratorServiceTest {
 
     boolean arrayHasSubArray(int[] array, int[] subArray) {
       for (int i = 0; i < array.length - subArray.length + 1; i++) {
-        if (Arrays.equals(array, i, i + subArray.length, subArray, 0,
-            subArray.length)) {
+        if (Arrays.equals(array, i, i + subArray.length, subArray, 0, subArray.length)) {
           return true;
         }
       }
@@ -251,8 +317,7 @@ public class GeneratorServiceTest {
 
     void allGenerationsAreInTrainingData(int degree) {
       Trie trie = new Trie();
-      TrainingService service =
-          new TrainingService(new FileIo(), new ScoreParser(), trie);
+      TrainingService service = new TrainingService(new FileIo(), new ScoreParser(), trie);
       service.trainWith(this.trainingDataPaths, degree);
       GeneratorService generator = new GeneratorService(trie, new Random());
       for (int i = 0; i < this.wholeMelody.length - degree; i++) {
@@ -273,14 +338,12 @@ public class GeneratorServiceTest {
 
     void allPredictedSequencesAreInTrainingData(int degree) {
       Trie trie = new Trie();
-      TrainingService service =
-          new TrainingService(new FileIo(), new ScoreParser(), trie);
+      TrainingService service = new TrainingService(new FileIo(), new ScoreParser(), trie);
       service.trainWith(this.trainingDataPaths, degree);
       GeneratorService generator = new GeneratorService(trie, new Random());
       int[] prefix = Arrays.copyOfRange(this.wholeMelody, 0, degree);
       System.out.println(Arrays.toString(prefix));
-      int[] generation =
-          generator.predictSequence(prefix, this.wholeMelody.length);
+      int[] generation = generator.predictSequence(prefix, this.wholeMelody.length);
       assertEquals(this.wholeMelody.length, generation.length);
       assertArrayEquals(prefix, Arrays.copyOfRange(generation, 0, degree));
       for (int i = 0; i < generation.length - degree; i++) {
@@ -301,15 +364,13 @@ public class GeneratorServiceTest {
     @Test
     void predictSequenceStopsIfNoChildrenForSequence() {
       Trie trie = new Trie();
-      TrainingService service =
-          new TrainingService(new FileIo(), new ScoreParser(), trie);
+      TrainingService service = new TrainingService(new FileIo(), new ScoreParser(), trie);
       service.trainWith(this.trainingDataPaths, 4);
       GeneratorService generator = new GeneratorService(trie, new Random());
       // From the end of training data, non-repeating sequence
-      int[] prefix = Arrays.copyOfRange(this.wholeMelody,
-          this.wholeMelody.length - 5, this.wholeMelody.length);
-      int[] generation =
-          generator.predictSequence(prefix, this.wholeMelody.length);
+      int[] prefix = Arrays.copyOfRange(this.wholeMelody, this.wholeMelody.length - 5,
+          this.wholeMelody.length);
+      int[] generation = generator.predictSequence(prefix, this.wholeMelody.length);
       assertArrayEquals(prefix, generation);
     }
 
