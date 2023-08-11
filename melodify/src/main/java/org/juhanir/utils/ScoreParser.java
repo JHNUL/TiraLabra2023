@@ -166,14 +166,12 @@ public class ScoreParser {
     for (final Part part : parts) {
       List<Measure> measures = part.getMeasure();
       for (final Measure measure : measures) {
-        // TODO: If two staves in measure, only get 1st?
         List<Object> measureContents = measure.getNoteOrBackupOrForward();
         List<Note> notes = measureContents.stream().filter(Note.class::isInstance)
             .map(c -> (Note) c).collect(Collectors.toList());
         for (final Note note : notes) {
           Pitch pitch = note.getPitch();
           String voice = note.getVoice();
-          // Use voice = 1 check to avoid having to deal with backups for now
           if (pitch == null || !voice.equals("1")) {
             continue;
           }
@@ -191,6 +189,11 @@ public class ScoreParser {
   private void resolveKey(List<Attributes> attrs, List<String> musicalKeys) {
     for (Attributes attributes : attrs) {
       List<Key> keys = attributes.getKey();
+      BigInteger staves = Optional.ofNullable(attributes.getStaves()).orElse(new BigInteger("1"));
+      if (staves.intValue() > 1) {
+        throw new IllegalArgumentException(
+            String.format("Non-supported staves %s", staves.intValue()));
+      }
       for (Key key : keys) {
         int fifths = key.getFifths().intValue();
         String mode = Optional.ofNullable(key.getMode()).orElse("major");
@@ -230,7 +233,7 @@ public class ScoreParser {
       }
       return this.getScorePartwise(notes, fifths);
     } catch (Exception e) {
-      System.out.println(e.getMessage());
+      parserLogger.severe(e.getMessage());
     }
     return null;
   }
