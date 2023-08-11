@@ -42,7 +42,7 @@ public class AppEventHandler {
   private final StringProperty playbackFile;
   private final BooleanProperty isLoading;
   private BooleanProperty canTrainModel;
-  private BooleanProperty isModelTrained;
+  private BooleanProperty canGenerate;
   private BooleanProperty canStartPlayback;
 
   /**
@@ -62,7 +62,7 @@ public class AppEventHandler {
     this.isLoading = isLoading;
     this.canTrainModel = new SimpleBooleanProperty(false);
     this.canStartPlayback = new SimpleBooleanProperty(false);
-    this.isModelTrained = new SimpleBooleanProperty(false);
+    this.canGenerate = new SimpleBooleanProperty(false);
   }
 
   /**
@@ -72,7 +72,7 @@ public class AppEventHandler {
    */
   public void handleDegreeFieldChange(TextField degreeField) {
     degreeField.textProperty().addListener((observable, oldValue, newValue) -> {
-      // TODO: disable generate button if these are changed
+      canGenerate.set(false);
       try {
         int value = Integer.parseInt(newValue.strip());
         if (value < Constants.MARKOV_CHAIN_DEGREE_MIN
@@ -99,6 +99,7 @@ public class AppEventHandler {
    */
   public void handleKeySelectChange(ComboBox<String> musicalKeySelect) {
     musicalKeySelect.valueProperty().addListener((observable, oldValue, newValue) -> {
+      canGenerate.set(false);
       String key = newValue.split(" ")[0].strip();
       musicalKey.set(key);
       if (Constants.MARKOV_CHAIN_DEGREE_MIN < degree.get()
@@ -138,7 +139,7 @@ public class AppEventHandler {
         if (files.isEmpty() || degree.get() < Constants.MARKOV_CHAIN_DEGREE_MIN) {
           return;
         }
-        this.isModelTrained.set(false);
+        this.canGenerate.set(false);
         Task<Void> trainingTask = new Task<Void>() {
           @Override
           protected Void call() throws Exception {
@@ -154,7 +155,7 @@ public class AppEventHandler {
         });
 
         trainingTask.setOnSucceeded(taskEvent -> {
-          this.isModelTrained.set(true);
+          this.canGenerate.set(true);
           // TODO: some UI effect on success
         });
 
@@ -181,7 +182,7 @@ public class AppEventHandler {
    */
   public void handleGenerateButton(Button generateButton, Map<String, List<String>> filesPerKey,
       ObservableList<String> playbackFiles) {
-    generateButton.disableProperty().bind(this.isModelTrained.not());
+    generateButton.disableProperty().bind(this.canGenerate.not());
     generateButton.setOnAction(event -> {
       if (degree.get() < Constants.MARKOV_CHAIN_DEGREE_MIN) {
         return;
