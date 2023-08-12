@@ -16,6 +16,8 @@ public class Constants {
   public static final int MARKOV_CHAIN_DEGREE_MAX = 6;
   public static final int OCTAVE_LOWER_BOUND = 2;
   public static final int OCTAVE_UPPER_BOUND = 5;
+  public static final int GENERATED_MELODY_LEN = 90;
+  public static final int PLAYBACK_TEMPO = 140;
   public static final int NOTE_ARRAY_SIZE = (OCTAVE_UPPER_BOUND - OCTAVE_LOWER_BOUND + 1) * 12;
   public static final String TRAINING_DATA_PATH = "data/musicxml";
   public static final String OUTPUT_DATA_PATH = "data/output";
