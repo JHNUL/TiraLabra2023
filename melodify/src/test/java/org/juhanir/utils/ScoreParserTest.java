@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.audiveris.proxymusic.Note;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.audiveris.proxymusic.Step;
+import org.juhanir.Constants;
 import org.juhanir.domain.MelodyNote;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;

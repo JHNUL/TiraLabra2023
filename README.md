@@ -9,7 +9,8 @@ The application will read MusicXML files as training data to populate a stochast
 ## Documentation
 
 - [Specification (määrittelydokumentti)](/docs/specifications.md)
-- [Testing](/docs/testing.md)
+- [Testing (testausdokumentti)](/docs/testing.md)
+- [Implementation (toteutusdokumentti)](/docs/implementation.md)
 
 #### Weeklies
 

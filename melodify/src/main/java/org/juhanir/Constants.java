@@ -1,4 +1,4 @@
-package org.juhanir.utils;
+package org.juhanir;
 
 import java.util.Arrays;
 import java.util.HashMap;

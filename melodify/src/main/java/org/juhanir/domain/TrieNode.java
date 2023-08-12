@@ -2,7 +2,7 @@ package org.juhanir.domain;
 
 import java.util.Arrays;
 import java.util.Objects;
-import org.juhanir.utils.Constants;
+import org.juhanir.Constants;
 
 /**
  * A node in the trie. Represents a note.

@@ -15,10 +15,10 @@ public class Main extends Application {
 
   @Override
   public void start(Stage stage) throws IOException {
-    FXMLLoader loader = new FXMLLoader(Main.class.getResource("/AppController.fxml"));
+    FXMLLoader loader = new FXMLLoader(Main.class.getResource("/App.fxml"));
     StackPane view = (StackPane) loader.load();
     Scene scene = new Scene(view);
-    // Making sure that threads close with the application
+    // Making sure that threads close with the UI
     stage.setOnCloseRequest(event -> {
       Platform.exit();
       System.exit(0);
