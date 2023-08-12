@@ -22,8 +22,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import org.juhanir.Constants;
 import org.juhanir.domain.Trie;
-import org.juhanir.utils.Constants;
 import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
 

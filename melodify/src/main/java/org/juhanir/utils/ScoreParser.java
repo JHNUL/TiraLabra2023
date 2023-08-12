@@ -30,6 +30,7 @@ import org.audiveris.proxymusic.Time;
 import org.audiveris.proxymusic.Work;
 import org.audiveris.proxymusic.util.Marshalling;
 import org.audiveris.proxymusic.util.Marshalling.UnmarshallingException;
+import org.juhanir.Constants;
 import org.juhanir.domain.MelodyNote;
 
 /**

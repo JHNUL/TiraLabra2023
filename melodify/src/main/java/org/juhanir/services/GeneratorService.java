@@ -3,9 +3,9 @@ package org.juhanir.services;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Logger;
+import org.juhanir.Constants;
 import org.juhanir.domain.Trie;
 import org.juhanir.domain.TrieNode;
-import org.juhanir.utils.Constants;
 
 /**
  * Contains methods to generate a melody sequence.
