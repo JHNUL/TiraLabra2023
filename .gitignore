@@ -2,5 +2,5 @@
 **/*.local
 .vscode
 **/musicxml
-data/output/*_generation_*
+data/output/[A-Z]*
 **/*.log

@@ -201,8 +201,8 @@ public class AppEventHandler {
         int[] melody = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
         ScorePartwise score = parser.convertMelodyToScorePartwise(melody, musicalKey.get());
         LocalDateTime now = LocalDateTime.now();
-        String fileName = musicalKey.get() + "_generation_"
-            + now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH.mm.ss.SSS"));
+        String fileName = String.format("%s-degree%s-%s", musicalKey.get(), degree.get(),
+            now.format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
         FileIo reader = new FileIo();
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".xml", score);
         playbackFiles.add(fileName + ".xml");
