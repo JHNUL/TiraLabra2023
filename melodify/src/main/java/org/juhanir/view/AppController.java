@@ -125,7 +125,11 @@ public class AppController {
           .map(es -> String.format("%s (%s songs)", es.getKey(), es.getValue().size()))
           .collect(Collectors.toList()));
       this.musicalKeySelect.setItems(FXCollections.observableList(this.keys));
-      this.musicalKeySelect.setValue(this.keys.get(0));
+      if (this.keys.isEmpty()) {
+        this.infoLabel.setText("No input files found!");
+      } else {
+        this.musicalKeySelect.setValue(this.keys.get(0));
+      }
     });
 
     bgTask.setOnFailed(event -> {

@@ -3,6 +3,8 @@ package org.juhanir.utils;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -269,8 +271,9 @@ public class ScoreParser {
     // Work
     Work work = factory.createWork();
     scorePartwise.setWork(work);
-    work.setWorkTitle("Title for the work");
-    work.setWorkNumber("Number for the work");
+    work.setWorkTitle(
+        "Generated melody " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+    work.setWorkNumber("1");
 
     // PartList
     PartList partList = factory.createPartList();

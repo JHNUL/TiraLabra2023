@@ -23,6 +23,7 @@ import org.jfugue.integration.MusicXmlParser;
 import org.jfugue.pattern.Pattern;
 import org.jfugue.player.ManagedPlayer;
 import org.jfugue.player.Player;
+import org.jfugue.rhythm.Rhythm;
 import org.juhanir.domain.Trie;
 import org.juhanir.services.GeneratorService;
 import org.juhanir.services.TrainingService;
@@ -151,6 +152,7 @@ public class AppEventHandler {
         };
 
         trainingTask.setOnFailed(taskEvent -> {
+          trainingTask.getException().printStackTrace(System.err);
           // TODO: some UI effect on failure
         });
 
@@ -196,7 +198,7 @@ public class AppEventHandler {
             startingNote >= 0 ? trie.getRandomSequenceStartingWith(startingNote, degree.get())
                 : trie.getRandomSequence(degree.get());
         ScoreParser parser = new ScoreParser();
-        int[] melody = generator.predictSequence(initialSequence, 50);
+        int[] melody = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
         ScorePartwise score = parser.convertMelodyToScorePartwise(melody, musicalKey.get());
         LocalDateTime now = LocalDateTime.now();
         String fileName = musicalKey.get() + "_generation_"
@@ -232,12 +234,18 @@ public class AppEventHandler {
             FileIo reader = new FileIo();
             mxmlParser.addParserListener(listener);
             mxmlParser.parse(reader.readFile(Constants.OUTPUT_DATA_PATH, playbackFile.get()));
-            Pattern staccatoPattern = listener.getPattern();
-            player.play(staccatoPattern);
+            Pattern staccatoPattern = listener.getPattern().setTempo(Constants.PLAYBACK_TEMPO);
+            player.play(staccatoPattern, new Rhythm().addLayer("X..X..X..").getPattern()
+                .setTempo(Constants.PLAYBACK_TEMPO).repeat(10));
             updateMessage("");
             return null;
           }
         };
+
+        playbackTask.setOnFailed(taskEvent -> {
+          // TODO: some UI effect on failure
+          playbackTask.getException().printStackTrace(System.err);
+        });
 
         playbackTask.setOnSucceeded(taskEvent -> {
           // TODO: some UI effect on success
