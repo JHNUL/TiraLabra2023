@@ -11,6 +11,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -372,6 +373,80 @@ public class GeneratorServiceTest {
           this.wholeMelody.length);
       int[] generation = generator.predictSequence(prefix, this.wholeMelody.length);
       assertArrayEquals(prefix, generation);
+    }
+
+  }
+
+  @Nested
+  class WithMoreRealData {
+
+    private List<String> trainingDataPaths = new ArrayList<>();
+
+    @BeforeEach
+    void setUp() {
+      String[] files = { "alphabet-song.xml", "a07.xml", "a34.xml", "a83.xml", "g99.xml", "g112.xml", "g118.xml" };
+      for (String file : files) {
+        File sourceFile = new File("src/test/resources/" + file);
+        String testDataPath = sourceFile.getAbsolutePath();
+        if (!new File(testDataPath).exists()) {
+          fail("Test data file not found " + testDataPath);
+        } else {
+          this.trainingDataPaths.add(testDataPath);
+        }
+      }
+    }
+
+    int normalize(int note) {
+      return note + (4 - Constants.OCTAVE_LOWER_BOUND) * 12;
+    }
+
+    boolean arrayHasSubArray(int[] array, int[] subArray) {
+      for (int i = 0; i < array.length - subArray.length + 1; i++) {
+        if (Arrays.equals(array, i, i + subArray.length, subArray, 0, subArray.length)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    boolean anyListContainsSequence(List<List<Integer>> lists, int[] sequence) {
+      for (List<Integer> list : lists) {
+        int[] melody = list.stream().mapToInt(Integer::intValue).toArray();
+        if (this.arrayHasSubArray(melody, sequence)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    void allGenerationsAreInTrainingData(int degree) {
+      Trie trie = new Trie();
+      ScoreParser parser = new ScoreParser();
+      FileIo reader = new FileIo();
+      List<List<Integer>> sourceMelodies = new ArrayList<>();
+      for (String filePath : trainingDataPaths) {
+        try (InputStream is = reader.readFile(filePath)) {
+          List<Integer> sourceMelody = parser.parse(is);
+          sourceMelodies.add(sourceMelody);
+        } catch (Exception e) {
+          fail("Failed to parse source file " + filePath);
+        }
+      }
+      TrainingService service = new TrainingService(reader, parser, trie);
+      service.trainWith(this.trainingDataPaths, degree);
+      GeneratorService generator = new GeneratorService(trie, new Random());
+      int[] generation = generator.predictSequence(trie.getRandomSequence(degree), Constants.GENERATED_MELODY_LEN);
+      for (int i = 0; i < generation.length - degree; i++) {
+        int[] sequence = Arrays.copyOfRange(generation, i, i + degree);
+        assertTrue(this.anyListContainsSequence(sourceMelodies, sequence));
+      }
+    }
+
+    @Test
+    void allNthDegreeGenerationsAreInTrainingData() {
+      for (int i = Constants.MARKOV_CHAIN_DEGREE_MIN; i <= Constants.MARKOV_CHAIN_DEGREE_MAX; i++) {
+        this.allGenerationsAreInTrainingData(i);
+      }
     }
 
   }
