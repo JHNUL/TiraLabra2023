@@ -286,6 +286,7 @@ public class AppEventHandler {
    * @param container UI element to disable when indicator is showing
    */
   public void handleProgressIndicator(ProgressIndicator spinner, VBox container) {
+    spinner.setVisible(false);
     this.isLoading.addListener((observable, oldvalue, newValue) -> {
       spinner.setVisible(newValue);
       container.setDisable(newValue);
