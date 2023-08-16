@@ -8,6 +8,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <skipUItests>true</skipUItests>
     </properties>
     <repositories>
         <repository>
@@ -29,13 +30,6 @@
             <groupId>org.testfx</groupId>
             <artifactId>testfx-core</artifactId>
             <version>4.0.16-alpha</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.13.2</version>
             <scope>test</scope>
         </dependency>
 
@@ -131,6 +125,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <skipITs>${skipUItests}</skipITs>
                     <systemPropertyVariables>
                         <test>true</test>
                     </systemPropertyVariables>

@@ -51,7 +51,7 @@ mvn test -f melodify/pom.xml
 mvn test-compile pitest:mutationCoverage -f melodify/pom.xml
 
 # Run UI tests
-mvn failsafe:integration-test -f melodify/pom.xml
+mvn -DskipUItests=false failsafe:integration-test -f melodify/pom.xml
 
 # Create site for the project (e.g. checkstyle report found in melodify/target/site)
 mvn site -f melodify/pom.xml

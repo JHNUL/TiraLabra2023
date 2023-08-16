@@ -34,8 +34,8 @@ None at the moment, the trie lookup and insert operations might be somehow teste
 
 ### User Interface tests
 
-The project uses TestFX framework to test the running application by interacting with the UI. These tests are excluded in CI and can be run with the following spell:
+The project uses TestFX framework to test the running application by interacting with the UI. These tests are excluded in the maven lifecycle and can only be run manually:
 
 ```sh
-mvn failsafe:integration-test -f melodify/pom.xml
+mvn -DskipUItests=false failsafe:integration-test -f melodify/pom.xml
 ```
