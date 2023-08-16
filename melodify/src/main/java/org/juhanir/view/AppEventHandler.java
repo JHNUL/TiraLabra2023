@@ -49,10 +49,11 @@ public class AppEventHandler {
   /**
    * Constructor.
    *
-   * @param trie Trie data structure
-   * @param degree Markov Chain degree
-   * @param musicalKey Key the user selected
+   * @param trie         Trie data structure
+   * @param degree       Markov Chain degree
+   * @param musicalKey   Key the user selected
    * @param playbackFile File the user selected for playback
+   * @param isLoading    Flag for drawing the loading spinner
    */
   public AppEventHandler(Trie trie, IntegerProperty degree, StringProperty musicalKey,
       StringProperty playbackFile, BooleanProperty isLoading) {
@@ -180,7 +181,8 @@ public class AppEventHandler {
    * Event handler for generate button.
    *
    * @param generateButton UI element
-   * @param filesPerKey Training data files grouped per musical key
+   * @param filesPerKey    Training data files grouped per musical key
+   * @param playbackFiles  List of generated files
    */
   public void handleGenerateButton(Button generateButton, Map<String, List<String>> filesPerKey,
       ObservableList<String> playbackFiles) {
@@ -192,11 +194,11 @@ public class AppEventHandler {
       try {
         GeneratorService generator = new GeneratorService(trie, new Random());
         int startingNote = generator.getBaseNoteOfKey(musicalKey.get());
-        // Should not be possible in practice to not have any base note of the key (e.g. songs in
-        // C major without any C notes), but cannot be guaranteed so default to any random sequence.
-        int[] initialSequence =
-            startingNote >= 0 ? trie.getRandomSequenceStartingWith(startingNote, degree.get())
-                : trie.getRandomSequence(degree.get());
+        // Should not be possible in practice to not have any base note of the key (e.g.
+        // songs in C major without any C notes), but cannot be guaranteed so default to
+        // any random sequence.
+        int[] initialSequence = startingNote >= 0 ? trie.getRandomSequenceStartingWith(startingNote, degree.get())
+            : trie.getRandomSequence(degree.get());
         ScoreParser parser = new ScoreParser();
         int[] melody = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
         ScorePartwise score = parser.convertMelodyToScorePartwise(melody, musicalKey.get());
@@ -217,7 +219,9 @@ public class AppEventHandler {
   /**
    * Event handler for playback button.
    *
-   * @param playButton UI element
+   * @param playButton     UI element
+   * @param stopButton     UI element
+   * @param innerContainer UI element
    */
   public void handlePlayButton(Button playButton, Button stopButton, VBox innerContainer) {
     playButton.disableProperty().bind(this.canStartPlayback.not());
@@ -282,7 +286,7 @@ public class AppEventHandler {
   /**
    * Event handler for progress indicator.
    *
-   * @param spinner indicator
+   * @param spinner   indicator
    * @param container UI element to disable when indicator is showing
    */
   public void handleProgressIndicator(ProgressIndicator spinner, VBox container) {

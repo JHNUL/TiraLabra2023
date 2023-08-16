@@ -9,7 +9,8 @@ import java.util.Map;
  * Project-wide constants.
  */
 public class Constants {
-  private Constants() {}
+  private Constants() {
+  }
 
   public static final int FIFTHS_SUPPORTED_RANGE = 7;
   public static final int MARKOV_CHAIN_DEGREE_MIN = 1;
@@ -19,20 +20,21 @@ public class Constants {
   public static final int GENERATED_MELODY_LEN = 90;
   public static final int PLAYBACK_TEMPO = 140;
   public static final int NOTE_ARRAY_SIZE = (OCTAVE_UPPER_BOUND - OCTAVE_LOWER_BOUND + 1) * 12;
-  public static final String TRAINING_DATA_PATH = "data/musicxml";
+  public static final String TRAINING_DATA_PATH = System.getProperty("test") != null
+      && System.getProperty("test").equals("true") ? "melodify/src/test/resources" : "data/musicxml";
   public static final String OUTPUT_DATA_PATH = "data/output";
 
   /**
    * <p>
-   * Note names (without sharp/flat) as list where the index of the name specifies the note base
-   * value as int (to be incremented with octave).
+   * Note names (without sharp/flat) as list where the index of the name specifies
+   * the note base value as int (to be incremented with octave).
    * </p>
    * <p>
    * Where there is a whole step between notes the value is null.
    * </p>
    */
-  public static final List<String> noteNames =
-      Arrays.asList("C", null, "D", null, "E", "F", null, "G", null, "A", null, "B");
+  public static final List<String> noteNames = Arrays.asList("C", null, "D", null, "E", "F", null, "G", null, "A", null,
+      "B");
 
   /**
    * Modes that the application will accept from training data.
@@ -41,13 +43,13 @@ public class Constants {
 
   /**
    * <p>
-   * Musical keys from the circle of fifths. In practice some of them are not supported by the
-   * application but for completeness they're in the collection.
+   * Musical keys from the circle of fifths. In practice some of them are not
+   * supported by the application but for completeness they're in the collection.
    * </p>
    * <p>
-   * The value of the key is the integer representation of the base note of the key, e.g. for D it
-   * is 2 since C=0 C#/Db=1 D=2. This corresponds to the position of the note in the *noteNames*
-   * list.
+   * The value of the key is the integer representation of the base note of the
+   * key, e.g. for D it is 2 since C=0 C#/Db=1 D=2. This corresponds to the
+   * position of the note in the *noteNames* list.
    * </p>
    */
   public static final Map<String, Integer> musicalKeyBaseNotes = new HashMap<String, Integer>(30) {

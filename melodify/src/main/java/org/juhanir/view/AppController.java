@@ -65,10 +65,8 @@ public class AppController {
   @FXML
   private ProgressIndicator progressIndicator;
 
-  private ObservableList<String> keys =
-      FXCollections.observableList(FXCollections.observableArrayList());
-  private ObservableList<String> playbackFiles =
-      FXCollections.observableList(FXCollections.observableArrayList());
+  private ObservableList<String> keys = FXCollections.observableList(FXCollections.observableArrayList());
+  private ObservableList<String> playbackFiles = FXCollections.observableList(FXCollections.observableArrayList());
   private IntegerProperty degree = new SimpleIntegerProperty();
   private StringProperty musicalKey = new SimpleStringProperty();
   private StringProperty playbackFile = new SimpleStringProperty();
@@ -103,10 +101,9 @@ public class AppController {
         updateMessage("Reading training data");
         FileIo reader = new FileIo();
         List<String> sourceFiles = reader.getAllFilePathsInFolder(Constants.TRAINING_DATA_PATH);
-        List<String> generatedFiles =
-            reader.getAllFilePathsInFolder(Constants.OUTPUT_DATA_PATH, ".xml").stream()
-                .map(filePath -> filePath.substring(filePath.lastIndexOf(File.separator) + 1))
-                .collect(Collectors.toList());
+        List<String> generatedFiles = reader.getAllFilePathsInFolder(Constants.OUTPUT_DATA_PATH, ".xml").stream()
+            .map(filePath -> filePath.substring(filePath.lastIndexOf(File.separator) + 1))
+            .collect(Collectors.toList());
         ScoreParser parser = new ScoreParser();
         Map<String, List<String>> fileMap = parser.collectFilesPerKey(reader, sourceFiles);
         fileMap.put("generatedFiles", generatedFiles);
@@ -130,10 +127,12 @@ public class AppController {
       } else {
         this.musicalKeySelect.setValue(this.keys.get(0));
       }
+      this.isLoading.set(false);
     });
 
     bgTask.setOnFailed(event -> {
       this.infoLabel.setText("Failed to parse files");
+      this.isLoading.set(false);
     });
 
     bgTask.messageProperty().addListener((observable, oldValue, newValue) -> {
@@ -141,7 +140,11 @@ public class AppController {
     });
 
     bgTask.runningProperty().addListener((observable, oldValue, newValue) -> {
-      this.isLoading.set(newValue);
+      if (newValue) {
+        // Turn spinner off after success/failure actions
+        // because runningProperty changes before those
+        this.isLoading.set(newValue);
+      }
     });
 
     Thread thread = new Thread(bgTask);
