@@ -15,6 +15,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -42,6 +43,7 @@ public class AppEventHandler {
   private final StringProperty musicalKey;
   private final StringProperty playbackFile;
   private final BooleanProperty isLoading;
+  private final StringProperty appMessage;
   private BooleanProperty canTrainModel;
   private BooleanProperty canGenerate;
   private BooleanProperty canStartPlayback;
@@ -54,14 +56,16 @@ public class AppEventHandler {
    * @param musicalKey   Key the user selected
    * @param playbackFile File the user selected for playback
    * @param isLoading    Flag for drawing the loading spinner
+   * @param appMessage   Message to display in the UI
    */
   public AppEventHandler(Trie trie, IntegerProperty degree, StringProperty musicalKey,
-      StringProperty playbackFile, BooleanProperty isLoading) {
+      StringProperty playbackFile, BooleanProperty isLoading, StringProperty appMessage) {
     this.trie = trie;
     this.degree = degree;
     this.musicalKey = musicalKey;
     this.playbackFile = playbackFile;
     this.isLoading = isLoading;
+    this.appMessage = appMessage;
     this.canTrainModel = new SimpleBooleanProperty(false);
     this.canStartPlayback = new SimpleBooleanProperty(false);
     this.canGenerate = new SimpleBooleanProperty(false);
@@ -137,6 +141,7 @@ public class AppEventHandler {
     trainButton.disableProperty().bind(this.canTrainModel.not());
     trainButton.setOnAction(event -> {
       try {
+        this.appMessage.set("");
         List<String> files = filesPerKey.getOrDefault(musicalKey.get(), Collections.emptyList());
         if (files.isEmpty() || degree.get() < Constants.MARKOV_CHAIN_DEGREE_MIN) {
           return;
@@ -154,12 +159,11 @@ public class AppEventHandler {
 
         trainingTask.setOnFailed(taskEvent -> {
           trainingTask.getException().printStackTrace(System.err);
-          // TODO: some UI effect on failure
+          this.setErrorMessage(trainingTask.getException(), "Failed to train the model");
         });
 
         trainingTask.setOnSucceeded(taskEvent -> {
           this.canGenerate.set(true);
-          // TODO: some UI effect on success
         });
 
         trainingTask.runningProperty().addListener((observable, oldValue, newValue) -> {
@@ -171,8 +175,7 @@ public class AppEventHandler {
         thread.start();
 
       } catch (Exception e) {
-        // TODO: report to the UI
-        System.out.println(e);
+        this.setErrorMessage(e, "Failed to train the model");
       }
     });
   }
@@ -188,6 +191,7 @@ public class AppEventHandler {
       ObservableList<String> playbackFiles) {
     generateButton.disableProperty().bind(this.canGenerate.not());
     generateButton.setOnAction(event -> {
+      this.appMessage.set("");
       if (degree.get() < Constants.MARKOV_CHAIN_DEGREE_MIN) {
         return;
       }
@@ -210,8 +214,7 @@ public class AppEventHandler {
         playbackFiles.add(fileName + ".xml");
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName, Arrays.toString(melody));
       } catch (Exception e) {
-        // TODO: report to the UI
-        System.out.println(e);
+        this.setErrorMessage(e, "Failed to generate melody");
       }
     });
   }
@@ -227,12 +230,12 @@ public class AppEventHandler {
     playButton.disableProperty().bind(this.canStartPlayback.not());
     stopButton.setDisable(true);
     playButton.setOnAction(event -> {
+      this.appMessage.set("");
       try {
         Player player = new Player();
         Task<Void> playbackTask = new Task<Void>() {
           @Override
           protected Void call() throws Exception {
-            updateMessage("Playing generated file");
             MusicXmlParser mxmlParser = new MusicXmlParser();
             StaccatoParserListener listener = new StaccatoParserListener();
             FileIo reader = new FileIo();
@@ -241,22 +244,13 @@ public class AppEventHandler {
             Pattern staccatoPattern = listener.getPattern().setTempo(Constants.PLAYBACK_TEMPO);
             player.play(staccatoPattern, new Rhythm().addLayer("X..X..X..").getPattern()
                 .setTempo(Constants.PLAYBACK_TEMPO).repeat(10));
-            updateMessage("");
             return null;
           }
         };
 
         playbackTask.setOnFailed(taskEvent -> {
-          // TODO: some UI effect on failure
           playbackTask.getException().printStackTrace(System.err);
-        });
-
-        playbackTask.setOnSucceeded(taskEvent -> {
-          // TODO: some UI effect on success
-        });
-
-        playbackTask.messageProperty().addListener((observable, oldValue, newValue) -> {
-          // TODO: some UI effect on message
+          this.setErrorMessage(playbackTask.getException(), "Cannot start playback");
         });
 
         playbackTask.runningProperty().addListener((observable, oldValue, newValue) -> {
@@ -265,10 +259,17 @@ public class AppEventHandler {
 
         stopButton.disableProperty().bind(playbackTask.runningProperty().not());
 
+        // this is repeatedly set every time playback is started
+        // but it creates a new handler fn and the previous
+        // is not referenced anymore
         stopButton.setOnAction(stopBtnEvent -> {
-          ManagedPlayer managedPlayer = player.getManagedPlayer();
-          if (!managedPlayer.isFinished()) {
-            managedPlayer.finish();
+          try {
+            ManagedPlayer managedPlayer = player.getManagedPlayer();
+            if (!managedPlayer.isFinished()) {
+              managedPlayer.finish();
+            }
+          } catch (Exception e) {
+            this.setErrorMessage(e, "Failed to stop playback");
           }
         });
 
@@ -277,8 +278,7 @@ public class AppEventHandler {
         thread.start();
 
       } catch (Exception e) {
-        // TODO: report to the UI
-        System.out.println(e);
+        this.setErrorMessage(e, "Cannot start playback");
       }
     });
   }
@@ -295,6 +295,31 @@ public class AppEventHandler {
       spinner.setVisible(newValue);
       container.setDisable(newValue);
     });
+  }
+
+  /**
+   * Event handler for info label.
+   *
+   * @param infoLabel UI element
+   */
+  public void handleInfoLabel(Label infoLabel) {
+    this.appMessage.addListener((observable, oldValue, newValue) -> {
+      boolean isError = newValue.startsWith("ERROR:");
+      String message = isError ? newValue.substring(6).strip() : newValue;
+      String style = "-fx-font-style: italic; -fx-padding: 0 0 4 4";
+      if (isError) {
+        style += "; -fx-text-fill: red;";
+      }
+      infoLabel.setStyle(style);
+      infoLabel.setText(message);
+    });
+  }
+
+  private void setErrorMessage(Throwable e, String baseMessage) {
+    String error = e.getMessage();
+    String msg = error != null && !error.isBlank() ? String.format("ERROR: %s: %s", baseMessage, error)
+        : String.format("ERROR: %s", baseMessage);
+    this.appMessage.set(msg);
   }
 
 }

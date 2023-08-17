@@ -14,6 +14,7 @@ if [ -d "$FOLDER" ]; then
     if [ "$choice" != "yes" ]; then
         exit 0
     fi
+    rm "$FOLDER"/*
 fi
 
 mkdir -p "$FOLDER"
