@@ -70,6 +70,7 @@ public class AppController {
   private IntegerProperty degree = new SimpleIntegerProperty();
   private StringProperty musicalKey = new SimpleStringProperty();
   private StringProperty playbackFile = new SimpleStringProperty();
+  private StringProperty appMessage = new SimpleStringProperty();
   private BooleanProperty isLoading = new SimpleBooleanProperty(false);
   private MapProperty<String, List<String>> filesPerKey = new SimpleMapProperty<>();
   private AppEventHandler eventHandler;
@@ -77,12 +78,13 @@ public class AppController {
 
   public AppController() {
     this.trie = new Trie();
-    this.eventHandler = new AppEventHandler(trie, degree, musicalKey, playbackFile, isLoading);
+    this.eventHandler = new AppEventHandler(trie, degree, musicalKey, playbackFile, isLoading, appMessage);
   }
 
   @FXML
   private void initialize() {
     this.eventHandler.handleDegreeFieldChange(this.degreeField);
+    this.eventHandler.handleInfoLabel(this.infoLabel);
     this.eventHandler.handleKeySelectChange(this.musicalKeySelect);
     this.eventHandler.handleTrainButton(this.trainButton, this.filesPerKey);
     this.eventHandler.handleGenerateButton(this.generateButton, this.filesPerKey,
@@ -100,7 +102,7 @@ public class AppController {
       protected Map<String, List<String>> call() throws Exception {
         updateMessage("Reading training data");
         FileIo reader = new FileIo();
-        List<String> sourceFiles = reader.getAllFilePathsInFolder(Constants.TRAINING_DATA_PATH);
+        List<String> sourceFiles = reader.getAllFilePathsInFolder(Constants.TRAINING_DATA_PATH, ".xml");
         List<String> generatedFiles = reader.getAllFilePathsInFolder(Constants.OUTPUT_DATA_PATH, ".xml").stream()
             .map(filePath -> filePath.substring(filePath.lastIndexOf(File.separator) + 1))
             .collect(Collectors.toList());
@@ -123,7 +125,8 @@ public class AppController {
           .collect(Collectors.toList()));
       this.musicalKeySelect.setItems(FXCollections.observableList(this.keys));
       if (this.keys.isEmpty()) {
-        this.infoLabel.setText("No input files found!");
+        this.appMessage.set("ERROR: No input files found!");
+        this.innerContainer.setDisable(true);
       } else {
         this.musicalKeySelect.setValue(this.keys.get(0));
       }
@@ -131,12 +134,13 @@ public class AppController {
     });
 
     bgTask.setOnFailed(event -> {
-      this.infoLabel.setText("Failed to parse files");
+      this.appMessage.set("ERROR:Failed to parse files");
+      this.innerContainer.setDisable(true);
       this.isLoading.set(false);
     });
 
     bgTask.messageProperty().addListener((observable, oldValue, newValue) -> {
-      this.infoLabel.setText(newValue);
+      this.appMessage.set(newValue);
     });
 
     bgTask.runningProperty().addListener((observable, oldValue, newValue) -> {

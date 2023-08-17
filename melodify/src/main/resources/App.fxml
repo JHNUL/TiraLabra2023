@@ -20,7 +20,7 @@
                         </VBox>
                         <VBox>
                             <Label text="Markov Chain degree" />
-                            <TextField fx:id="degreeField" prefWidth="160.0" />
+                            <TextField fx:id="degreeField" promptText="min 1 max 6" prefWidth="160.0" />
                         </VBox>
                     </HBox>
                     <Button fx:id="trainButton" text="Train" prefWidth="80"/>
@@ -34,6 +34,6 @@
             </children>
         </VBox>
         <ProgressIndicator fx:id="progressIndicator" layoutX="320.0" layoutY="200.0"/>
-        <Label fx:id="infoLabel" />
+        <Label fx:id="infoLabel" StackPane.alignment="BOTTOM_LEFT" />
     </children>
 </StackPane>
