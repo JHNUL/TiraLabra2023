@@ -2,7 +2,8 @@ package org.juhanir.services;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.juhanir.domain.Trie;
 import org.juhanir.utils.FileIo;
 import org.juhanir.utils.ScoreParser;
@@ -12,7 +13,7 @@ import org.juhanir.utils.ScoreParser;
  */
 public class TrainingService {
 
-  private static Logger trainingLogger = Logger.getLogger(TrainingService.class.getName());
+  private static Logger trainingLogger = LogManager.getLogger(TrainingService.class);
 
   private final FileIo fileIo;
   private final ScoreParser scoreParser;
@@ -47,8 +48,8 @@ public class TrainingService {
           this.trie.insert(trainingTuple);
         }
       } catch (Exception e) {
-        trainingLogger.severe("Failed to parse file " + filePath);
-        trainingLogger.severe(e.toString());
+        trainingLogger.error("Failed to parse file " + filePath);
+        trainingLogger.error(e);
       }
     }
   }

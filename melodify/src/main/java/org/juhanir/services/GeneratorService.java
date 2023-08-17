@@ -2,7 +2,8 @@ package org.juhanir.services;
 
 import java.util.Arrays;
 import java.util.Random;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.juhanir.Constants;
 import org.juhanir.domain.Trie;
 import org.juhanir.domain.TrieNode;
@@ -14,7 +15,7 @@ public class GeneratorService {
 
   private final Trie trie;
   private final Random random;
-  private static Logger generatorLogger = Logger.getLogger(GeneratorService.class.getName());
+  private static final Logger generatorLogger = LogManager.getLogger(GeneratorService.class);
 
   public GeneratorService(Trie trie, Random rand) {
     this.trie = trie;

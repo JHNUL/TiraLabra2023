@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.juhanir.Constants;
-import org.juhanir.Main;
+import org.juhanir.Launcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
@@ -29,7 +29,7 @@ public class UserInterfaceIT {
 
   @Start
   void setUp(Stage stage) throws IOException {
-    new Main().start(stage);
+    new Launcher().start(stage);
   }
 
   @Test

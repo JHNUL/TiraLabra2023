@@ -3,4 +3,5 @@
 .vscode
 **/musicxml
 data/output/[A-Z]*
-**/*.log
+**/logs
+**/shade
