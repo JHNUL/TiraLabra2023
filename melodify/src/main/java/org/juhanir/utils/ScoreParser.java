@@ -11,8 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.audiveris.proxymusic.Attributes;
 import org.audiveris.proxymusic.Key;
 import org.audiveris.proxymusic.Note;
@@ -39,7 +40,7 @@ import org.juhanir.domain.MelodyNote;
  */
 public class ScoreParser {
 
-  private static final Logger parserLogger = Logger.getLogger(ScoreParser.class.getName());
+  private static final Logger parserLogger = LogManager.getLogger(ScoreParser.class);
   private static final String[] cicleOfFifthsMajor = new String[] { "Cb", "Gb", "Db", "Ab", "Eb",
       "Bb", "F", "C", "G", "D", "A", "E", "B", "F#", "C#" };
   private static final String[] cicleOfFifthsMinor = new String[] { "Abm", "Ebm", "Bbm", "Fm", "Cm",
@@ -123,7 +124,8 @@ public class ScoreParser {
         }
         filesPerKey.get(tuneKey).add(filePath);
       } catch (Exception e) {
-        parserLogger.severe("Failed to collect from " + filePath + ": " + e.getMessage());
+        parserLogger.error("Failed to collect from " + filePath);
+        parserLogger.error(e);
       }
     }
     return filesPerKey;
@@ -236,7 +238,7 @@ public class ScoreParser {
       }
       return this.getScorePartwise(notes, fifths);
     } catch (Exception e) {
-      parserLogger.severe(e.getMessage());
+      parserLogger.error(e);
     }
     return null;
   }

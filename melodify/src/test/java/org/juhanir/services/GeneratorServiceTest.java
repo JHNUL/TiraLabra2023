@@ -343,7 +343,6 @@ public class GeneratorServiceTest {
       service.trainWith(this.trainingDataPaths, degree);
       GeneratorService generator = new GeneratorService(trie, new Random());
       int[] prefix = Arrays.copyOfRange(this.wholeMelody, 0, degree);
-      System.out.println(Arrays.toString(prefix));
       int[] generation = generator.predictSequence(prefix, this.wholeMelody.length);
       assertEquals(this.wholeMelody.length, generation.length);
       assertArrayEquals(prefix, Arrays.copyOfRange(generation, 0, degree));

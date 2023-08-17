@@ -1,35 +1,17 @@
 package org.juhanir;
 
-import java.io.IOException;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
- * Main application class.
+ * Application entrypoint.
  */
-public class Main extends Application {
+public class Main {
 
-  @Override
-  public void start(Stage stage) throws IOException {
-    FXMLLoader loader = new FXMLLoader(Main.class.getResource("/App.fxml"));
-    StackPane view = (StackPane) loader.load();
-    Scene scene = new Scene(view);
-    // Making sure that threads close with the UI
-    stage.setOnCloseRequest(event -> {
-      Platform.exit();
-      System.exit(0);
-    });
-    stage.setTitle("MELODIFY");
-    stage.setScene(scene);
-    stage.show();
-  }
+  private static Logger logger = LogManager.getLogger(Main.class);
 
-  public void run() {
-    launch();
+  public static void main(String[] args) {
+    Launcher.main(args);
   }
 
 }
