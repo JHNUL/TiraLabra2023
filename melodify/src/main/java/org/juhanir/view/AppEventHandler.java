@@ -197,13 +197,12 @@ public class AppEventHandler {
       }
       try {
         GeneratorService generator = new GeneratorService(trie, new Random());
-        int startingNote = generator.getBaseNoteOfKey(musicalKey.get());
-        // Should not be possible in practice to not have any base note of the key (e.g.
-        // songs in C major without any C notes), but cannot be guaranteed so default to
-        // any random sequence.
-        int[] initialSequence = startingNote >= 0 ? trie.getRandomSequenceStartingWith(startingNote, degree.get())
-            : trie.getRandomSequence(degree.get());
         ScoreParser parser = new ScoreParser();
+        int startingNote = generator.getBaseNoteOfKey(musicalKey.get());
+        if (startingNote < 0) {
+          this.appMessage.set(String.format("ERROR: Could not generate melody starting with %s", this.musicalKey.get()));
+        }
+        int[] initialSequence = trie.getMostCommonSequenceStartingWith(startingNote, degree.get());
         int[] melody = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
         ScorePartwise score = parser.convertMelodyToScorePartwise(melody, musicalKey.get());
         LocalDateTime now = LocalDateTime.now();

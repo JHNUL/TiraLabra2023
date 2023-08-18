@@ -220,49 +220,6 @@ class TrieTest {
   }
 
   @Test
-  void producesRandomSequenceFromExistingSequences() {
-    Trie trie = new Trie();
-    trie.insert(firstBranch);
-    trie.insert(secondBranch);
-    trie.insert(thirdBranch);
-    trie.insert(fourthBranch);
-    int[] seq = trie.getRandomSequence(1);
-    assertArrayEquals(new int[] { 5 }, seq);
-    seq = trie.getRandomSequence(2);
-    assertArrayEquals(new int[] { 5, 6 }, seq);
-    seq = trie.getRandomSequence(3);
-    assertEquals(5, seq[0]);
-    assertEquals(6, seq[1]);
-    assertTrue(List.of(7, 8, 9, 10).contains(seq[2]));
-  }
-
-  @Test
-  void getRandomSequenceWithZeroOrNegativeLength() {
-    Trie trie = new Trie();
-    trie.insert(firstBranch);
-    trie.insert(secondBranch);
-    trie.insert(thirdBranch);
-    trie.insert(fourthBranch);
-    int[] seq = trie.getRandomSequence(0);
-    assertArrayEquals(new int[] {}, seq);
-    seq = trie.getRandomSequence(-1);
-    assertArrayEquals(new int[] {}, seq);
-  }
-
-  @Test
-  void getRandomSequenceWithExceedingLength() {
-    Trie trie = new Trie();
-    trie.insert(firstBranch);
-    trie.insert(secondBranch);
-    trie.insert(thirdBranch);
-    trie.insert(fourthBranch);
-    int[] seq = trie.getRandomSequence(4);
-    assertEquals(5, seq[0]);
-    assertEquals(6, seq[1]);
-    assertTrue(List.of(7, 8, 9, 10).contains(seq[2]));
-  }
-
-  @Test
   void trieCanBeCleared() {
     Trie trie = new Trie();
     trie.insert(firstBranch);
@@ -276,37 +233,66 @@ class TrieTest {
   }
 
   @Test
-  void producesRandomSequenceWithStartingNote() {
+  void producesMostCommonSequence() {
     Trie trie = new Trie();
-    trie.insert(new int[] { 5, 6, 7 });
-    trie.insert(new int[] { 5, 6, 8 });
-    trie.insert(new int[] { 6, 6, 9 });
-    trie.insert(new int[] { 8, 6, 10 });
-    trie.insert(new int[] { 5, 7, 11 });
-    for (int i = 0; i < 100; i++) {
-      int[] seq = trie.getRandomSequenceStartingWith(5, 3);
-      assertEquals(5, seq[0]);
-      assertTrue(List.of(6, 7).contains(seq[1]));
-      assertTrue(List.of(7, 8, 11).contains(seq[2]));
-    }
-    for (int i = 0; i < 100; i++) {
-      int[] seq = trie.getRandomSequenceStartingWith(8, 3);
-      assertArrayEquals(new int[] { 8, 6, 10 }, seq);
-    }
+    trie.insert(new int[] { 5, 6, 7, 7, 8, 8, 9 });
+    trie.insert(new int[] { 5, 8, 7, 8, 8, 8, 9 });
+    trie.insert(new int[] { 5, 6, 7, 7, 8, 8, 10 });
+    trie.insert(new int[] { 5, 9, 8, 8, 8, 8, 9 });
+    trie.insert(new int[] { 5, 6, 7, 7, 8, 8, 9 });
+    trie.insert(new int[] { 5, 5, 7, 7, 8, 9, 10 });
+    trie.insert(new int[] { 5, 5, 7, 7, 8, 8, 9 });
+    trie.insert(new int[] { 5, 5, 7, 7, 10, 8, 9 });
+    trie.insert(new int[] { 5, 5, 7, 7, 8, 8, 9 });
+    int[] seq = trie.getMostCommonSequenceStartingWith(5, 2);
+    assertArrayEquals(new int[] {5, 5}, seq);
+    seq = trie.getMostCommonSequenceStartingWith(5, 3);
+    assertArrayEquals(new int[] {5, 5, 7}, seq);
+    seq = trie.getMostCommonSequenceStartingWith(5, 4);
+    assertArrayEquals(new int[] {5, 5, 7, 7}, seq);
+    seq = trie.getMostCommonSequenceStartingWith(5, 5);
+    assertArrayEquals(new int[] {5, 5, 7, 7, 8}, seq);
+    seq = trie.getMostCommonSequenceStartingWith(5, 6);
+    assertArrayEquals(new int[] {5, 5, 7, 7, 8, 8}, seq);
+    seq = trie.getMostCommonSequenceStartingWith(5, 7);
+    assertArrayEquals(new int[] {5, 5, 7, 7, 8, 8, 9}, seq);
   }
 
   @Test
-  void producesRandomSequenceWithStartingNoteInvalidLength() {
+  void producesMostCommonSequenceWithExceedingLength() {
     Trie trie = new Trie();
     trie.insert(new int[] { 5, 6, 7 });
     trie.insert(new int[] { 5, 6, 8 });
-    trie.insert(new int[] { 6, 6, 9 });
+    trie.insert(new int[] { 5, 6, 7 });
     trie.insert(new int[] { 8, 6, 10 });
     trie.insert(new int[] { 5, 7, 11 });
-    int[] seq = trie.getRandomSequenceStartingWith(5, 1);
+    int[] seq = trie.getMostCommonSequenceStartingWith(5, 4);
+    assertArrayEquals(new int[] {5, 6, 7}, seq);
+  }
+
+  @Test
+  void producesMostCommonSequenceWithInvalidLength() {
+    Trie trie = new Trie();
+    trie.insert(new int[] { 5, 6, 7 });
+    trie.insert(new int[] { 5, 6, 8 });
+    trie.insert(new int[] { 5, 6, 7 });
+    trie.insert(new int[] { 8, 6, 10 });
+    trie.insert(new int[] { 5, 7, 11 });
+    int[] seq = trie.getMostCommonSequenceStartingWith(5, 0);
     assertArrayEquals(new int[] {5}, seq);
-    seq = trie.getRandomSequenceStartingWith(5, 0);
-    assertArrayEquals(new int[] {5}, seq);
+  }
+
+  @Test
+  void producesMostCommonSequenceWithDeeperTrie() {
+    Trie trie = new Trie();
+    trie.insert(new int[] { 5, 6, 7, 7, 8, 8, 9 });
+    trie.insert(new int[] { 5, 6, 7, 8, 8, 8, 9 });
+    trie.insert(new int[] { 5, 6, 7, 7, 8, 8, 10 });
+    trie.insert(new int[] { 5, 6, 8, 8, 8, 8, 9 });
+    trie.insert(new int[] { 5, 6, 7, 7, 8, 8, 9 });
+    trie.insert(new int[] { 6, 6, 7, 7, 8, 8, 9 });
+    int[] seq = trie.getMostCommonSequenceStartingWith(5, 7);
+    assertArrayEquals(new int[] {5, 6, 7, 7, 8, 8, 9}, seq);
   }
 
 }

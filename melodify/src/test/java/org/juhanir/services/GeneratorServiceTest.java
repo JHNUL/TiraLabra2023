@@ -434,7 +434,8 @@ public class GeneratorServiceTest {
       TrainingService service = new TrainingService(reader, parser, trie);
       service.trainWith(this.trainingDataPaths, degree);
       GeneratorService generator = new GeneratorService(trie, new Random());
-      int[] generation = generator.predictSequence(trie.getRandomSequence(degree), Constants.GENERATED_MELODY_LEN);
+      int[] initialSequence = trie.getMostCommonSequenceStartingWith(sourceMelodies.get(0).get(0), degree);
+      int[] generation = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
       for (int i = 0; i < generation.length - degree; i++) {
         int[] sequence = Arrays.copyOfRange(generation, i, i + degree);
         assertTrue(this.anyListContainsSequence(sourceMelodies, sequence));
