@@ -26,7 +26,6 @@ import org.jfugue.integration.MusicXmlParser;
 import org.jfugue.pattern.Pattern;
 import org.jfugue.player.ManagedPlayer;
 import org.jfugue.player.Player;
-import org.jfugue.rhythm.Rhythm;
 import org.juhanir.Constants;
 import org.juhanir.domain.Trie;
 import org.juhanir.services.GeneratorService;
@@ -232,7 +231,13 @@ public class AppEventHandler {
         FileIo reader = new FileIo();
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".xml", score);
         playbackFiles.add(fileName + ".xml");
-        reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName, Arrays.toString(melody));
+        reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".debug", Arrays.toString(melody));
+        MusicXmlParser mxmlParser = new MusicXmlParser();
+        StaccatoParserListener listener = new StaccatoParserListener();
+        mxmlParser.addParserListener(listener);
+        mxmlParser.parse(reader.readFile(Constants.OUTPUT_DATA_PATH, fileName + ".xml"));
+        Pattern melodyPattern = listener.getPattern().setTempo(Constants.PLAYBACK_TEMPO);
+        reader.saveMidiFile(Constants.OUTPUT_DATA_PATH, fileName + ".MID", melodyPattern);
       } catch (Exception e) {
         this.setErrorMessage(e, "Failed to generate melody");
       }

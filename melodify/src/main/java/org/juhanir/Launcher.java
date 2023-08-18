@@ -10,7 +10,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
- * Application launcher class
+ * Application launcher class, needed for jar.
  * https://openjfx.io/openjfx-docs/ (Runtime images > Non-modular application)
  */
 public class Launcher extends Application {
@@ -20,7 +20,7 @@ public class Launcher extends Application {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("/App.fxml"));
         StackPane view = (StackPane) loader.load();
         Scene scene = new Scene(view);
-        // Making sure that threads close with the UI
+        // Making sure threads close with the UI
         stage.setOnCloseRequest(event -> {
             Platform.exit();
             System.exit(0);
