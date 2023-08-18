@@ -195,7 +195,7 @@ public class ScoreParserTest {
       for (int i = 0; i < numberOfOctaves; i++) {
         melody[i] = i * 12;
       }
-      var result = parser.convertMelodyToScorePartwise(melody, "C");
+      var result = parser.convertMelodyToScorePartwise(melody, "C", "4/4");
       assertInstanceOf(ScorePartwise.class, result);
       Note[] notes = result.getPart().get(0).getMeasure().get(0).getNoteOrBackupOrForward().stream()
           .filter(Note.class::isInstance).map(c -> (Note) c).toArray(Note[]::new);
@@ -203,14 +203,14 @@ public class ScoreParserTest {
         assertEquals(new BigDecimal(0), notes[i].getPitch().getAlter());
         assertEquals(Step.C, notes[i].getPitch().getStep());
         assertEquals(Constants.OCTAVE_LOWER_BOUND + i, notes[i].getPitch().getOctave());
-        assertEquals(new BigDecimal(60), notes[i].getDuration());
-        assertEquals("eighth", notes[i].getType().getValue());
+        assertEquals(new BigDecimal(120), notes[i].getDuration());
+        assertEquals("quarter", notes[i].getType().getValue());
       }
     }
 
     @Test
     void convertsWholeTune() {
-      ScorePartwise score = parser.convertMelodyToScorePartwise(alphabetSong, "D");
+      ScorePartwise score = parser.convertMelodyToScorePartwise(alphabetSong, "D", "4/4");
       Note[] notes = score.getPart().get(0).getMeasure().get(0).getNoteOrBackupOrForward().stream()
           .filter(Note.class::isInstance).map(c -> (Note) c).toArray(Note[]::new);
       Step[] steps = { Step.D, Step.D, Step.A, Step.A, Step.B, Step.B, Step.A, Step.G, Step.G,
@@ -234,8 +234,8 @@ public class ScoreParserTest {
         assertEquals(alters[i], notes[i].getPitch().getAlter());
         assertEquals(steps[i], notes[i].getPitch().getStep());
         assertEquals(4, notes[i].getPitch().getOctave());
-        assertEquals(new BigDecimal(60), notes[i].getDuration());
-        assertEquals("eighth", notes[i].getType().getValue());
+        assertEquals(new BigDecimal(120), notes[i].getDuration());
+        assertEquals("quarter", notes[i].getType().getValue());
       }
     }
   }

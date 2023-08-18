@@ -10,7 +10,9 @@ import java.util.Random;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.control.Button;
@@ -30,6 +32,7 @@ import org.juhanir.domain.Trie;
 import org.juhanir.services.GeneratorService;
 import org.juhanir.services.TrainingService;
 import org.juhanir.utils.FileIo;
+import org.juhanir.utils.Playback;
 import org.juhanir.utils.ScoreParser;
 import org.staccato.StaccatoParserListener;
 
@@ -44,6 +47,7 @@ public class AppEventHandler {
   private final StringProperty playbackFile;
   private final BooleanProperty isLoading;
   private final StringProperty appMessage;
+  private final StringProperty timeSignature;
   private BooleanProperty canTrainModel;
   private BooleanProperty canGenerate;
   private BooleanProperty canStartPlayback;
@@ -69,6 +73,7 @@ public class AppEventHandler {
     this.canTrainModel = new SimpleBooleanProperty(false);
     this.canStartPlayback = new SimpleBooleanProperty(false);
     this.canGenerate = new SimpleBooleanProperty(false);
+    this.timeSignature = new SimpleStringProperty();
   }
 
   /**
@@ -112,6 +117,22 @@ public class AppEventHandler {
           && degree.get() > Constants.MARKOV_CHAIN_DEGREE_MAX) {
         canTrainModel.set(false);
       }
+    });
+  }
+
+  /**
+   * Event handler for time signature select.
+   *
+   * @param timeSignatureSelect UI element
+   */
+  public void handleTimeSignatureSelect(ComboBox<String> timeSignatureSelect) {
+    timeSignatureSelect.disableProperty().bind(this.canGenerate.not());
+    ObservableList<String> vals = FXCollections.observableList(Constants.timeSignatures);
+    timeSignatureSelect.setItems(vals);
+    timeSignatureSelect.setValue(vals.get(0));
+    timeSignature.set(vals.get(0));
+    timeSignatureSelect.valueProperty().addListener((observable, oldValue, newValue) -> {
+      timeSignature.set(newValue);
     });
   }
 
@@ -197,14 +218,14 @@ public class AppEventHandler {
       }
       try {
         GeneratorService generator = new GeneratorService(trie, new Random());
-        ScoreParser parser = new ScoreParser();
         int startingNote = generator.getBaseNoteOfKey(musicalKey.get());
         if (startingNote < 0) {
           this.appMessage.set(String.format("ERROR: Could not generate melody starting with %s", this.musicalKey.get()));
         }
         int[] initialSequence = trie.getMostCommonSequenceStartingWith(startingNote, degree.get());
         int[] melody = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
-        ScorePartwise score = parser.convertMelodyToScorePartwise(melody, musicalKey.get());
+        ScoreParser parser = new ScoreParser();
+        ScorePartwise score = parser.convertMelodyToScorePartwise(melody, musicalKey.get(), timeSignature.get());
         LocalDateTime now = LocalDateTime.now();
         String fileName = String.format("%s-degree%s-%s", musicalKey.get(), degree.get(),
             now.format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
@@ -240,9 +261,10 @@ public class AppEventHandler {
             FileIo reader = new FileIo();
             mxmlParser.addParserListener(listener);
             mxmlParser.parse(reader.readFile(Constants.OUTPUT_DATA_PATH, playbackFile.get()));
-            Pattern staccatoPattern = listener.getPattern().setTempo(Constants.PLAYBACK_TEMPO);
-            player.play(staccatoPattern, new Rhythm().addLayer("X..X..X..").getPattern()
-                .setTempo(Constants.PLAYBACK_TEMPO).repeat(10));
+            Pattern melodyPattern = listener.getPattern().setTempo(Constants.PLAYBACK_TEMPO);
+            Pattern rhythmPattern = new Pattern(Playback.resolveRhythm(timeSignature.get()))
+                .setTempo(Constants.PLAYBACK_TEMPO);
+            player.play(melodyPattern, rhythmPattern.repeat(20));
             return null;
           }
         };

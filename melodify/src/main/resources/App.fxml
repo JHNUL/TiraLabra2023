@@ -24,6 +24,12 @@
                         </VBox>
                     </HBox>
                     <Button fx:id="trainButton" text="Train" prefWidth="80"/>
+                    <HBox alignment="CENTER" spacing="8.0" >
+                        <VBox>
+                            <Label text="Time signature" />
+                            <ComboBox fx:id="timeSignatureSelect" prefWidth="160.0" />
+                        </VBox>
+                    </HBox>
                     <Button fx:id="generateButton" text="Generate" prefWidth="80"/>
                     <ComboBox fx:id="playbackSelect" prefWidth="328" />
                 </VBox>

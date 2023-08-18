@@ -8,4 +8,5 @@ Quite a lot of small issues trying to get the jar to contain all needed dependen
 |5|UI testing with TestFX|
 |2|simplify displaying messages in the UI|
 |2|create a working jar|
+|3|time signature to generation and playback|
 |||
