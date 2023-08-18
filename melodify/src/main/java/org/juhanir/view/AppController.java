@@ -45,6 +45,9 @@ public class AppController {
   private Button trainButton;
 
   @FXML
+  private ComboBox<String> timeSignatureSelect;
+
+  @FXML
   private Button generateButton;
 
   @FXML
@@ -87,6 +90,7 @@ public class AppController {
     this.eventHandler.handleInfoLabel(this.infoLabel);
     this.eventHandler.handleKeySelectChange(this.musicalKeySelect);
     this.eventHandler.handleTrainButton(this.trainButton, this.filesPerKey);
+    this.eventHandler.handleTimeSignatureSelect(this.timeSignatureSelect);
     this.eventHandler.handleGenerateButton(this.generateButton, this.filesPerKey,
         this.playbackFiles);
     this.eventHandler.handlePlayButton(this.playButton, this.stopButton, this.innerContainer);

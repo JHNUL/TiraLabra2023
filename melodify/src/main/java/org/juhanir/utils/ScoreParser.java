@@ -225,9 +225,10 @@ public class ScoreParser {
    *
    * @param melody the melody
    * @param musicalKey selected musical key
+   * @param timeSignature selected time signature
    * @return ScorePartwise
    */
-  public ScorePartwise convertMelodyToScorePartwise(int[] melody, String musicalKey) {
+  public ScorePartwise convertMelodyToScorePartwise(int[] melody, String musicalKey, String timeSignature) {
     MelodyNote[] notes =
         Arrays.stream(melody).<MelodyNote>mapToObj(note -> this.convertIntToNote(note, musicalKey))
             .toArray(MelodyNote[]::new);
@@ -236,7 +237,12 @@ public class ScoreParser {
       if (fifths.intValue() < -7) {
         throw new Exception(String.format("Could not resolve fifths value from %s", musicalKey));
       }
-      return this.getScorePartwise(notes, fifths);
+      String beats = timeSignature.substring(0, 1);
+      String beatType = timeSignature.substring(2);
+      String noteDuration = beatType.equals("4") ? "quarter" : "eighth";
+      parserLogger.info(String.format("Generating melody in key %s with time signature %s and %s notes", musicalKey,
+          timeSignature, noteDuration));
+      return this.getScorePartwise(notes, fifths, beats, beatType, noteDuration);
     } catch (Exception e) {
       parserLogger.error(e);
     }
@@ -264,7 +270,8 @@ public class ScoreParser {
     return res;
   }
 
-  private ScorePartwise getScorePartwise(MelodyNote[] notes, BigInteger fifths) {
+  private ScorePartwise getScorePartwise(MelodyNote[] notes, BigInteger fifths, String beats,
+      String beatType, String noteDuration) {
     // Generated factory for all proxymusic elements
     ObjectFactory factory = new ObjectFactory();
 
@@ -316,8 +323,8 @@ public class ScoreParser {
     // Time
     Time time = factory.createTime();
     attributes.getTime().add(time);
-    time.getTimeSignature().add(factory.createTimeBeats("4"));
-    time.getTimeSignature().add(factory.createTimeBeatType("4"));
+    time.getTimeSignature().add(factory.createTimeBeats(beats));
+    time.getTimeSignature().add(factory.createTimeBeatType(beatType));
 
     for (MelodyNote melodyNote : notes) {
 
@@ -330,10 +337,19 @@ public class ScoreParser {
       pitch.setOctave(melodyNote.getOctave());
       pitch.setAlter(new BigDecimal(melodyNote.getAlter()));
 
-      note.setDuration(new BigDecimal(60));
+      // The <duration> element is an integer that represents a note's
+      // duration in terms of divisions per quarter note.
+      // https://www.w3.org/2021/06/musicxml40/tutorial/midi-compatible-part/#duration
+      if (noteDuration.equals("quarter")) {
+        note.setDuration(new BigDecimal(120)); // same as division
+      } else if (noteDuration.equals("eighth")) {
+        note.setDuration(new BigDecimal(60));
+      } else {
+        note.setDuration(new BigDecimal(30));
+      }
 
       NoteType type = factory.createNoteType();
-      type.setValue("eighth");
+      type.setValue(noteDuration);
       note.setType(type);
     }
 
