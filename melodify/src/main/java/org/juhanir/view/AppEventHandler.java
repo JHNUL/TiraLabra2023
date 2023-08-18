@@ -305,9 +305,9 @@ public class AppEventHandler {
     this.appMessage.addListener((observable, oldValue, newValue) -> {
       boolean isError = newValue.startsWith("ERROR:");
       String message = isError ? newValue.substring(6).strip() : newValue;
-      String style = "-fx-font-style: italic; -fx-padding: 0 0 4 4";
+      String style = "-fx-font-style: italic; -fx-padding: 0 0 4 4;";
       if (isError) {
-        style += "; -fx-text-fill: red;";
+        style += " -fx-text-fill: red;";
       }
       infoLabel.setStyle(style);
       infoLabel.setText(message);
