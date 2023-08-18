@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.audiveris.proxymusic.util.Marshalling;
 import org.audiveris.proxymusic.util.Marshalling.MarshallingException;
+import org.jfugue.midi.MidiFileManager;
+import org.jfugue.pattern.Pattern;
 
 /**
  * Utility class for filesystem operations.
@@ -106,6 +108,30 @@ public class FileIo {
     if (dataFolder.exists() && dataFolder.isDirectory()) {
       try (OutputStream os = new FileOutputStream(new File(dataFolder, fileName))) {
         Marshalling.marshal(score, os, true, 2);
+      }
+    } else {
+      throw new IOException("The specified folder does not exist.");
+    }
+  }
+
+  /**
+   * Write a MIDI file based on the provided jfugue Pattern
+   *
+   * @param folderPath    path to the folder
+   * @param fileName      file name
+   * @param melodyPattern jfugue patterh
+   * @throws IOException  if write fails
+   */
+  public void saveMidiFile(String folderPath, String fileName, Pattern melodyPattern)
+      throws IOException {
+    String path = this.getFolderPath(folderPath);
+    File dataFolder = new File(path);
+    if (dataFolder.exists() && dataFolder.isDirectory()) {
+      try {
+        File file = new File(String.format("%s%s%s", path, File.separator, fileName));
+        MidiFileManager.savePatternToMidi(melodyPattern, file);
+      } catch (Exception e) {
+        throw e;
       }
     } else {
       throw new IOException("The specified folder does not exist.");
