@@ -3,7 +3,6 @@ package org.juhanir.domain;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.Random;
 import org.juhanir.Constants;
 
 /**
