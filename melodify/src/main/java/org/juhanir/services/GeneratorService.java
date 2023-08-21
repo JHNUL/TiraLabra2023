@@ -15,7 +15,7 @@ public class GeneratorService {
 
   private final Trie trie;
   private final Random random;
-  private static final Logger generatorLogger = LogManager.getLogger(GeneratorService.class);
+  private static final Logger generatorLogger = LogManager.getLogger();
 
   public GeneratorService(Trie trie, Random rand) {
     this.trie = trie;

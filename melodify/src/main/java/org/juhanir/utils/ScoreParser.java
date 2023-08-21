@@ -40,7 +40,7 @@ import org.juhanir.domain.MelodyNote;
  */
 public class ScoreParser {
 
-  private static final Logger parserLogger = LogManager.getLogger(ScoreParser.class);
+  private static final Logger parserLogger = LogManager.getLogger();
   private static final String[] cicleOfFifthsMajor = new String[] { "Cb", "Gb", "Db", "Ab", "Eb",
       "Bb", "F", "C", "G", "D", "A", "E", "B", "F#", "C#" };
   private static final String[] cicleOfFifthsMinor = new String[] { "Abm", "Ebm", "Bbm", "Fm", "Cm",
@@ -176,8 +176,8 @@ public class ScoreParser {
             .map(c -> (Note) c).collect(Collectors.toList());
         for (final Note note : notes) {
           Pitch pitch = note.getPitch();
-          String voice = note.getVoice();
-          if (pitch == null || !voice.equals("1")) {
+          BigInteger staff = Optional.ofNullable(note.getStaff()).orElse(BigInteger.valueOf(1));
+          if (pitch == null || staff.intValue() != 1) {
             continue;
           }
           BigDecimal alter = Optional.ofNullable(pitch.getAlter()).orElse(BigDecimal.valueOf(0.0));
@@ -194,11 +194,6 @@ public class ScoreParser {
   private void resolveKey(List<Attributes> attrs, List<String> musicalKeys) {
     for (Attributes attributes : attrs) {
       List<Key> keys = attributes.getKey();
-      BigInteger staves = Optional.ofNullable(attributes.getStaves()).orElse(new BigInteger("1"));
-      if (staves.intValue() > 1) {
-        throw new IllegalArgumentException(
-            String.format("Non-supported staves %s", staves.intValue()));
-      }
       for (Key key : keys) {
         int fifths = key.getFifths().intValue();
         String mode = Optional.ofNullable(key.getMode()).orElse("major");

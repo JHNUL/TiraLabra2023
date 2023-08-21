@@ -13,7 +13,7 @@ import org.juhanir.utils.ScoreParser;
  */
 public class TrainingService {
 
-  private static Logger trainingLogger = LogManager.getLogger(TrainingService.class);
+  private static Logger trainingLogger = LogManager.getLogger();
 
   private final FileIo fileIo;
   private final ScoreParser scoreParser;
