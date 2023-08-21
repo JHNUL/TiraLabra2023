@@ -107,7 +107,7 @@ public class AppController {
         updateMessage("Reading training data");
         FileIo reader = new FileIo();
         List<String> sourceFiles = reader.getAllFilePathsInFolder(Constants.TRAINING_DATA_PATH, ".xml");
-        List<String> generatedFiles = reader.getAllFilePathsInFolder(Constants.OUTPUT_DATA_PATH, ".xml").stream()
+        List<String> generatedFiles = reader.getAllFilePathsInFolder(Constants.OUTPUT_DATA_PATH, ".staccato").stream()
             .map(filePath -> filePath.substring(filePath.lastIndexOf(File.separator) + 1))
             .collect(Collectors.toList());
         ScoreParser parser = new ScoreParser();

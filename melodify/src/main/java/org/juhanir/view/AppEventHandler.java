@@ -24,7 +24,6 @@ import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.audiveris.proxymusic.ScorePartwise;
-import org.jfugue.integration.MusicXmlParser;
 import org.jfugue.pattern.Pattern;
 import org.jfugue.player.ManagedPlayer;
 import org.jfugue.player.Player;
@@ -35,7 +34,6 @@ import org.juhanir.services.TrainingService;
 import org.juhanir.utils.FileIo;
 import org.juhanir.utils.Playback;
 import org.juhanir.utils.ScoreParser;
-import org.staccato.StaccatoParserListener;
 
 /**
  * Event handlers for UI elements.
@@ -234,8 +232,8 @@ public class AppEventHandler {
             now.format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
         FileIo reader = new FileIo();
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".xml", score);
-        playbackFiles.add(fileName + ".xml");
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".staccato", stacPattern);
+        playbackFiles.add(fileName + ".staccato");
         Pattern melodyPattern = new Pattern(stacPattern);
         reader.saveMidiFile(Constants.OUTPUT_DATA_PATH, fileName + ".MID", melodyPattern);
       } catch (Exception e) {
@@ -262,14 +260,10 @@ public class AppEventHandler {
         Task<Void> playbackTask = new Task<Void>() {
           @Override
           protected Void call() throws Exception {
-            MusicXmlParser mxmlParser = new MusicXmlParser();
-            StaccatoParserListener listener = new StaccatoParserListener();
             FileIo reader = new FileIo();
-            mxmlParser.addParserListener(listener);
-            mxmlParser.parse(reader.readFile(Constants.OUTPUT_DATA_PATH, playbackFile.get()));
-            Pattern melodyPattern = listener.getPattern().setTempo(Constants.PLAYBACK_TEMPO);
-            Pattern rhythmPattern = new Pattern(Playback.resolveRhythm(timeSignature.get()))
-                .setTempo(Constants.PLAYBACK_TEMPO);
+            String staccatoString = reader.readFileAsString(Constants.OUTPUT_DATA_PATH, playbackFile.get());
+            Pattern melodyPattern = new Pattern(staccatoString);
+            Pattern rhythmPattern = new Pattern(Playback.resolveRhythm(timeSignature.get()));
             player.play(melodyPattern, rhythmPattern.repeat(20));
             return null;
           }
