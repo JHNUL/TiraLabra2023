@@ -1,4 +1,4 @@
-## Hours
+## Week5
 
 Added more tests with several real source files for more confidence on generation correctness. Also added a UI test framework TestFX to run a simple walkthrough of the user interface, so there is some test automation for the UI layer as well. The "view" classes are not unit tested, as their unit testing would mean bootstrapping a JavaFX.Application context for any of the elements to work. It felt more meaningful to system-test the whole thing via the UI.
 
@@ -18,6 +18,8 @@ TODO:
 - add some more songs for the final data package
 - go throught the code and check the suggestions from the code review
 - if time, add some flare to the UI
+
+## Hours
 
 |Amount|What I did|
 |-|-|
