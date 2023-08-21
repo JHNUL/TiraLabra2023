@@ -21,6 +21,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.jfugue.integration.MusicXmlParser;
 import org.jfugue.pattern.Pattern;
@@ -40,6 +43,7 @@ import org.staccato.StaccatoParserListener;
  */
 public class AppEventHandler {
 
+  private static final Logger eventHandlerLogger = LogManager.getLogger();
   private final Trie trie;
   private final IntegerProperty degree;
   private final StringProperty musicalKey;
@@ -178,7 +182,7 @@ public class AppEventHandler {
         };
 
         trainingTask.setOnFailed(taskEvent -> {
-          trainingTask.getException().printStackTrace(System.err);
+          eventHandlerLogger.error("Failed to train the model", trainingTask.getException());
           this.setErrorMessage(trainingTask.getException(), "Failed to train the model");
         });
 
@@ -239,6 +243,7 @@ public class AppEventHandler {
         Pattern melodyPattern = listener.getPattern().setTempo(Constants.PLAYBACK_TEMPO);
         reader.saveMidiFile(Constants.OUTPUT_DATA_PATH, fileName + ".MID", melodyPattern);
       } catch (Exception e) {
+        eventHandlerLogger.error("Failed to generate melody", e);
         this.setErrorMessage(e, "Failed to generate melody");
       }
     });
@@ -275,7 +280,7 @@ public class AppEventHandler {
         };
 
         playbackTask.setOnFailed(taskEvent -> {
-          playbackTask.getException().printStackTrace(System.err);
+          eventHandlerLogger.error("Cannot start playback", playbackTask.getException());
           this.setErrorMessage(playbackTask.getException(), "Cannot start playback");
         });
 
