@@ -39,6 +39,8 @@ public class TrainingService {
    * @param degree degree of Markov Chain to use
    */
   public void trainWith(List<String> filePaths, int degree) {
+    trainingLogger.info(
+      String.format("Training model with degree %s and %s source data files", degree, filePaths.size()));
     for (final String filePath : filePaths) {
       try (InputStream is = this.fileIo.readFile(filePath)) {
         List<Integer> melodies = this.scoreParser.parse(is);

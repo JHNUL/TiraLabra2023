@@ -79,6 +79,8 @@ public class GeneratorService {
    * @return sequence of notes in integer representation
    */
   public int[] predictSequence(int[] initialPrefix, int length) {
+    generatorLogger.info(
+        String.format("Generating melody from common prefix %s", Arrays.toString(initialPrefix)));
     int[] result = Arrays.copyOf(initialPrefix, length);
     for (int i = initialPrefix.length; i < result.length; i++) {
       int[] generationPrefix = Arrays.copyOfRange(result, i - initialPrefix.length, i);
