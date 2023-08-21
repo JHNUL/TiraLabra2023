@@ -1,7 +1,5 @@
 package org.juhanir.view;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -223,14 +221,15 @@ public class AppEventHandler {
         }
         int[] initialSequence = trie.getMostCommonSequenceStartingWith(startingNote, degree.get());
         int[] melody = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
-        String stacPattern = generator.toStaccatoPattern(melody, timeSignature.get());
-        String fileName = String.format("%s-degree%s-%s", musicalKey.get(), degree.get(),
-            LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
-        FileIo reader = new FileIo();
-        reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".staccato", stacPattern);
-        playbackFiles.add(fileName + ".staccato");
-        Pattern melodyPattern = new Pattern(stacPattern);
-        reader.saveMidiFile(Constants.OUTPUT_DATA_PATH, fileName + ".MID", melodyPattern);
+        String[] fileNames = generator.getGenerationFileNames(musicalKey.get(), degree.get(), timeSignature.get());
+        FileIo fileUtil = new FileIo();
+        String staccatoString = generator.toStaccatoString(melody, timeSignature.get());
+        Pattern combined = new Pattern(
+          new Pattern(staccatoString), new Pattern(Playback.resolveRhythm(staccatoString)).repeat(20)
+        );
+        fileUtil.writeToFile(Constants.OUTPUT_DATA_PATH, fileNames[0], combined.getPattern().toString());
+        fileUtil.saveMidiFile(Constants.OUTPUT_DATA_PATH, fileNames[1], combined);
+        playbackFiles.add(fileNames[0]);
       } catch (Exception e) {
         eventHandlerLogger.error("Failed to generate melody", e);
         this.setErrorMessage(e, "Failed to generate melody");
@@ -257,9 +256,7 @@ public class AppEventHandler {
           protected Void call() throws Exception {
             FileIo reader = new FileIo();
             String staccatoString = reader.readFileAsString(Constants.OUTPUT_DATA_PATH, playbackFile.get());
-            Pattern melodyPattern = new Pattern(staccatoString);
-            Pattern rhythmPattern = new Pattern(Playback.resolveRhythm(staccatoString));
-            player.play(melodyPattern, rhythmPattern.repeat(20));
+            player.play(new Pattern(staccatoString));
             return null;
           }
         };
