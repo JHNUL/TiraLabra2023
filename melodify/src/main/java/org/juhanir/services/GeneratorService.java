@@ -1,5 +1,7 @@
 package org.juhanir.services;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Random;
 import org.apache.logging.log4j.Logger;
@@ -128,7 +130,7 @@ public class GeneratorService {
    * @param timeSignature time signature
    * @return Staccato string
    */
-  public String toStaccatoPattern(int[] melody, String timeSignature) {
+  public String toStaccatoString(int[] melody, String timeSignature) {
     String beatType = timeSignature.substring(2);
     String noteDuration = beatType.equals("4") ? "q" : "i*3:2"; // only 4/4 and 6/8
     String[] staccatoMelody = Arrays
@@ -137,5 +139,20 @@ public class GeneratorService {
         .mapToObj(note -> String.valueOf(note) + noteDuration)
         .toArray(String[]::new);
     return String.format("T%s TIME:%s %s", Constants.PLAYBACK_TEMPO, timeSignature, String.join(" ", staccatoMelody));
+  }
+
+  /**
+   * Get names for generated files.
+   *
+   * @param key musical key
+   * @param degree markov chain degree
+   * @param timeSignature time signature
+   * @return array of two filenames, first staccato then midi
+   */
+  public String[] getGenerationFileNames(String key, int degree, String timeSignature) {
+    String timeSigForFileName = timeSignature.replace("/", "-");
+    String fileName = String.format("%s(%s)-degree%s-%s", key, timeSigForFileName, degree,
+      LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
+    return new String[] { String.format("%s.staccato", fileName), String.format("%s.MID", fileName) };
   }
 }
