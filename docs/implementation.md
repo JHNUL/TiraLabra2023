@@ -5,8 +5,8 @@
 #### Package diagram
 ![package_diagram](/docs/images/package_diagram.png)
 
-- Main class is the entrypoint to the application.
-- UI presentation layer is specified as fxml in a resource file (JavaFX pattern). Fxml is consumed at the entrypoint and it contains a binding to the controller class.
+- Main class is the entrypoint to the application and a wrapper for the Launcher class that extends JavaFX application and starts the UI.
+- UI presentation layer is specified as fxml in a resource file (JavaFX pattern). Fxml is consumed by the launcher and it contains a binding to the controller class.
 
 #### View
 - AppController binds UI elements and handles app initialization logic.
@@ -19,9 +19,8 @@
 - Services consume Utils and Domain.
 
 #### Domain
-- Trie is the main data structure of the application. It contains sequences of melodies from the training data based on the degree of Markov Chain selected by the user, e.g. 2nd degree -> all triplets in the training data are saved.
+- Trie is the main data structure of the application. It contains sequences of melodies from the training data based on the degree of Markov Chain selected by the user, e.g. 2nd degree -> all 3-tuples in the training data are saved.
 - TrieNode is a node saved in the Trie. All nodes keep a list of children, their own note value (except root node which has no value) and count of occurrences in a sequence based on which the probability distribution is calculated.
-- MelodyNote is an intermediate helper-format for a note that is used when creating playable data from a melody sequence where notes are represented as integers.
 
 #### Utils
 - FileIo contains wrappers for filesystem access methods.
@@ -33,7 +32,7 @@ Starting from the root node, each child is looked up by accessing a fixed-size a
 For space complexity in the worst case no key inserted to the trie shares a prefix with another key so the space complexity is **O(key_len * number_of_keys)**. Each node created to the trie by inserting a key also holds a fixed-size array to keep references to its children, whether or not it has any (this is to make lookup faster).
 
 ## Bugs, gripes and general shortcomings
-- no point in writing them down yet, as things are nowhere near completion
+- to be added
 
 ## Sources
 - https://en.wikipedia.org/wiki/Markov_chain

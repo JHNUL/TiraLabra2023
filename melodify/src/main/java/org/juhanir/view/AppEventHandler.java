@@ -29,7 +29,6 @@ import org.juhanir.domain.Trie;
 import org.juhanir.services.GeneratorService;
 import org.juhanir.services.TrainingService;
 import org.juhanir.utils.FileIo;
-import org.juhanir.utils.Playback;
 import org.juhanir.utils.ScoreParser;
 
 /**
@@ -225,7 +224,7 @@ public class AppEventHandler {
         FileIo fileUtil = new FileIo();
         String staccatoString = generator.toStaccatoString(melody, timeSignature.get());
         Pattern combined = new Pattern(
-          new Pattern(staccatoString), new Pattern(Playback.resolveRhythm(staccatoString)).repeat(20)
+          new Pattern(staccatoString), new Pattern(generator.resolveRhythm(staccatoString)).repeat(20)
         );
         fileUtil.writeToFile(Constants.OUTPUT_DATA_PATH, fileNames[0], combined.getPattern().toString());
         fileUtil.saveMidiFile(Constants.OUTPUT_DATA_PATH, fileNames[1], combined);

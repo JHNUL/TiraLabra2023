@@ -3,8 +3,6 @@ package org.juhanir.utils;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,22 +15,14 @@ import org.apache.logging.log4j.LogManager;
 import org.audiveris.proxymusic.Attributes;
 import org.audiveris.proxymusic.Key;
 import org.audiveris.proxymusic.Note;
-import org.audiveris.proxymusic.NoteType;
-import org.audiveris.proxymusic.ObjectFactory;
-import org.audiveris.proxymusic.PartList;
-import org.audiveris.proxymusic.PartName;
 import org.audiveris.proxymusic.Pitch;
-import org.audiveris.proxymusic.ScorePart;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.audiveris.proxymusic.ScorePartwise.Part;
 import org.audiveris.proxymusic.ScorePartwise.Part.Measure;
 import org.audiveris.proxymusic.Step;
-import org.audiveris.proxymusic.Time;
-import org.audiveris.proxymusic.Work;
 import org.audiveris.proxymusic.util.Marshalling;
 import org.audiveris.proxymusic.util.Marshalling.UnmarshallingException;
 import org.juhanir.Constants;
-import org.juhanir.domain.MelodyNote;
 
 /**
  * Contains logic for parsing MusicXML files and converting internal note representation back to
@@ -73,38 +63,6 @@ public class ScoreParser {
       throw new IllegalArgumentException(String.format("Not supported octave value %s", octave));
     }
     return (octave - Constants.OCTAVE_LOWER_BOUND) * 12 + Constants.noteNames.indexOf(step) + alter;
-  }
-
-  /**
-   * <p>
-   * Convert note from integer format to something playable.
-   * </p>
-   * <p>
-   * When it is not clear what the note is, e.g. the int value alone cannot say if half step above C
-   * is C# or Db, check if key is flat and use (note)b, otherwise always use sharp.
-   * </p>
-   *
-   * @param numericalNote numerical value of the note
-   * @param musicalKey key of the tune
-   * @return MelodyNote
-   */
-  public MelodyNote convertIntToNote(int numericalNote, String musicalKey) {
-
-    int noteValue = numericalNote % 12;
-    int octave = (int) Math.floor(numericalNote / 12) + Constants.OCTAVE_LOWER_BOUND;
-    String stepValue = Constants.noteNames.get(noteValue);
-    int alter = 0;
-    if (stepValue == null) {
-      if (this.isFlat(musicalKey)) {
-        stepValue = Constants.noteNames.get(noteValue + 1);
-        alter = -1;
-      } else {
-        stepValue = Constants.noteNames.get(noteValue - 1);
-        alter = 1;
-      }
-    }
-
-    return new MelodyNote(stepValue, alter, octave);
   }
 
   /**
@@ -213,142 +171,6 @@ public class ScoreParser {
         }
       }
     }
-  }
-
-  /**
-   * Converts melody as integer array to a ScorePartwise.
-   *
-   * @param melody the melody
-   * @param musicalKey selected musical key
-   * @param timeSignature selected time signature
-   * @return ScorePartwise
-   */
-  public ScorePartwise convertMelodyToScorePartwise(int[] melody, String musicalKey, String timeSignature) {
-    MelodyNote[] notes =
-        Arrays.stream(melody).<MelodyNote>mapToObj(note -> this.convertIntToNote(note, musicalKey))
-            .toArray(MelodyNote[]::new);
-    try {
-      BigInteger fifths = new BigInteger(String.valueOf(this.getFifths(musicalKey)));
-      if (fifths.intValue() < -7) {
-        throw new Exception(String.format("Could not resolve fifths value from %s", musicalKey));
-      }
-      String beats = timeSignature.substring(0, 1);
-      String beatType = timeSignature.substring(2);
-      String noteDuration = beatType.equals("4") ? "quarter" : "eighth";
-      parserLogger.info(String.format("Generating melody in key %s with time signature %s and %s notes", musicalKey,
-          timeSignature, noteDuration));
-      return this.getScorePartwise(notes, fifths, beats, beatType, noteDuration);
-    } catch (Exception e) {
-      parserLogger.error(e);
-    }
-    return null;
-  }
-
-  private boolean isFlat(String musicalKey) {
-    for (int i = 0; i < cicleOfFifthsMajor.length; i++) {
-      if (cicleOfFifthsMajor[i].equals(musicalKey) && i < Constants.FIFTHS_SUPPORTED_RANGE
-          || cicleOfFifthsMinor[i].equals(musicalKey) && i < Constants.FIFTHS_SUPPORTED_RANGE) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private int getFifths(String musicalKey) {
-    int res = Integer.MIN_VALUE;
-    for (int i = 0; i < cicleOfFifthsMajor.length; i++) {
-      if (cicleOfFifthsMajor[i].equals(musicalKey) || cicleOfFifthsMinor[i].equals(musicalKey)) {
-        res = (-1) * Constants.FIFTHS_SUPPORTED_RANGE + i;
-        break;
-      }
-    }
-    return res;
-  }
-
-  private ScorePartwise getScorePartwise(MelodyNote[] notes, BigInteger fifths, String beats,
-      String beatType, String noteDuration) {
-    // Generated factory for all proxymusic elements
-    ObjectFactory factory = new ObjectFactory();
-
-    // Allocate the score partwise
-    ScorePartwise scorePartwise = factory.createScorePartwise();
-
-    // Work
-    Work work = factory.createWork();
-    scorePartwise.setWork(work);
-    work.setWorkTitle(
-        "Generated melody " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-    work.setWorkNumber("1");
-
-    // PartList
-    PartList partList = factory.createPartList();
-    scorePartwise.setPartList(partList);
-
-    // Scorepart in partList
-    ScorePart scorePart = factory.createScorePart();
-    partList.getPartGroupOrScorePart().add(scorePart);
-    scorePart.setId("P1");
-
-    PartName partName = factory.createPartName();
-    scorePart.setPartName(partName);
-    partName.setValue("Music");
-
-    // ScorePart in scorePartwise
-    ScorePartwise.Part part = factory.createScorePartwisePart();
-    scorePartwise.getPart().add(part);
-    part.setId(scorePart);
-
-    // Measure
-    Measure measure = factory.createScorePartwisePartMeasure();
-    part.getMeasure().add(measure);
-    measure.setNumber("1");
-
-    // Attributes
-    Attributes attributes = factory.createAttributes();
-    measure.getNoteOrBackupOrForward().add(attributes);
-
-    // Divisions
-    attributes.setDivisions(new BigDecimal(120));
-
-    // Key
-    Key key = factory.createKey();
-    attributes.getKey().add(key);
-    key.setFifths(fifths);
-
-    // Time
-    Time time = factory.createTime();
-    attributes.getTime().add(time);
-    time.getTimeSignature().add(factory.createTimeBeats(beats));
-    time.getTimeSignature().add(factory.createTimeBeatType(beatType));
-
-    for (MelodyNote melodyNote : notes) {
-
-      Note note = factory.createNote();
-      measure.getNoteOrBackupOrForward().add(note);
-
-      Pitch pitch = factory.createPitch();
-      note.setPitch(pitch);
-      pitch.setStep(melodyNote.getStepEnum());
-      pitch.setOctave(melodyNote.getOctave());
-      pitch.setAlter(new BigDecimal(melodyNote.getAlter()));
-
-      // The <duration> element is an integer that represents a note's
-      // duration in terms of divisions per quarter note.
-      // https://www.w3.org/2021/06/musicxml40/tutorial/midi-compatible-part/#duration
-      if (noteDuration.equals("quarter")) {
-        note.setDuration(new BigDecimal(120)); // same as division
-      } else if (noteDuration.equals("eighth")) {
-        note.setDuration(new BigDecimal(60));
-      } else {
-        note.setDuration(new BigDecimal(30));
-      }
-
-      NoteType type = factory.createNoteType();
-      type.setValue(noteDuration);
-      note.setType(type);
-    }
-
-    return scorePartwise;
   }
 
 }
