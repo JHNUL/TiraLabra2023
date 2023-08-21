@@ -56,27 +56,6 @@ public class Trie {
   }
 
   /**
-   * <p>
-   * Searches the Trie for the melody sequence prefix and returns the child nodes of the last node
-   * in the prefix.
-   * </p>
-   *
-   * @param prefix sequence of note strings as prefix to the next note
-   * @return Array of TrieNodes (can be empty)
-   */
-  public TrieNode[] prefixSearch(int[] prefix) {
-    TrieNode node = this.root;
-    for (int i = 0; i < prefix.length; i++) {
-      int note = prefix[i];
-      if (!node.hasChild(note)) {
-        return new TrieNode[0];
-      }
-      node = node.getChild(prefix[i]);
-    }
-    return node.getChildren();
-  }
-
-  /**
    * Calculate the probabilities from a list of children.
    *
    * @return Array of probabilities

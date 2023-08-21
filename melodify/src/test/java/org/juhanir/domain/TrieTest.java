@@ -84,62 +84,40 @@ class TrieTest {
   }
 
   @Test
-  void prefixSearchReturnsEmptyListWhenNotFound() {
-    Trie trie = new Trie();
-    trie.insert(threeChildren);
-    TrieNode[] result = trie.prefixSearch(new int[] { 7, 6, 5, 4 });
-    assertEquals(0, result.length);
-  }
-
-  @Test
-  void emptyPrefixSearchReturnsChildrenOfRoot() {
+  void emptyPrefixSearchReturnsRoot() {
     Trie trie = new Trie();
     trie.insert(new int[] { 1, 2 });
     trie.insert(new int[] { 2, 2 });
     trie.insert(new int[] { 3, 2 });
-    TrieNode[] result = trie.prefixSearch(new int[] {});
-    assertEquals(Constants.NOTE_ARRAY_SIZE, result.length);
-    for (int i = 0; i < result.length; i++) {
+    TrieNode result = trie.lookup(new int[] {});
+    TrieNode[] kids = result.getChildren();
+    assertEquals(Constants.NOTE_ARRAY_SIZE, kids.length);
+    assertEquals(Integer.MIN_VALUE, result.getValue());
+    for (int i = 0; i < kids.length; i++) {
       if (i == 1) {
-        assertEquals(1, result[i].getValue());
-        assertEquals(1, result[i].getCount());
+        assertEquals(1, kids[i].getValue());
+        assertEquals(1, kids[i].getCount());
       } else if (i == 2) {
-        assertEquals(2, result[i].getValue());
-        assertEquals(1, result[i].getCount());
+        assertEquals(2, kids[i].getValue());
+        assertEquals(1, kids[i].getCount());
       } else if (i == 3) {
-        assertEquals(3, result[i].getValue());
-        assertEquals(1, result[i].getCount());
+        assertEquals(3, kids[i].getValue());
+        assertEquals(1, kids[i].getCount());
       } else {
-        assertNull(result[i]);
+        assertNull(kids[i]);
       }
     }
   }
 
   @Test
-  void prefixSearchReturnsImmediateChildrenWithOneNotePrefix() {
-    Trie trie = new Trie();
-    trie.insert(threeChildren);
-    TrieNode[] result = trie.prefixSearch(new int[] { threeChildren[0] });
-    assertEquals(threeChildren[1], result[threeChildren[1]].getValue());
-  }
-
-  @Test
-  void prefixSearchReturnsImmediateChildrenWithTwoNotePrefix() {
-    Trie trie = new Trie();
-    trie.insert(threeChildren);
-    TrieNode[] result = trie.prefixSearch(new int[] { threeChildren[0], threeChildren[1] });
-    assertEquals(threeChildren[2], result[threeChildren[2]].getValue());
-  }
-
-  @Test
-  void prefixSearchReturnsImmediateChildrenWhenExists() {
+  void immediateChildrenAreCorrect() {
     Trie trie = new Trie();
     trie.insert(firstBranch);
     trie.insert(secondBranch);
     trie.insert(thirdBranch);
     trie.insert(fourthBranch);
     trie.insert(fifthBranch);
-    TrieNode[] result = trie.prefixSearch(new int[] { 5, 6 });
+    TrieNode[] result = trie.lookup(new int[] { 5, 6 }).getChildren();
     long kids = Arrays.stream(result).filter(Objects::nonNull).count();
     assertEquals(4, kids);
     assertEquals(7, result[7].getValue());
@@ -149,14 +127,14 @@ class TrieTest {
   }
 
   @Test
-  void prefixSearchReturnsImmediateChildrenNoDuplicates() {
+  void immediateChildrenNoDuplicates() {
     Trie trie = new Trie();
     trie.insert(firstBranch);
     trie.insert(secondBranch);
     trie.insert(thirdBranch);
     trie.insert(fourthBranch);
     trie.insert(fifthBranch);
-    TrieNode[] result = trie.prefixSearch(new int[] { 5 });
+    TrieNode[] result = trie.lookup(new int[] { 5 }).getChildren();
     long kids = Arrays.stream(result).filter(Objects::nonNull).count();
     assertEquals(2, kids);
     assertEquals(6, result[6].getValue());
@@ -171,10 +149,10 @@ class TrieTest {
     trie.insert(thirdBranch);
     trie.insert(fourthBranch);
     trie.insert(fifthBranch);
-    TrieNode[] result = trie.prefixSearch(new int[] { 5 });
+    TrieNode[] result = trie.lookup(new int[] { 5 }).getChildren();
     assertEquals(4, result[6].getCount());
     assertEquals(1, result[7].getCount());
-    result = trie.prefixSearch(new int[] { 5, 7 });
+    result = trie.lookup(new int[] { 5, 7 }).getChildren();
     long kids = Arrays.stream(result).filter(Objects::nonNull).count();
     assertEquals(1, kids);
     assertEquals(1, result[11].getCount());
