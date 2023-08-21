@@ -7,4 +7,5 @@ Produce staccato patterns with JFugue, completely drop generating xml. Quite big
 |Amount|What I did|
 |-|-|
 |4|refactoring|
+|3|increasing unit test coverage|
 |||
