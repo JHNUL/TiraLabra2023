@@ -85,7 +85,7 @@ public class GeneratorService {
     for (int i = initialPrefix.length; i < result.length; i++) {
       int[] generationPrefix = Arrays.copyOfRange(result, i - initialPrefix.length, i);
       int nextNote = this.predictNextNote(generationPrefix);
-      if (nextNote < 0) {
+      if (nextNote == -1) {
         generatorLogger.info(String.format("Could not continue generation of %s",
             Arrays.toString(generationPrefix)));
         return Arrays.copyOfRange(result, 0, i);

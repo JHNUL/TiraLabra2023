@@ -1,8 +1,10 @@
 package org.juhanir.services;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import org.apache.logging.log4j.Logger;
+import org.audiveris.proxymusic.util.Marshalling.UnmarshallingException;
 import org.apache.logging.log4j.LogManager;
 import org.juhanir.domain.Trie;
 import org.juhanir.utils.FileIo;
@@ -45,11 +47,10 @@ public class TrainingService {
       try (InputStream is = this.fileIo.readFile(filePath)) {
         List<Integer> melodies = this.scoreParser.parse(is);
         for (int i = 0; i < melodies.size() - degree; i++) {
-          int[] trainingTuple =
-              melodies.subList(i, i + degree + 1).stream().mapToInt(Integer::intValue).toArray();
+          int[] trainingTuple = melodies.subList(i, i + degree + 1).stream().mapToInt(Integer::intValue).toArray();
           this.trie.insert(trainingTuple);
         }
-      } catch (Exception e) {
+      } catch (UnmarshallingException | IOException | IllegalArgumentException e) {
         trainingLogger.error("Failed to parse file " + filePath);
         trainingLogger.error(e);
       }

@@ -67,7 +67,7 @@ public class Trie {
     double sum = 0.0;
     for (int j = 0; j < children.length; j++) {
       if (children[j] != null) {
-        probabilities[j] = children[j].getCount() * 1.0 / childCount;
+        probabilities[j] = children[j].getCount() / (double) childCount;
         sum += probabilities[j];
       }
     }
@@ -96,7 +96,7 @@ public class Trie {
    * @return sequence
    */
   public int[] getMostCommonSequenceStartingWith(int startingNote, int length) {
-    if (length <= 1) {
+    if (length < 2) {
       return new int[] { startingNote };
     }
     int[] sequence = new int[length];
