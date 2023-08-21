@@ -2,7 +2,6 @@ package org.juhanir.view;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -227,6 +226,7 @@ public class AppEventHandler {
         }
         int[] initialSequence = trie.getMostCommonSequenceStartingWith(startingNote, degree.get());
         int[] melody = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
+        String stacPattern = generator.toStaccatoPattern(melody, timeSignature.get());
         ScoreParser parser = new ScoreParser();
         ScorePartwise score = parser.convertMelodyToScorePartwise(melody, musicalKey.get(), timeSignature.get());
         LocalDateTime now = LocalDateTime.now();
@@ -235,7 +235,7 @@ public class AppEventHandler {
         FileIo reader = new FileIo();
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".xml", score);
         playbackFiles.add(fileName + ".xml");
-        reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".debug", Arrays.toString(melody));
+        reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".staccato", stacPattern);
         MusicXmlParser mxmlParser = new MusicXmlParser();
         StaccatoParserListener listener = new StaccatoParserListener();
         mxmlParser.addParserListener(listener);

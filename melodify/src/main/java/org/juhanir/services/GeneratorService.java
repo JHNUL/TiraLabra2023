@@ -120,4 +120,22 @@ public class GeneratorService {
     }
     return startingNote;
   }
+
+  /**
+   * Transform the generated melody to playable Staccato string.
+   *
+   * @param melody        sequence of numerical notes
+   * @param timeSignature time signature
+   * @return Staccato string
+   */
+  public String toStaccatoPattern(int[] melody, String timeSignature) {
+    String beatType = timeSignature.substring(2);
+    String noteDuration = beatType.equals("4") ? "q" : "i*3:2"; // only 4/4 and 6/8
+    String[] staccatoMelody = Arrays
+      .stream(melody)
+      .map(note -> (Constants.OCTAVE_LOWER_BOUND * 12) + note)
+      .mapToObj(note -> String.valueOf(note) + noteDuration)
+      .toArray(String[]::new);
+    return String.format("T%s %s", Constants.PLAYBACK_TEMPO, String.join(" ", staccatoMelody));
+  }
 }
