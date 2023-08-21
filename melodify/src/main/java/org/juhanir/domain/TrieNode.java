@@ -11,6 +11,7 @@ public class TrieNode {
   private TrieNode[] children;
   private int value;
   private int count;
+  private int childCount;
 
   /**
    * Constructor for TrieNode.
@@ -24,6 +25,7 @@ public class TrieNode {
       this.children[i] = null;
     }
     this.count = 0;
+    this.childCount = 0;
   }
 
   public int getValue() {
@@ -32,6 +34,10 @@ public class TrieNode {
 
   public int getCount() {
     return this.count;
+  }
+
+  public int getChildCount() {
+    return this.childCount;
   }
 
   public void incrementCount() {
@@ -51,7 +57,10 @@ public class TrieNode {
   }
 
   public void addChild(int value) {
-    this.children[value] = new TrieNode(value);
+    if (this.children[value] == null) {
+      this.children[value] = new TrieNode(value);
+    }
+    this.childCount++;
   }
 
   public TrieNode[] getChildren() {

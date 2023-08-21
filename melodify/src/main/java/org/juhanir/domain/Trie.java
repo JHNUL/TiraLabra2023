@@ -17,19 +17,18 @@ public class Trie {
   }
 
   /**
-   * Inserts a note sequence to the Trie. Sequence length determines the degree of the Markov Chain.
-   * Increments each nodes 'count' property when inserting it as a child.
+   * <p>Inserts a note sequence to the Trie. Sequence length follows the degree of the Markov Chain.
+   * Increments the <code>childCount</code> property of the parent and the <code>count</code> property
+   * of the added child.</p>
    *
    * @param key sequence of note strings to save
    */
   public void insert(int[] key) {
     TrieNode node = this.root;
     for (int i = 0; i < key.length; i++) {
-      int note = key[i];
-      if (!node.hasChild(note)) {
-        node.addChild(key[i]);
-      }
-      node = node.getChild(key[i]);
+      int numericNote = key[i];
+      node.addChild(numericNote);
+      node = node.getChild(numericNote);
       node.incrementCount();
     }
   }
