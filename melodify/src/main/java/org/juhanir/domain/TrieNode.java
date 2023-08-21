@@ -60,6 +60,7 @@ public class TrieNode {
     if (this.children[value] == null) {
       this.children[value] = new TrieNode(value);
     }
+    this.children[value].incrementCount();
     this.childCount++;
   }
 

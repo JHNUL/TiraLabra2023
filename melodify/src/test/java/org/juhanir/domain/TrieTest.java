@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -197,7 +200,7 @@ class TrieTest {
   void resolvesProbabilitiesCorrectlyWithOneChild() {
     Trie trie = new Trie();
     trie.insert(oneChild);
-    TrieNode[] children = trie.prefixSearch(new int[] {});
+    TrieNode children = trie.lookup(new int[] {});
     double[] probs = trie.getProbabilities(children);
     assertEquals(Constants.NOTE_ARRAY_SIZE, probs.length);
     assertEquals(1.0, probs[1]);
@@ -211,10 +214,39 @@ class TrieTest {
     trie.insert(thirdBranch);
     trie.insert(fourthBranch);
     trie.insert(fifthBranch);
-    TrieNode[] children = trie.prefixSearch(new int[] { 5 });
+    TrieNode children = trie.lookup(new int[] { 5 });
     double[] probs = trie.getProbabilities(children);
     assertEquals(0.8, probs[6]);
     assertEquals(0.2, probs[7]);
+  }
+
+  @Test
+  void resolvesProbabilitiesCorrectlyWithManyChildrenAgain() {
+    Trie trie = new Trie();
+    trie.insert(firstBranch);
+    trie.insert(secondBranch);
+    trie.insert(thirdBranch);
+    trie.insert(fourthBranch);
+    trie.insert(fifthBranch);
+    TrieNode children = trie.lookup(new int[] { 5, 6 });
+    double[] probs = trie.getProbabilities(children);
+    assertEquals(0.25, probs[7]);
+    assertEquals(0.25, probs[8]);
+    assertEquals(0.25, probs[9]);
+    assertEquals(0.25, probs[10]);
+  }
+
+  @Test
+  void getProbabilitiesThrowsWhenProbabilitySumNotEqualToOne() {
+    Trie trie = new Trie();
+    TrieNode tn = new TrieNode(22);
+    TrieNode trieNodeSpy = spy(tn);
+    trieNodeSpy.addChild(1);
+    trieNodeSpy.addChild(2);
+    trieNodeSpy.addChild(4);
+    trieNodeSpy.addChild(5);
+    when(trieNodeSpy.getChildCount()).thenReturn(159);
+    assertThrows(IllegalArgumentException.class, () -> trie.getProbabilities(trieNodeSpy));
   }
 
   @Test
@@ -243,17 +275,17 @@ class TrieTest {
     trie.insert(new int[] { 5, 5, 7, 7, 10, 8, 9 });
     trie.insert(new int[] { 5, 5, 7, 7, 8, 8, 9 });
     int[] seq = trie.getMostCommonSequenceStartingWith(5, 2);
-    assertArrayEquals(new int[] {5, 5}, seq);
+    assertArrayEquals(new int[] { 5, 5 }, seq);
     seq = trie.getMostCommonSequenceStartingWith(5, 3);
-    assertArrayEquals(new int[] {5, 5, 7}, seq);
+    assertArrayEquals(new int[] { 5, 5, 7 }, seq);
     seq = trie.getMostCommonSequenceStartingWith(5, 4);
-    assertArrayEquals(new int[] {5, 5, 7, 7}, seq);
+    assertArrayEquals(new int[] { 5, 5, 7, 7 }, seq);
     seq = trie.getMostCommonSequenceStartingWith(5, 5);
-    assertArrayEquals(new int[] {5, 5, 7, 7, 8}, seq);
+    assertArrayEquals(new int[] { 5, 5, 7, 7, 8 }, seq);
     seq = trie.getMostCommonSequenceStartingWith(5, 6);
-    assertArrayEquals(new int[] {5, 5, 7, 7, 8, 8}, seq);
+    assertArrayEquals(new int[] { 5, 5, 7, 7, 8, 8 }, seq);
     seq = trie.getMostCommonSequenceStartingWith(5, 7);
-    assertArrayEquals(new int[] {5, 5, 7, 7, 8, 8, 9}, seq);
+    assertArrayEquals(new int[] { 5, 5, 7, 7, 8, 8, 9 }, seq);
   }
 
   @Test
@@ -265,7 +297,7 @@ class TrieTest {
     trie.insert(new int[] { 8, 6, 10 });
     trie.insert(new int[] { 5, 7, 11 });
     int[] seq = trie.getMostCommonSequenceStartingWith(5, 4);
-    assertArrayEquals(new int[] {5, 6, 7}, seq);
+    assertArrayEquals(new int[] { 5, 6, 7 }, seq);
   }
 
   @Test
@@ -277,7 +309,7 @@ class TrieTest {
     trie.insert(new int[] { 8, 6, 10 });
     trie.insert(new int[] { 5, 7, 11 });
     int[] seq = trie.getMostCommonSequenceStartingWith(5, 0);
-    assertArrayEquals(new int[] {5}, seq);
+    assertArrayEquals(new int[] { 5 }, seq);
   }
 
   @Test
@@ -290,7 +322,7 @@ class TrieTest {
     trie.insert(new int[] { 5, 6, 7, 7, 8, 8, 9 });
     trie.insert(new int[] { 6, 6, 7, 7, 8, 8, 9 });
     int[] seq = trie.getMostCommonSequenceStartingWith(5, 7);
-    assertArrayEquals(new int[] {5, 6, 7, 7, 8, 8, 9}, seq);
+    assertArrayEquals(new int[] { 5, 6, 7, 7, 8, 8, 9 }, seq);
   }
 
 }
