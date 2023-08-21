@@ -119,7 +119,7 @@ public class FileIo {
    *
    * @param folderPath    path to the folder
    * @param fileName      file name
-   * @param melodyPattern jfugue patterh
+   * @param melodyPattern jfugue Staccato pattern
    * @throws IOException  if write fails
    */
   public void saveMidiFile(String folderPath, String fileName, Pattern melodyPattern)

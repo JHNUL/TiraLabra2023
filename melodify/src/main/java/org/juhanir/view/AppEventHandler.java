@@ -236,11 +236,7 @@ public class AppEventHandler {
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".xml", score);
         playbackFiles.add(fileName + ".xml");
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".staccato", stacPattern);
-        MusicXmlParser mxmlParser = new MusicXmlParser();
-        StaccatoParserListener listener = new StaccatoParserListener();
-        mxmlParser.addParserListener(listener);
-        mxmlParser.parse(reader.readFile(Constants.OUTPUT_DATA_PATH, fileName + ".xml"));
-        Pattern melodyPattern = listener.getPattern().setTempo(Constants.PLAYBACK_TEMPO);
+        Pattern melodyPattern = new Pattern(stacPattern);
         reader.saveMidiFile(Constants.OUTPUT_DATA_PATH, fileName + ".MID", melodyPattern);
       } catch (Exception e) {
         eventHandlerLogger.error("Failed to generate melody", e);
