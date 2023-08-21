@@ -29,7 +29,7 @@ Prerequisites:
 - JDK >= 17
 - maven >= 3.8.7
 
-Tested on the following operating systems: Debian 12, Windows 10
+Tested on the following operating systems: Debian 12, Windows 10 (using Git Bash)
 
 Run the following commands in the project root to start the application:
 ```sh
