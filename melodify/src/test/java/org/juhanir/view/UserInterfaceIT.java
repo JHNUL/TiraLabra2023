@@ -46,7 +46,7 @@ public class UserInterfaceIT {
 
     // Try invalid inputs to degree
     List<String> inputs = List.of("foo", "-3", String.valueOf(Constants.MARKOV_CHAIN_DEGREE_MIN - 1),
-        String.valueOf(Constants.MARKOV_CHAIN_DEGREE_MAX + 1), " ");
+        String.valueOf(Constants.MARKOV_CHAIN_DEGREE_MAX + 1), " ", "2.3", "1e1");
     this.inputToDegreeFieldAndExpectError(robot, inputs);
 
     // Set valid input to degree
@@ -60,6 +60,11 @@ public class UserInterfaceIT {
 
     // Generate
     this.waitForButtonToBeEnabled(robot, "generateButton");
+    this.selectTimeSignature(robot, "4/4");
+    this.clickButton(robot, "generateButton");
+
+    // Change time signature and generate again
+    this.selectTimeSignature(robot, "6/8");
     this.clickButton(robot, "generateButton");
 
     // Wait until a file is available and select it
@@ -111,6 +116,10 @@ public class UserInterfaceIT {
     }
     String file = playbackSelect.getItems().get(playbackSelect.getItems().size() - 1);
     robot.clickOn("#playbackSelect").clickOn(file);
+  }
+
+  void selectTimeSignature(FxRobot robot, String ts) {
+    robot.clickOn("#timeSignatureSelect").clickOn(ts);
   }
 
   void waitUntilSpinnerDisappears(FxRobot robot, int timeoutMs) {
