@@ -251,7 +251,7 @@ public class GeneratorServiceTest {
     @Test
     void moreProbableNoteGetsPickedSanityTest() {
       // Bad idea to test with randomness, but hopefully after ten thousand
-      // iterations we see that 0.2 is always picked less often than 0.35
+      // iterations we see that 0.32 is always picked less often than 0.35
       double[] testProbabilities = { 0.05, 0.0, 0.1, 0.0, 0.32, 0.08, 0.0, 0.35, 0.2, 0.0 };
       int countOfMostProbable = 0;
       int countOfLessProbable = 0;
@@ -260,7 +260,7 @@ public class GeneratorServiceTest {
         if (testProbabilities[res] == 0.35) {
           countOfMostProbable++;
         }
-        if (testProbabilities[res] == 0.2) {
+        if (testProbabilities[res] == 0.32) {
           countOfLessProbable++;
         }
       }
@@ -379,10 +379,6 @@ public class GeneratorServiceTest {
           this.trainingDataPaths.add(testDataPath);
         }
       }
-    }
-
-    int normalize(int note) {
-      return note + (4 - Constants.OCTAVE_LOWER_BOUND) * 12;
     }
 
     boolean arrayHasSubArray(int[] array, int[] subArray) {

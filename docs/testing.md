@@ -4,6 +4,8 @@
 
 ## Tests
 
+Tested modules are domain, services and utils. Entrypoint and JavaFX launcher (org.juhanir) and the UI module (org.juhanir.view) are not unit-tested. UI layer is tested with a smoke system test as explained below.
+
 ### Unit tests
 
 The project is unit tested with JUnit. Tests are run automatically in CI environment when opening/updating a pull request. A failed unit test run will prevent merging the pull request. Previous unit test runs can be viewed from https://github.com/JHNUL/TiraLabra2023/actions/workflows/run_unit_tests.yaml.
