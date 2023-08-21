@@ -36,7 +36,7 @@ None at the moment, the trie lookup and insert operations might be somehow teste
 
 ### User Interface tests
 
-The project uses TestFX framework to test the running application by interacting with the UI and these are the only automated tests that target the UI layer. These tests are excluded in the maven lifecycle and can only be run manually:
+The project uses TestFX framework to test the running application by interacting with the UI and these are the only automated tests that target the UI layer. While the tests run, don't interfere with the UI. These tests are excluded from the maven lifecycle and can only be run manually:
 
 ```sh
 mvn -DskipUItests=false clean test-compile failsafe:integration-test -f melodify/pom.xml
