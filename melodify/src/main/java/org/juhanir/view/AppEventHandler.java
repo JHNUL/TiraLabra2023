@@ -23,7 +23,6 @@ import javafx.scene.layout.VBox;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.audiveris.proxymusic.ScorePartwise;
 import org.jfugue.pattern.Pattern;
 import org.jfugue.player.ManagedPlayer;
 import org.jfugue.player.Player;
@@ -225,13 +224,9 @@ public class AppEventHandler {
         int[] initialSequence = trie.getMostCommonSequenceStartingWith(startingNote, degree.get());
         int[] melody = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
         String stacPattern = generator.toStaccatoPattern(melody, timeSignature.get());
-        ScoreParser parser = new ScoreParser();
-        ScorePartwise score = parser.convertMelodyToScorePartwise(melody, musicalKey.get(), timeSignature.get());
-        LocalDateTime now = LocalDateTime.now();
         String fileName = String.format("%s-degree%s-%s", musicalKey.get(), degree.get(),
-            now.format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
+            LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
         FileIo reader = new FileIo();
-        reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".xml", score);
         reader.writeToFile(Constants.OUTPUT_DATA_PATH, fileName + ".staccato", stacPattern);
         playbackFiles.add(fileName + ".staccato");
         Pattern melodyPattern = new Pattern(stacPattern);
@@ -263,7 +258,7 @@ public class AppEventHandler {
             FileIo reader = new FileIo();
             String staccatoString = reader.readFileAsString(Constants.OUTPUT_DATA_PATH, playbackFile.get());
             Pattern melodyPattern = new Pattern(staccatoString);
-            Pattern rhythmPattern = new Pattern(Playback.resolveRhythm(timeSignature.get()));
+            Pattern rhythmPattern = new Pattern(Playback.resolveRhythm(staccatoString));
             player.play(melodyPattern, rhythmPattern.repeat(20));
             return null;
           }
