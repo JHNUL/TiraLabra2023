@@ -200,8 +200,8 @@ class TrieTest {
   void resolvesProbabilitiesCorrectlyWithOneChild() {
     Trie trie = new Trie();
     trie.insert(oneChild);
-    TrieNode children = trie.lookup(new int[] {});
-    double[] probs = trie.getProbabilities(children);
+    TrieNode note = trie.lookup(new int[] {});
+    double[] probs = trie.getProbabilities(note);
     assertEquals(Constants.NOTE_ARRAY_SIZE, probs.length);
     assertEquals(1.0, probs[1]);
   }
@@ -214,8 +214,8 @@ class TrieTest {
     trie.insert(thirdBranch);
     trie.insert(fourthBranch);
     trie.insert(fifthBranch);
-    TrieNode children = trie.lookup(new int[] { 5 });
-    double[] probs = trie.getProbabilities(children);
+    TrieNode note = trie.lookup(new int[] { 5 });
+    double[] probs = trie.getProbabilities(note);
     assertEquals(0.8, probs[6]);
     assertEquals(0.2, probs[7]);
   }
@@ -228,8 +228,8 @@ class TrieTest {
     trie.insert(thirdBranch);
     trie.insert(fourthBranch);
     trie.insert(fifthBranch);
-    TrieNode children = trie.lookup(new int[] { 5, 6 });
-    double[] probs = trie.getProbabilities(children);
+    TrieNode note = trie.lookup(new int[] { 5, 6 });
+    double[] probs = trie.getProbabilities(note);
     assertEquals(0.25, probs[7]);
     assertEquals(0.25, probs[8]);
     assertEquals(0.25, probs[9]);

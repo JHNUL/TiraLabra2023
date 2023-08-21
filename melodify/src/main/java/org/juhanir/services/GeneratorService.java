@@ -103,7 +103,8 @@ public class GeneratorService {
    */
   public int getBaseNoteOfKey(String musicalKey) {
     int baseNote = Constants.musicalKeyBaseNotes.get(musicalKey);
-    TrieNode[] firstNotes = trie.prefixSearch(new int[0]); // empty prefix gets children of root
+    TrieNode root = trie.lookup(new int[0]); // empty prefix gets root
+    TrieNode[] firstNotes = root.getChildren();
     int popularity = 0;
     int startingNote = -1;
     for (int i = baseNote; i < firstNotes.length; i += 12) {
