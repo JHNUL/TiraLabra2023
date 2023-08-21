@@ -84,7 +84,7 @@ class TrieTest {
   }
 
   @Test
-  void emptyPrefixSearchReturnsRoot() {
+  void emptyLookupReturnsRoot() {
     Trie trie = new Trie();
     trie.insert(new int[] { 1, 2 });
     trie.insert(new int[] { 2, 2 });
@@ -286,7 +286,9 @@ class TrieTest {
     trie.insert(new int[] { 5, 6, 7 });
     trie.insert(new int[] { 8, 6, 10 });
     trie.insert(new int[] { 5, 7, 11 });
-    int[] seq = trie.getMostCommonSequenceStartingWith(5, 0);
+    int[] seq = trie.getMostCommonSequenceStartingWith(5, 1);
+    assertArrayEquals(new int[] { 5 }, seq);
+    seq = trie.getMostCommonSequenceStartingWith(5, 0);
     assertArrayEquals(new int[] { 5 }, seq);
   }
 

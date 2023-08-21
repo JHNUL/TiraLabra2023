@@ -44,6 +44,15 @@ public class TrainingServiceTest {
   }
 
   @Test
+  void trainWithParsingErrorDoesNotThrow() {
+    Trie trie = new Trie();
+    TrainingService service =
+        new TrainingService(new FileIo(), new ScoreParser(), trie);
+    service.trainWith(List.of("/not/a/real/path"), 1);
+    assertEquals(1, trie.size());
+  }
+
+  @Test
   void trieSizeIsCorrectForFirstDegree() {
     Trie trie = new Trie();
     TrainingService service =

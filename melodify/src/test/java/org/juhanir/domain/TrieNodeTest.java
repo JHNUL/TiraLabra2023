@@ -21,6 +21,14 @@ class TrieNodeTest {
   }
 
   @Test
+  void initiallyAllChildrenAreNull() {
+    TrieNode node = new TrieNode(5);
+    for (TrieNode kid : node.getChildren()) {
+      assertNull(kid);
+    }
+  }
+
+  @Test
   void canCreateNewTrieNodeWithValue() {
     TrieNode node = new TrieNode(5);
     assertEquals(5, node.getValue());

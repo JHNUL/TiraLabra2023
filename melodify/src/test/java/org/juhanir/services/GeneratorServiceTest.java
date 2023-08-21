@@ -147,9 +147,12 @@ public class GeneratorServiceTest {
       if (i < 12) {
         testTrie.insert(new int[] { i, 6 });
       }
-      // add every other note three times in the last octave
+      // add every even note three times in the last octave
       if (i >= Constants.NOTE_ARRAY_SIZE - 12 && i % 2 == 0) {
         testTrie.insert(new int[] { i, 6 });
+        testTrie.insert(new int[] { i, 6 });
+      } else if (i >= Constants.NOTE_ARRAY_SIZE - 12 && i % 2 != 0) {
+        // and every odd twice, should not override the first octave selection
         testTrie.insert(new int[] { i, 6 });
       }
     }
@@ -186,6 +189,47 @@ public class GeneratorServiceTest {
     assertEquals(Constants.NOTE_ARRAY_SIZE - 2, generator.getBaseNoteOfKey("A#m"));
     assertEquals(Constants.NOTE_ARRAY_SIZE - 2, generator.getBaseNoteOfKey("Bb"));
     assertEquals(Constants.NOTE_ARRAY_SIZE - 2, generator.getBaseNoteOfKey("Bbm"));
+  }
+
+  @Test
+  void toStaccatoStringGeneratesCorrectlyFourFour() {
+    Trie trie = new Trie();
+    GeneratorService generator = new GeneratorService(trie, new Random());
+    int[] melody = new int[] { 1, 2, 3, 4 };
+    String res = generator.toStaccatoString(melody, "4/4");
+    String expected = String.format("T%s TIME:4/4 25q 26q 27q 28q", Constants.PLAYBACK_TEMPO);
+    assertEquals(expected, res);
+  }
+
+  @Test
+  void toStaccatoStringGeneratesCorrectlySixEighths() {
+    Trie trie = new Trie();
+    GeneratorService generator = new GeneratorService(trie, new Random());
+    int[] melody = new int[] { 1, 2, 3, 4 };
+    String res = generator.toStaccatoString(melody, "6/8");
+    String expected = String.format("T%s TIME:6/8 25i*3:2 26i*3:2 27i*3:2 28i*3:2", Constants.PLAYBACK_TEMPO);
+    assertEquals(expected, res);
+  }
+
+  @Test
+  void getGenerationFileNamesProducesCorrectNames() {
+    Trie trie = new Trie();
+    GeneratorService generator = new GeneratorService(trie, new Random());
+    String[] res = generator.getGenerationFileNames("C", 2, "4/4");
+    assertTrue(res[0].matches("C\\(4-4\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.staccato"));
+    assertTrue(res[1].matches("C\\(4-4\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.MID"));
+  }
+
+  @Test
+  void resolvesRhythmCorrectly() {
+    Trie trie = new Trie();
+    GeneratorService generator = new GeneratorService(trie, new Random());
+    String res = generator.resolveRhythm("T120 TIME:4/4 1 2 3 4 5");
+    assertEquals(
+      String.format("T%s V9 [CLOSED_HI_HAT]q Rq [CLOSED_HI_HAT]q Rq [CLOSED_HI_HAT]q Rq", Constants.PLAYBACK_TEMPO), res);
+    res = generator.resolveRhythm("T120 TIME:6/8 1 2 3 4 5");
+    assertEquals(
+      String.format("T%s V9 [CLOSED_HI_HAT]i*3:2 Ri*3:2 Ri*3:2 [CLOSED_HI_HAT]i*3:2 Ri*3:2 Ri*3:2", Constants.PLAYBACK_TEMPO), res);
   }
 
   @Nested

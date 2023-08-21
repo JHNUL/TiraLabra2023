@@ -55,7 +55,7 @@ After starting the application the training data is loaded and user can select a
 
 ![training](/docs/images/howto_train.png)
 
-After setting the parameters and training the model the generate button becomes enabled. Time signature selection is a small curiosity here for playback as there is also a rhythm when playing the generation in the app. Generated melodies will be written to file as MusicXML for playback in the app and also saved in MIDI format (without the rhythm).
+After setting the parameters and training the model the generate button becomes enabled. Time signature selection is a small curiosity here for playback as it adds a rhythm and controls whether the generation is quarter or eighth notes. Generated melodies will be written to file for playback in the app and also saved in MIDI format.
 
 ![generating](/docs/images/howto_generate.png)
 

@@ -21,9 +21,6 @@ public class TrieNode {
   public TrieNode(int value) {
     this.value = value;
     this.children = new TrieNode[Constants.NOTE_ARRAY_SIZE];
-    for (int i = 0; i < Constants.NOTE_ARRAY_SIZE; i++) {
-      this.children[i] = null;
-    }
     this.count = 0;
     this.childCount = 0;
   }
