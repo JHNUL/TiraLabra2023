@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +34,11 @@ public class FileIo {
   public FileInputStream readFile(String folderPath, String fileName) throws FileNotFoundException {
     String path = this.getFolderPath(folderPath);
     return new FileInputStream(new File(path + File.separator + fileName));
+  }
+
+  public String readFileAsString(String folderPath, String fileName) throws IOException {
+    String path = this.getFolderPath(folderPath);
+    return Files.readString(Path.of(path + File.separator + fileName));
   }
 
   /**
