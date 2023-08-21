@@ -29,7 +29,6 @@ public class Trie {
       int numericNote = key[i];
       node.addChild(numericNote);
       node = node.getChild(numericNote);
-      node.incrementCount();
     }
   }
 
@@ -51,12 +50,9 @@ public class Trie {
       if (!node.hasChild(note)) {
         return null;
       }
-      node = node.getChild(key[i]);
+      node = node.getChild(note);
     }
-    if (!node.hasChildren()) {
-      return node;
-    }
-    return null;
+    return node;
   }
 
   /**
@@ -85,14 +81,20 @@ public class Trie {
    *
    * @return Array of probabilities
    */
-  public double[] getProbabilities(TrieNode[] children) {
-    int childCount =
-        Arrays.stream(children).filter(Objects::nonNull).mapToInt(TrieNode::getCount).sum();
+  public double[] getProbabilities(TrieNode note) {
+    int childCount = note != null ? note.getChildCount() : 0;
+    TrieNode[] children = childCount > 0 ? note.getChildren() : new TrieNode[0];
     double[] probabilities = new double[Constants.NOTE_ARRAY_SIZE];
+    double sum = 0.0;
     for (int j = 0; j < children.length; j++) {
       if (children[j] != null) {
         probabilities[j] = children[j].getCount() * 1.0 / childCount;
+        sum += probabilities[j];
       }
+    }
+    // 0.0 for no children, otherwise check that probabilities sum up to one
+    if (sum != 0.0 && Math.abs(1.0 - sum) > Constants.EPSILON) {
+      throw new IllegalArgumentException("Probabilities must sum up to one " + Arrays.toString(probabilities));
     }
     return probabilities;
   }

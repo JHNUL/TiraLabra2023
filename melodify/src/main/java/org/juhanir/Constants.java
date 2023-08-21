@@ -20,6 +20,7 @@ public class Constants {
   public static final int GENERATED_MELODY_LEN = 120;
   public static final int PLAYBACK_TEMPO = 120;
   public static final int NOTE_ARRAY_SIZE = (OCTAVE_UPPER_BOUND - OCTAVE_LOWER_BOUND + 1) * 12;
+  public static final double EPSILON = 1e-10;
   public static final String TRAINING_DATA_PATH = System.getProperty("test") != null
       && System.getProperty("test").equals("true") ? "melodify/src/test/resources" : "data/musicxml";
   public static final String OUTPUT_DATA_PATH = "data/output";

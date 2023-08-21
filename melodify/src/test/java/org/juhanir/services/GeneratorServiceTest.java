@@ -2,10 +2,8 @@ package org.juhanir.services;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -42,18 +40,6 @@ public class GeneratorServiceTest {
     this.trie.insert(thirdBranch);
     this.trie.insert(fourthBranch);
     this.trie.insert(fifthBranch);
-  }
-
-  @Test
-  void predictionThrowsWhenProbabilitySumNotEqualToOne() {
-    Trie mockTrie = mock(Trie.class);
-    GeneratorService generator = new GeneratorService(mockTrie, new Random());
-    when(mockTrie.getProbabilities(any())).thenReturn(new double[] { 0.0, 0.2, 0.5 })
-        .thenReturn(new double[] { 0.0, 0.8, 0.5 });
-    assertThrows(IllegalArgumentException.class,
-        () -> generator.predictNextNote(new int[] { 5, 6 }));
-    assertThrows(IllegalArgumentException.class,
-        () -> generator.predictNextNote(new int[] { 5, 6 }));
   }
 
   @Test

@@ -37,8 +37,7 @@ public class GeneratorService {
    * </p>
    *
    * @param probabilities array of probabilities
-   * @return index of the selected element or -1 if threshold was never passed (should not happen if
-   *         called with legal argument)
+   * @return index of the selected element or -1 if threshold was never passed
    */
   public int getIndexOfSelectedNote(double[] probabilities) {
     double threshold = this.random.nextDouble();
@@ -64,17 +63,8 @@ public class GeneratorService {
    *         one.
    */
   public int predictNextNote(int[] prefix) {
-    TrieNode[] children = this.trie.prefixSearch(prefix);
-    double[] probabilities = this.trie.getProbabilities(children);
-    // Use threshold for comparison because of floating point precision
-    double sum = Arrays.stream(probabilities).sum();
-    double epsilon = 1e-10;
-    if (sum == 0.0) { // this is a valid case for no children
-      return -1;
-    } else if (Math.abs(1.0 - sum) > epsilon) {
-      throw new IllegalArgumentException(
-          "Probabilities must sum up to one " + Arrays.toString(probabilities));
-    }
+    TrieNode note = this.trie.lookup(prefix);
+    double[] probabilities = this.trie.getProbabilities(note);
     return this.getIndexOfSelectedNote(probabilities);
   }
 
