@@ -1,4 +1,4 @@
-## Hours
+## Week4
 
 Big refactor to use FXML files to describe UI and controller classes to handle functionality. Added checkstyle local config for more control.
 
@@ -14,6 +14,8 @@ Notable learnings:
 Focus:
 - Testing to see if there is weirdness in the generations (unit tests are quite extensive, but work mostly on small inputs)
 - Select one genre and style of training data to make generations sane. This already happens with the Irish jig theme, but investigate others
+
+## Hours
 
 |Amount|What I did|
 |-|-|
