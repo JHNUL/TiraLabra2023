@@ -31,7 +31,7 @@ Prerequisites:
 
 Tested on the following operating systems: Debian 12, Windows 10 (using Git Bash)
 
-Run the following commands in the project root to start the application:
+Run the following commands in the repository root to start the application:
 ```sh
 # Unzip training data (must run before starting the application)
 ./scripts/prepare_data.sh
@@ -43,11 +43,27 @@ mvn install -f melodify/pom.xml
 mvn clean javafx:run -f melodify/pom.xml
 ```
 
-Other commands:
+Build site:
 ```sh
-# Create site for the project (e.g. checkstyle report found in melodify/target/site)
+# e.g. checkstyle report found in melodify/target/site
 mvn clean site -f melodify/pom.xml
 ```
+
+Build a jar:
+```sh
+mvn clean compile package -f melodify/pom.xml
+```
+
+The jar will expect the following folder structure for source data:
+```sh
+# data folder must be a sibling to the jar
+.
+melodify.jar
+data/
+  ├── musicxml/
+  └── output/
+```
+
 
 ### Usage
 
