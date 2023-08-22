@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.audiveris.proxymusic.ScorePartwise;
 import org.audiveris.proxymusic.util.Marshalling;
 import org.audiveris.proxymusic.util.Marshalling.MarshallingException;
@@ -26,6 +29,8 @@ import org.jfugue.pattern.Pattern;
  * Utility class for filesystem operations.
  */
 public class FileIo {
+
+  private static final Logger fileLogger = LogManager.getLogger();
 
   public InputStream readFile(String filePath) throws FileNotFoundException {
     return new FileInputStream(new File(filePath));
@@ -48,14 +53,15 @@ public class FileIo {
    * @return list of filepaths as string
    */
   public List<String> getAllFilePathsInFolder(String folderPath) {
-    // TODO: Change to work with built project as well
-    String path = this.getFolderPath(folderPath);
-    File dataFolder = new File(path);
-    if (dataFolder.exists() && dataFolder.isDirectory()) {
+    try {
+      String path = this.getFolderPath(folderPath);
+      File dataFolder = new File(path);
       return Arrays.stream(dataFolder.listFiles()).map(File::getAbsolutePath)
           .collect(Collectors.toList());
+    } catch (Exception e) {
+      fileLogger.error(e);
+      return new ArrayList<>();
     }
-    return new ArrayList<>();
   }
 
   /**
@@ -66,16 +72,17 @@ public class FileIo {
    * @return list of filepaths as string
    */
   public List<String> getAllFilePathsInFolder(String folderPath, String extension) {
-    // TODO: Change to work with built project as well
-    String path = this.getFolderPath(folderPath);
-    File dataFolder = new File(path);
-    if (dataFolder.exists() && dataFolder.isDirectory()) {
+    try {
+      String path = this.getFolderPath(folderPath);
+      File dataFolder = new File(path);
       return Arrays.stream(dataFolder.listFiles())
           .filter(file -> file.getName().endsWith(extension))
           .map(File::getAbsolutePath)
           .collect(Collectors.toList());
+    } catch (Exception e) {
+      fileLogger.error(e);
+      return new ArrayList<>();
     }
-    return new ArrayList<>();
   }
 
   /**
@@ -88,14 +95,9 @@ public class FileIo {
    */
   public void writeToFile(String folderPath, String fileName, String content) throws IOException {
     String path = this.getFolderPath(folderPath);
-    File dataFolder = new File(path);
-    if (dataFolder.exists() && dataFolder.isDirectory()) {
-      try (PrintWriter pw = new PrintWriter(
-          new FileWriter(String.format("%s%s%s", path, File.separator, fileName)))) {
-        pw.print(content);
-      }
-    } else {
-      throw new IOException("The specified folder does not exist.");
+    try (PrintWriter pw = new PrintWriter(
+        new FileWriter(String.format("%s%s%s", path, File.separator, fileName)))) {
+      pw.print(content);
     }
   }
 
@@ -112,12 +114,8 @@ public class FileIo {
       throws IOException, MarshallingException {
     String path = this.getFolderPath(folderPath);
     File dataFolder = new File(path);
-    if (dataFolder.exists() && dataFolder.isDirectory()) {
-      try (OutputStream os = new FileOutputStream(new File(dataFolder, fileName))) {
-        Marshalling.marshal(score, os, true, 2);
-      }
-    } else {
-      throw new IOException("The specified folder does not exist.");
+    try (OutputStream os = new FileOutputStream(new File(dataFolder, fileName))) {
+      Marshalling.marshal(score, os, true, 2);
     }
   }
 
@@ -127,27 +125,34 @@ public class FileIo {
    * @param folderPath    path to the folder
    * @param fileName      file name
    * @param melodyPattern jfugue Staccato pattern
-   * @throws IOException  if write fails
+   * @throws IOException if write fails
    */
-  public void saveMidiFile(String folderPath, String fileName, Pattern melodyPattern)
-      throws IOException {
+  public void saveMidiFile(String folderPath, String fileName, Pattern melodyPattern) throws IOException {
     String path = this.getFolderPath(folderPath);
-    File dataFolder = new File(path);
-    if (dataFolder.exists() && dataFolder.isDirectory()) {
-      try {
-        File file = new File(String.format("%s%s%s", path, File.separator, fileName));
-        MidiFileManager.savePatternToMidi(melodyPattern, file);
-      } catch (Exception e) {
-        throw e;
-      }
-    } else {
-      throw new IOException("The specified folder does not exist.");
-    }
+    File file = new File(String.format("%s%s%s", path, File.separator, fileName));
+    MidiFileManager.savePatternToMidi(melodyPattern, file);
   }
 
-  private String getFolderPath(String folderPath) {
-    String parentPath = Paths.get(System.getProperty("user.dir")).getParent().toString();
-    return String.format("%s%s%s", parentPath, File.separator, folderPath);
+  private String getFolderPath(String folderPath) throws FileNotFoundException {
+
+    // This will work with the intended source data folder
+    // structure when using the built jar
+    Path dataPath = Paths.get(folderPath).toAbsolutePath();
+    File dataFolder = dataPath.toFile();
+    if (dataFolder.exists() && dataFolder.isDirectory()) {
+      fileLogger.info(String.format("Using path %s", dataPath.toString()));
+      return dataPath.toString();
+    }
+
+    // This is for mvn javafx launcher
+    Path mvnPath = Paths.get("").toAbsolutePath().getParent().resolve(folderPath);
+    File mvnDataFolder = mvnPath.toFile();
+    if (mvnDataFolder.exists() && mvnDataFolder.isDirectory()) {
+      fileLogger.info(String.format("Using path %s", mvnPath.toString()));
+      return mvnPath.toString();
+    }
+
+    throw new FileNotFoundException();
   }
 
 }
