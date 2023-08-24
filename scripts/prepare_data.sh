@@ -1,7 +1,13 @@
 #!/bin/sh
 
-ARCHIVE="data/music.zip"
+ARCHIVE="data/music_big.zip"
 FOLDER="data/musicxml"
+
+if [ ! -z "$1" ]; then
+    if [ "$1" = "small" ]; then
+        ARCHIVE="data/music.zip"
+    fi
+fi
 
 if [ ! -f "$ARCHIVE" ]; then
     echo "No zip archive detected, exiting..."
