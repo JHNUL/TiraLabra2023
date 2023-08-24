@@ -47,10 +47,13 @@ public class UserInterfaceIT {
     // Try invalid inputs to degree
     List<String> inputs = List.of("foo", "-3", String.valueOf(Constants.MARKOV_CHAIN_DEGREE_MIN - 1),
         String.valueOf(Constants.MARKOV_CHAIN_DEGREE_MAX + 1), " ", "2.3", "1e1");
-    this.inputToDegreeFieldAndExpectError(robot, inputs);
+    this.inputToFieldAndExpectError(robot, inputs, "degreeField");
+    this.checkButtonsShouldBeDisabled(robot, List.of("trainButton", "generateButton", "playButton", "stopButton"));
 
     // Set valid input to degree
-    this.writeToDegreeField(robot, "2");
+    this.writeToInputField(robot, "2", "degreeField");
+    this.checkButtonsShouldBeDisabled(robot, List.of("generateButton", "playButton", "stopButton"));
+    this.checkButtonsShouldBeEnabled(robot, List.of("trainButton"));
 
     // Train
     this.clickButton(robot, "trainButton");
@@ -58,13 +61,23 @@ public class UserInterfaceIT {
     // Loading spinner while training
     this.waitUntilSpinnerDisappears(robot, 1000);
 
+    // Try invalid inputs to melody len
+    List<String> melodyLenInputs = List.of("foo", "-3", String.valueOf(Constants.GENERATED_MELODY_MIN_LEN - 1),
+        String.valueOf(Constants.GENERATED_MELODY_MAX_LEN + 1), " ", "20.3", "1e10");
+    this.inputToFieldAndExpectError(robot, melodyLenInputs, "melodyLengthField");
+
+    // Set valid input to melody length
+    this.writeToInputField(robot, "60", "melodyLengthField");
+    this.checkButtonsShouldBeDisabled(robot, List.of("playButton", "stopButton"));
+    this.checkButtonsShouldBeEnabled(robot, List.of("trainButton", "generateButton"));
+
     // Generate
     this.waitForButtonToBeEnabled(robot, "generateButton");
-    this.selectTimeSignature(robot, "4/4");
+    this.selectTimeSignature(robot, "quarter");
     this.clickButton(robot, "generateButton");
 
     // Change time signature and generate again
-    this.selectTimeSignature(robot, "6/8");
+    this.selectTimeSignature(robot, "eighth");
     this.clickButton(robot, "generateButton");
 
     // Wait until a file is available and select it
@@ -79,20 +92,17 @@ public class UserInterfaceIT {
 
   }
 
-  void writeToDegreeField(FxRobot robot, String input) {
-    robot.lookup("#degreeField").queryAs(TextField.class).clear();
-    robot.clickOn("#degreeField").write(input);
-    Assertions.assertThat(robot.lookup("#degreeField").queryAs(TextField.class)).hasStyle("-fx-border-color: none;");
-    this.checkButtonsShouldBeDisabled(robot, List.of("generateButton", "playButton", "stopButton"));
-    this.checkButtonsShouldBeEnabled(robot, List.of("trainButton"));
+  void writeToInputField(FxRobot robot, String input, String id) {
+    robot.lookup("#" + id).queryAs(TextField.class).clear();
+    robot.clickOn("#" + id).write(input);
+    Assertions.assertThat(robot.lookup("#" + id).queryAs(TextField.class)).hasStyle("-fx-border-color: none;");
   }
 
-  void inputToDegreeFieldAndExpectError(FxRobot robot, List<String> inputs) {
+  void inputToFieldAndExpectError(FxRobot robot, List<String> inputs, String id) {
     for (String input : inputs) {
-      robot.lookup("#degreeField").queryAs(TextField.class).clear();
-      robot.clickOn("#degreeField").write(input);
-      Assertions.assertThat(robot.lookup("#degreeField").queryAs(TextField.class)).hasStyle("-fx-border-color: red;");
-      this.checkButtonsShouldBeDisabled(robot, List.of("trainButton", "generateButton", "playButton", "stopButton"));
+      robot.lookup("#" + id).queryAs(TextField.class).clear();
+      robot.clickOn("#" + id).write(input);
+      Assertions.assertThat(robot.lookup("#" + id).queryAs(TextField.class)).hasStyle("-fx-border-color: red;");
     }
   }
 
