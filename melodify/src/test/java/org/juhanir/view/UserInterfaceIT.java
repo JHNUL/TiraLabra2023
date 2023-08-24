@@ -119,7 +119,7 @@ public class UserInterfaceIT {
   }
 
   void selectTimeSignature(FxRobot robot, String ts) {
-    robot.clickOn("#timeSignatureSelect").clickOn(ts);
+    robot.clickOn("#noteDurationSelect").clickOn(ts);
   }
 
   void waitUntilSpinnerDisappears(FxRobot robot, int timeoutMs) {
