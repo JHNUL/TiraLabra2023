@@ -20,7 +20,7 @@
                         </VBox>
                         <VBox>
                             <Label text="Markov Chain degree" />
-                            <TextField fx:id="degreeField" promptText="min 1 max 6" prefWidth="160.0" />
+                            <TextField fx:id="degreeField" prefWidth="160.0" />
                         </VBox>
                     </HBox>
                     <Button fx:id="trainButton" text="Train" prefWidth="80"/>
