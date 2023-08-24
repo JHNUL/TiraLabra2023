@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -122,60 +120,44 @@ public class GeneratorService {
   /**
    * Transform the generated melody to playable Staccato string.
    *
-   * @param melody        sequence of numerical notes
-   * @param timeSignature time signature
+   * @param melody       sequence of numerical notes
+   * @param noteDuration note duration
    * @return Staccato string
    */
-  public String toStaccatoString(int[] melody, String timeSignature) {
-    String beatType = timeSignature.substring(2);
-    String noteDuration = beatType.equals("4") ? "q" : "i*3:2"; // only 4/4 and 6/8
+  public String toStaccatoString(int[] melody, String noteDuration) {
+    String staccatoDuration;
+    switch (noteDuration) {
+      case "quarter":
+        staccatoDuration = "q";
+        break;
+      case "eighth":
+        staccatoDuration = "i";
+        break;
+      default:
+        staccatoDuration = "s";
+        break;
+    }
     String[] staccatoMelody = Arrays
         .stream(melody)
         .map(note -> (Constants.OCTAVE_LOWER_BOUND * 12) + note)
-        .mapToObj(note -> String.valueOf(note) + noteDuration)
+        .mapToObj(note -> String.valueOf(note) + staccatoDuration)
         .toArray(String[]::new);
-    return String.format("T%s TIME:%s %s", Constants.PLAYBACK_TEMPO, timeSignature, String.join(" ", staccatoMelody));
+    return String.format("T%s %s", Constants.PLAYBACK_TEMPO, String.join(" ", staccatoMelody));
   }
 
   /**
    * Get names for generated files.
    *
-   * @param key musical key
-   * @param degree markov chain degree
+   * @param key           musical key
+   * @param degree        markov chain degree
    * @param timeSignature time signature
    * @return array of two filenames, first staccato then midi
    */
   public String[] getGenerationFileNames(String key, int degree, String timeSignature) {
     String timeSigForFileName = timeSignature.replace("/", "-");
     String fileName = String.format("%s(%s)-degree%s-%s", key, timeSigForFileName, degree,
-      LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
     return new String[] { String.format("%s.staccato", fileName), String.format("%s.MID", fileName) };
   }
 
-  /**
-   * Get the rhythm layer. Only 4/4 and 6/8 supported.
-   *
-   * @param timeSignature time signature
-   * @return rhythm layer string
-   */
-  public String resolveRhythm(String staccatoString) {
-
-    String timeSignature = "4/4";
-
-    String pattern = "TIME:(\\S+)";
-
-    Pattern regex = Pattern.compile(pattern);
-    Matcher matcher = regex.matcher(staccatoString);
-
-    if (matcher.find()) {
-      timeSignature = matcher.group(1);
-    }
-
-    if (timeSignature.equals("4/4")) {
-      return String.format("T%s V9 [CLOSED_HI_HAT]q Rq [CLOSED_HI_HAT]q Rq [CLOSED_HI_HAT]q Rq",
-          Constants.PLAYBACK_TEMPO);
-    }
-    return String.format("T%s V9 [CLOSED_HI_HAT]i*3:2 Ri*3:2 Ri*3:2 [CLOSED_HI_HAT]i*3:2 Ri*3:2 Ri*3:2",
-        Constants.PLAYBACK_TEMPO);
-  }
 }

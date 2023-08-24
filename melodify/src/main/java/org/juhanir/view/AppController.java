@@ -5,10 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.MapProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleMapProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -45,7 +43,10 @@ public class AppController {
   private Button trainButton;
 
   @FXML
-  private ComboBox<String> timeSignatureSelect;
+  private ComboBox<String> noteDurationSelect;
+
+  @FXML
+  private TextField melodyLengthField;
 
   @FXML
   private Button generateButton;
@@ -70,7 +71,6 @@ public class AppController {
 
   private ObservableList<String> keys = FXCollections.observableList(FXCollections.observableArrayList());
   private ObservableList<String> playbackFiles = FXCollections.observableList(FXCollections.observableArrayList());
-  private IntegerProperty degree = new SimpleIntegerProperty();
   private StringProperty musicalKey = new SimpleStringProperty();
   private StringProperty playbackFile = new SimpleStringProperty();
   private StringProperty appMessage = new SimpleStringProperty();
@@ -81,18 +81,17 @@ public class AppController {
 
   public AppController() {
     this.trie = new Trie();
-    this.eventHandler = new AppEventHandler(trie, degree, musicalKey, playbackFile, isLoading, appMessage);
+    this.eventHandler = new AppEventHandler(trie, musicalKey, playbackFile, isLoading, appMessage);
   }
 
   @FXML
   private void initialize() {
-    this.degreeField.setPromptText(
-        String.format("min %s max %s", Constants.MARKOV_CHAIN_DEGREE_MIN, Constants.MARKOV_CHAIN_DEGREE_MAX));
-    this.eventHandler.handleDegreeFieldChange(this.degreeField);
+    this.eventHandler.handleDegreeField(this.degreeField);
+    this.eventHandler.handleMelodyLengthField(this.melodyLengthField);
     this.eventHandler.handleInfoLabel(this.infoLabel);
     this.eventHandler.handleKeySelectChange(this.musicalKeySelect);
     this.eventHandler.handleTrainButton(this.trainButton, this.filesPerKey);
-    this.eventHandler.handleTimeSignatureSelect(this.timeSignatureSelect);
+    this.eventHandler.handlenoteDurationSelect(this.noteDurationSelect);
     this.eventHandler.handleGenerateButton(this.generateButton, this.filesPerKey,
         this.playbackFiles);
     this.eventHandler.handlePlayButton(this.playButton, this.stopButton, this.innerContainer);

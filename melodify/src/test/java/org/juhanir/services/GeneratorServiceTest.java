@@ -192,22 +192,32 @@ public class GeneratorServiceTest {
   }
 
   @Test
-  void toStaccatoStringGeneratesCorrectlyFourFour() {
+  void toStaccatoStringGeneratesCorrectlyQuarters() {
     Trie trie = new Trie();
     GeneratorService generator = new GeneratorService(trie, new Random());
     int[] melody = new int[] { 1, 2, 3, 4 };
-    String res = generator.toStaccatoString(melody, "4/4");
-    String expected = String.format("T%s TIME:4/4 25q 26q 27q 28q", Constants.PLAYBACK_TEMPO);
+    String res = generator.toStaccatoString(melody, "quarter");
+    String expected = String.format("T%s 25q 26q 27q 28q", Constants.PLAYBACK_TEMPO);
     assertEquals(expected, res);
   }
 
   @Test
-  void toStaccatoStringGeneratesCorrectlySixEighths() {
+  void toStaccatoStringGeneratesCorrectlyEighths() {
     Trie trie = new Trie();
     GeneratorService generator = new GeneratorService(trie, new Random());
     int[] melody = new int[] { 1, 2, 3, 4 };
-    String res = generator.toStaccatoString(melody, "6/8");
-    String expected = String.format("T%s TIME:6/8 25i*3:2 26i*3:2 27i*3:2 28i*3:2", Constants.PLAYBACK_TEMPO);
+    String res = generator.toStaccatoString(melody, "eighth");
+    String expected = String.format("T%s 25i 26i 27i 28i", Constants.PLAYBACK_TEMPO);
+    assertEquals(expected, res);
+  }
+
+  @Test
+  void toStaccatoStringGeneratesCorrectlySixteenths() {
+    Trie trie = new Trie();
+    GeneratorService generator = new GeneratorService(trie, new Random());
+    int[] melody = new int[] { 1, 2, 3, 4 };
+    String res = generator.toStaccatoString(melody, "sixteenth");
+    String expected = String.format("T%s 25s 26s 27s 28s", Constants.PLAYBACK_TEMPO);
     assertEquals(expected, res);
   }
 
@@ -218,18 +228,6 @@ public class GeneratorServiceTest {
     String[] res = generator.getGenerationFileNames("C", 2, "4/4");
     assertTrue(res[0].matches("C\\(4-4\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.staccato"));
     assertTrue(res[1].matches("C\\(4-4\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.MID"));
-  }
-
-  @Test
-  void resolvesRhythmCorrectly() {
-    Trie trie = new Trie();
-    GeneratorService generator = new GeneratorService(trie, new Random());
-    String res = generator.resolveRhythm("T120 TIME:4/4 1 2 3 4 5");
-    assertEquals(
-      String.format("T%s V9 [CLOSED_HI_HAT]q Rq [CLOSED_HI_HAT]q Rq [CLOSED_HI_HAT]q Rq", Constants.PLAYBACK_TEMPO), res);
-    res = generator.resolveRhythm("T120 TIME:6/8 1 2 3 4 5");
-    assertEquals(
-      String.format("T%s V9 [CLOSED_HI_HAT]i*3:2 Ri*3:2 Ri*3:2 [CLOSED_HI_HAT]i*3:2 Ri*3:2 Ri*3:2", Constants.PLAYBACK_TEMPO), res);
   }
 
   @Nested
@@ -461,7 +459,7 @@ public class GeneratorServiceTest {
       service.trainWith(this.trainingDataPaths, degree);
       GeneratorService generator = new GeneratorService(trie, new Random());
       int[] initialSequence = trie.getMostCommonSequenceStartingWith(sourceMelodies.get(0).get(0), degree);
-      int[] generation = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
+      int[] generation = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_DEFAULT_LEN);
       for (int i = 0; i < generation.length - degree; i++) {
         int[] sequence = Arrays.copyOfRange(generation, i, i + degree);
         assertTrue(this.anyListContainsSequence(sourceMelodies, sequence));

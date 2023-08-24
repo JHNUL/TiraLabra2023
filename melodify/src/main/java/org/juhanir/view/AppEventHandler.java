@@ -7,6 +7,7 @@ import java.util.Random;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -38,12 +39,13 @@ public class AppEventHandler {
 
   private static final Logger eventHandlerLogger = LogManager.getLogger();
   private final Trie trie;
-  private final IntegerProperty degree;
   private final StringProperty musicalKey;
   private final StringProperty playbackFile;
   private final BooleanProperty isLoading;
   private final StringProperty appMessage;
-  private final StringProperty timeSignature;
+  private final StringProperty noteDuration;
+  private IntegerProperty degree;
+  private IntegerProperty melodyLength;
   private BooleanProperty canTrainModel;
   private BooleanProperty canGenerate;
   private BooleanProperty canStartPlayback;
@@ -52,24 +54,24 @@ public class AppEventHandler {
    * Constructor.
    *
    * @param trie         Trie data structure
-   * @param degree       Markov Chain degree
    * @param musicalKey   Key the user selected
    * @param playbackFile File the user selected for playback
    * @param isLoading    Flag for drawing the loading spinner
    * @param appMessage   Message to display in the UI
    */
-  public AppEventHandler(Trie trie, IntegerProperty degree, StringProperty musicalKey,
+  public AppEventHandler(Trie trie, StringProperty musicalKey,
       StringProperty playbackFile, BooleanProperty isLoading, StringProperty appMessage) {
     this.trie = trie;
-    this.degree = degree;
     this.musicalKey = musicalKey;
     this.playbackFile = playbackFile;
     this.isLoading = isLoading;
     this.appMessage = appMessage;
+    this.degree = new SimpleIntegerProperty();
+    this.melodyLength = new SimpleIntegerProperty(Constants.GENERATED_MELODY_DEFAULT_LEN);
     this.canTrainModel = new SimpleBooleanProperty(false);
     this.canStartPlayback = new SimpleBooleanProperty(false);
     this.canGenerate = new SimpleBooleanProperty(false);
-    this.timeSignature = new SimpleStringProperty();
+    this.noteDuration = new SimpleStringProperty();
   }
 
   /**
@@ -77,7 +79,9 @@ public class AppEventHandler {
    *
    * @param degreeField UI element
    */
-  public void handleDegreeFieldChange(TextField degreeField) {
+  public void handleDegreeField(TextField degreeField) {
+    degreeField.setPromptText(
+        String.format("min %s max %s", Constants.MARKOV_CHAIN_DEGREE_MIN, Constants.MARKOV_CHAIN_DEGREE_MAX));
     degreeField.textProperty().addListener((observable, oldValue, newValue) -> {
       canGenerate.set(false);
       try {
@@ -95,6 +99,28 @@ public class AppEventHandler {
         degree.set(0);
         degreeField.setStyle("-fx-border-color: red;");
         canTrainModel.set(false);
+      }
+    });
+  }
+
+  /**
+   * Event handler for melody length textfield.
+   *
+   * @param melodyLengthField UI element
+   */
+  public void handleMelodyLengthField(TextField melodyLengthField) {
+    melodyLengthField.setPromptText(String.format("default %s", Constants.GENERATED_MELODY_DEFAULT_LEN));
+    melodyLengthField.textProperty().addListener((observable, oldValue, newValue) -> {
+      try {
+        int value = Integer.parseInt(newValue.strip());
+        if (value < Constants.GENERATED_MELODY_MIN_LEN || value > Constants.GENERATED_MELODY_MAX_LEN) {
+          throw new Exception();
+        }
+        melodyLength.set(value);
+        melodyLengthField.setStyle("-fx-border-color: none;");
+      } catch (Exception e) {
+        melodyLength.set(Constants.GENERATED_MELODY_DEFAULT_LEN);
+        melodyLengthField.setStyle("-fx-border-color: red;");
       }
     });
   }
@@ -119,16 +145,16 @@ public class AppEventHandler {
   /**
    * Event handler for time signature select.
    *
-   * @param timeSignatureSelect UI element
+   * @param noteDurationSelect UI element
    */
-  public void handleTimeSignatureSelect(ComboBox<String> timeSignatureSelect) {
-    timeSignatureSelect.disableProperty().bind(this.canGenerate.not());
-    ObservableList<String> vals = FXCollections.observableList(Constants.timeSignatures);
-    timeSignatureSelect.setItems(vals);
-    timeSignatureSelect.setValue(vals.get(0));
-    timeSignature.set(vals.get(0));
-    timeSignatureSelect.valueProperty().addListener((observable, oldValue, newValue) -> {
-      timeSignature.set(newValue);
+  public void handlenoteDurationSelect(ComboBox<String> noteDurationSelect) {
+    noteDurationSelect.disableProperty().bind(this.canGenerate.not());
+    ObservableList<String> vals = FXCollections.observableList(Constants.noteDurations);
+    noteDurationSelect.setItems(vals);
+    noteDurationSelect.setValue(vals.get(0));
+    noteDuration.set(vals.get(0));
+    noteDurationSelect.valueProperty().addListener((observable, oldValue, newValue) -> {
+      noteDuration.set(newValue);
     });
   }
 
@@ -213,18 +239,20 @@ public class AppEventHandler {
         GeneratorService generator = new GeneratorService(trie, new Random());
         int startingNote = generator.getBaseNoteOfKey(musicalKey.get());
         if (startingNote < 0) {
-          this.appMessage.set(String.format("ERROR: Could not generate melody starting with %s", this.musicalKey.get()));
+          this.appMessage
+              .set(String.format("ERROR: Could not generate melody starting with %s", this.musicalKey.get()));
         }
         int[] initialSequence = trie.getMostCommonSequenceStartingWith(startingNote, degree.get());
-        int[] melody = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
-        String[] fileNames = generator.getGenerationFileNames(musicalKey.get(), degree.get(), timeSignature.get());
+        int[] melody = generator.predictSequence(initialSequence, melodyLength.get());
+        if (melody.length < melodyLength.get()) {
+          this.appMessage.set(String.format("Generation stopped at %s notes", melody.length));
+        }
+        String[] fileNames = generator.getGenerationFileNames(musicalKey.get(), degree.get(), noteDuration.get());
         FileIo fileUtil = new FileIo();
-        String staccatoString = generator.toStaccatoString(melody, timeSignature.get());
-        Pattern combined = new Pattern(
-          new Pattern(staccatoString), new Pattern(generator.resolveRhythm(staccatoString)).repeat(20)
-        );
-        fileUtil.writeToFile(Constants.OUTPUT_DATA_PATH, fileNames[0], combined.getPattern().toString());
-        fileUtil.saveMidiFile(Constants.OUTPUT_DATA_PATH, fileNames[1], combined);
+        String staccatoString = generator.toStaccatoString(melody, noteDuration.get());
+        Pattern pattern = new Pattern(new Pattern(staccatoString));
+        fileUtil.writeToFile(Constants.OUTPUT_DATA_PATH, fileNames[0], pattern.getPattern().toString());
+        fileUtil.saveMidiFile(Constants.OUTPUT_DATA_PATH, fileNames[1], pattern);
         playbackFiles.add(fileNames[0]);
       } catch (Exception e) {
         eventHandlerLogger.error("Failed to generate melody", e);

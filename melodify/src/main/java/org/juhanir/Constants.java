@@ -17,8 +17,10 @@ public class Constants {
   public static final int MARKOV_CHAIN_DEGREE_MAX = 10;
   public static final int OCTAVE_LOWER_BOUND = 2;
   public static final int OCTAVE_UPPER_BOUND = 5;
-  public static final int GENERATED_MELODY_LEN = 120;
-  public static final int PLAYBACK_TEMPO = 120;
+  public static final int GENERATED_MELODY_DEFAULT_LEN = 120;
+  public static final int GENERATED_MELODY_MIN_LEN = 10;
+  public static final int GENERATED_MELODY_MAX_LEN = 1000;
+  public static final int PLAYBACK_TEMPO = 100;
   public static final int NOTE_ARRAY_SIZE = (OCTAVE_UPPER_BOUND - OCTAVE_LOWER_BOUND + 1) * 12;
   public static final double EPSILON = 1e-10;
   public static final String TRAINING_DATA_PATH = System.getProperty("test") != null
@@ -96,6 +98,6 @@ public class Constants {
   /**
    * Note durations to use in the generated results.
    */
-  public static final List<String> noteDurations = List.of("quarter", "eighth", "sixteenth");
+  public static final List<String> noteDurations = List.of("sixteenth", "eighth", "quarter");
 
 }
