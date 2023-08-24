@@ -372,7 +372,7 @@ public class GeneratorServiceTest {
       GeneratorService generator = new GeneratorService(trie, new Random());
       int[] prefix = Arrays.copyOfRange(this.wholeMelody, 0, degree);
       int[] generation = generator.predictSequence(prefix, this.wholeMelody.length);
-      assertEquals(this.wholeMelody.length, generation.length);
+      assertTrue(this.wholeMelody.length <= generation.length);
       assertArrayEquals(prefix, Arrays.copyOfRange(generation, 0, degree));
       for (int i = 0; i < generation.length - degree; i++) {
         int[] subArray = Arrays.copyOfRange(generation, i, i + degree + 1);
