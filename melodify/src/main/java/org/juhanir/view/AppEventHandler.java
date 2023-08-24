@@ -215,7 +215,7 @@ public class AppEventHandler {
         if (startingNote < 0) {
           this.appMessage.set(String.format("ERROR: Could not generate melody starting with %s", this.musicalKey.get()));
         }
-        int[] initialSequence = trie.getMostCommonSequenceStartingWith(startingNote, Math.min(degree.get(), 3));
+        int[] initialSequence = trie.getMostCommonSequenceStartingWith(startingNote, degree.get());
         int[] melody = generator.predictSequence(initialSequence, Constants.GENERATED_MELODY_LEN);
         String[] fileNames = generator.getGenerationFileNames(musicalKey.get(), degree.get(), timeSignature.get());
         FileIo fileUtil = new FileIo();
