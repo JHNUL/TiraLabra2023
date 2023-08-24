@@ -67,11 +67,11 @@ data/
 
 ### Usage
 
-After starting the application the training data is loaded and user can select a key and the degree of the Markov's Chain (min 1 max 6) to use for training the model. Current training data package contains a set of Irish jigs in D and this should come across the generated melodies at least a little bit.
+After starting the application the training data is loaded and user can select a key and the degree of the Markov's Chain to use for training the model. Lower degrees (two to six-ish) allow for more adventuring and tend to produce more interesting melodies. In practice, the higher the degree the closer it should be to training data and more likely it will find a sequence that has no following notes (learned from an ending of a song) if the generation is long enough. Current training data package contains mostly Irish folk songs in different keys. This might come across the generated melodies.
 
 ![training](/docs/images/howto_train.png)
 
-After setting the parameters and training the model the generate button becomes enabled. Time signature selection is a small curiosity here for playback as it adds a rhythm and controls whether the generation is quarter or eighth notes. Generated melodies will be written to file for playback in the app and also saved in MIDI format.
+After setting the parameters and training the model the generate button becomes enabled. Note duration controls whether the generation is quarter, eighth or sixteenth notes. The generation needs to be seeded with an initial sequence that is the length of the selected Markov Chain degree (three in the example here). The application generates this automatically starting from the base note of the key and then picking the most common next note until the initial sequence is created after which every next note follows the probability distribution. Generated melodies will be written to the `data/output` folder for playback in the app and also saved in MIDI format.
 
 ![generating](/docs/images/howto_generate.png)
 
@@ -79,8 +79,8 @@ Generation should be more or less instantaneous and the file should become visib
 
 ![playback](/docs/images/howto_playback.png)
 
-Playback happens on another thread so as to not block the UI and therefore also prevent pressing the stop button. Other controls are disabled during playback. Full generated melody is 120 notes long as an arbitrary hardcoded limit for now. It's possible that the generation is shorter if it found a sequence with no following notes.
+Playback happens on another thread so as to not block the UI and therefore also prevent pressing the stop button. Other controls are disabled during playback. It's possible that the generation is shorter if it found a sequence with no following notes.
 
-NOTE: when starting the playback it is often not perfectly in sync right in the beginning but evens out quite quick to a stable rhythm (something to fix later perhaps).
+NOTE: Listening the generation from `data/output` with an external player that handles MIDI is slightly more smooth. The playback in the app it is often not perfectly in sync right in the beginning but evens out quite quick to a stable rhythm.
 
 ![stop](/docs/images/howto_stop.png)
