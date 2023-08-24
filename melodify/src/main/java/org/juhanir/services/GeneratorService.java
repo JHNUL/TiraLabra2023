@@ -68,18 +68,22 @@ public class GeneratorService {
 
   /**
    * <p>
-   * Predict a melody sequence of input length. Will produce a shorter sequence if a next note
-   * cannot be predicted.
+   * Predicts a melody sequence. Once minimum length is passed will
+   * stop at the next note that is the same as first note of initial
+   * prefix. Will produce a shorter sequence if a next note cannot be predicted.
+   * If the initial note is not found after minimum length, will
+   * produce at maximum minimumLength * 2 melody and then stop.
    * </p>
    *
    * @param initialPrefix starting notes of the sequence
-   * @param length maximum length of the sequence
+   * @param minimumLength minimum length of the sequence
    * @return sequence of notes in integer representation
    */
-  public int[] predictSequence(int[] initialPrefix, int length) {
+  public int[] predictSequence(int[] initialPrefix, int minimumLength) {
     generatorLogger.info(
         String.format("Generating melody from common prefix %s", Arrays.toString(initialPrefix)));
-    int[] result = Arrays.copyOf(initialPrefix, length);
+    int[] result = Arrays.copyOf(initialPrefix, minimumLength * 2);
+    int finalIndex = 0;
     for (int i = initialPrefix.length; i < result.length; i++) {
       int[] generationPrefix = Arrays.copyOfRange(result, i - initialPrefix.length, i);
       int nextNote = this.predictNextNote(generationPrefix);
@@ -88,9 +92,13 @@ public class GeneratorService {
             Arrays.toString(generationPrefix)));
         return Arrays.copyOfRange(result, 0, i);
       }
+      finalIndex = i;
       result[i] = nextNote;
+      if (i >= (minimumLength - 1) && nextNote == initialPrefix[0]) {
+        break;
+      }
     }
-    return result;
+    return Arrays.copyOfRange(result, 0, finalIndex + 1);
   }
 
   /**
