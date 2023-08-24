@@ -14,7 +14,7 @@ public class Constants {
 
   public static final int FIFTHS_SUPPORTED_RANGE = 7;
   public static final int MARKOV_CHAIN_DEGREE_MIN = 1;
-  public static final int MARKOV_CHAIN_DEGREE_MAX = 6;
+  public static final int MARKOV_CHAIN_DEGREE_MAX = 50;
   public static final int OCTAVE_LOWER_BOUND = 2;
   public static final int OCTAVE_UPPER_BOUND = 5;
   public static final int GENERATED_MELODY_LEN = 120;

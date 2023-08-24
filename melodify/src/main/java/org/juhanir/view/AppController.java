@@ -86,6 +86,8 @@ public class AppController {
 
   @FXML
   private void initialize() {
+    this.degreeField.setPromptText(
+        String.format("min %s max %s", Constants.MARKOV_CHAIN_DEGREE_MIN, Constants.MARKOV_CHAIN_DEGREE_MAX));
     this.eventHandler.handleDegreeFieldChange(this.degreeField);
     this.eventHandler.handleInfoLabel(this.infoLabel);
     this.eventHandler.handleKeySelectChange(this.musicalKeySelect);
