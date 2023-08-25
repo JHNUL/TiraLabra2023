@@ -3,11 +3,9 @@ package org.juhanir.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,9 +17,6 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.audiveris.proxymusic.ScorePartwise;
-import org.audiveris.proxymusic.util.Marshalling;
-import org.audiveris.proxymusic.util.Marshalling.MarshallingException;
 import org.jfugue.midi.MidiFileManager;
 import org.jfugue.pattern.Pattern;
 
@@ -98,24 +93,6 @@ public class FileIo {
     try (PrintWriter pw = new PrintWriter(
         new FileWriter(String.format("%s%s%s", path, File.separator, fileName)))) {
       pw.print(content);
-    }
-  }
-
-  /**
-   * Write ScorePartwise content to a file.
-   *
-   * @param folderPath path to the folder
-   * @param fileName   file name
-   * @param score      content in ScorePartwise format
-   * @throws IOException          if write fails
-   * @throws MarshallingException if marshalling the scorepartwise to xml fails
-   */
-  public void writeToFile(String folderPath, String fileName, ScorePartwise score)
-      throws IOException, MarshallingException {
-    String path = this.getFolderPath(folderPath);
-    File dataFolder = new File(path);
-    try (OutputStream os = new FileOutputStream(new File(dataFolder, fileName))) {
-      Marshalling.marshal(score, os, true, 2);
     }
   }
 

@@ -24,15 +24,23 @@
 
 #### Utils
 - FileIo contains wrappers for filesystem access methods.
-- ScoreParser contains logic for parsing MusicXML files to Java objects and extracting information required by the application such as the linear sequence of notes in a training data file and the musical key of the tune.Also has helpers for conversions between integer note and MelodyNote.
+- ScoreParser contains logic for parsing MusicXML files to Java objects and extracting information required by the application such as the linear sequence of notes in a training data file and the musical key of the tune.
 
 ## Time and space complexities
-Starting from the root node, each child is looked up by accessing a fixed-size array with an index number which is given as parameter. To lookup one element in the search/insert key happens in constant time and because of the fixed-size child array no out-of-bounds checks are required. The time requirement for insert and search operations is therefore **O(key_len)**. In practice key sizes in this application are less than 10.
+Starting from the root node, each child is looked up by accessing a fixed-size array with an index number (corresponds to the note integer value) which is given as parameter. To lookup one element in the search/insert key happens in constant time and because of the fixed-size child array no out-of-bounds checks are required. The time requirement for insert and search operations is therefore **O(key_len)**. Possible key sizes in the app are from one to 30.
 
-For space complexity in the worst case no key inserted to the trie shares a prefix with another key so the space complexity is **O(key_len * number_of_keys)**. Each node created to the trie by inserting a key also holds a fixed-size array to keep references to its children, whether or not it has any (this is to make lookup faster).
+In the worst case no key inserted to the trie shares a prefix with another key so the space complexity is **O(key_len * number_of_keys)**. Each node created to the trie by inserting a key also holds a fixed-size array to keep references to its children, whether or not it has any (this is to make lookup faster).
+
+The genaration works so that for each new note the following steps are taken (see implementation in [GeneratorService.java](/melodify/src/main/java/org/juhanir/services/GeneratorService.java)):
+- lookup is made to the Trie with a search key **O(key_len)** that is a sequence of notes whose length is equal to the Markov Chain degree
+- return the node that represents the final note of the search key, it contains a reference array to its children
+- calculate a probability distribution over the children **O(child_array_size)**
+- do a weighted random selection of the children **O(child_array_size)**
 
 ## Bugs, gripes and general shortcomings
-- to be added
+- Could read zip files directly
+- The integrated playback is sub-optimal, starts in a slighly out-of-sync manner
+- UI looks unappealing
 
 ## Sources
 - https://en.wikipedia.org/wiki/Markov_chain
