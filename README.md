@@ -19,6 +19,7 @@ The application will read MusicXML files as training data to populate a stochast
 - [Week 3](/docs/weeklies/week3.md)
 - [Week 4](/docs/weeklies/week4.md)
 - [Week 5](/docs/weeklies/week5.md)
+- [Week 6](/docs/weeklies/week6.md)
 
 Select the commit with tag "weekN" to review the repository in the intended state for the week N submission.
 
@@ -54,14 +55,14 @@ Build a jar:
 mvn clean compile package -f melodify/pom.xml
 ```
 
-The jar will expect the following folder structure for source data:
+The jar will expect the following folder structure to exist for data, the application will not try to create folders:
 ```sh
 # data folder must be a sibling to the jar
 .
 melodify.jar
 data/
-  ├── musicxml/
-  └── output/
+  ├── musicxml/ # the training data here
+  └── output/ # generations will appear here
 ```
 
 
