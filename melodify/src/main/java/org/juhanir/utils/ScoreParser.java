@@ -25,8 +25,7 @@ import org.audiveris.proxymusic.util.Marshalling.UnmarshallingException;
 import org.juhanir.Constants;
 
 /**
- * Contains logic for parsing MusicXML files and converting internal note representation back to
- * 'MelodyNote' objects that can be serialized to MusicXML notes.
+ * Contains logic for parsing MusicXML files.
  */
 public class ScoreParser {
 
