@@ -126,7 +126,7 @@ public class AppController {
       this.playbackSelect.setItems(this.playbackFiles);
       this.filesPerKey.set(FXCollections.observableMap(taskResult));
       this.keys = FXCollections.observableArrayList(this.filesPerKey.getValue().entrySet().stream()
-          .map(es -> String.format("%s (%s songs)", es.getKey(), es.getValue().size()))
+          .map(es -> String.format("%s (%s files)", es.getKey(), es.getValue().size()))
           .collect(Collectors.toList()));
       this.musicalKeySelect.setItems(FXCollections.observableList(this.keys));
       if (this.keys.isEmpty()) {

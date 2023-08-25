@@ -6,6 +6,8 @@ Assignment for University of Helsinki CS Data Structures and Algorithms lab.
 
 The application will read MusicXML files as training data to populate a stochastic model that is used to predict the next note. The model is using a Markov Chain of user-defined degree for the prediction.
 
+Some example generations from the current datasets are included in the `examples` folder
+
 ## Documentation
 
 - [Specification (määrittelydokumentti)](/docs/specifications.md)
@@ -74,7 +76,7 @@ After starting the application training data is loaded and user can select a key
 
 ![training](/docs/images/howto_train.png)
 
-After setting the parameters and training the model the generate button becomes enabled. Note duration tells the app to generate quarter, eighth or sixteenth notes. Generated melodies will be written to the `data/output` folder for playback in the app and also saved in MIDI format.
+After setting the parameters and training the model the generate button becomes enabled. Note duration tells the app to generate quarter, eighth or sixteenth notes. Generated melodies will be written to the `data/output` folder for playback in the app and also saved in MIDI format. The model can be freely re-trained with different parameters.
 
 ![generating](/docs/images/howto_generate.png)
 
