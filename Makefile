@@ -1,7 +1,5 @@
-DATA_SET=big
-
 dataset:
-	./scripts/prepare_data.sh $(DATA_SET)
+	./scripts/prepare_data.sh
 
 clean_start:
 	./scripts/clean_start.sh
