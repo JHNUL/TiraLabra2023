@@ -246,9 +246,9 @@ public class GeneratorServiceTest {
   void getGenerationFileNamesProducesCorrectNames() {
     Trie trie = new Trie();
     GeneratorService generator = new GeneratorService(trie, new Random());
-    String[] res = generator.getGenerationFileNames("C", 2, "4/4");
-    assertTrue(res[0].matches("C\\(4-4\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.staccato"));
-    assertTrue(res[1].matches("C\\(4-4\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.MID"));
+    String[] res = generator.getGenerationFileNames("C", 2, "quarter");
+    assertTrue(res[0].matches("C\\(quarter\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.staccato"));
+    assertTrue(res[1].matches("C\\(quarter\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.MID"));
   }
 
   @Nested

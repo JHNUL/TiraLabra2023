@@ -158,12 +158,11 @@ public class GeneratorService {
    *
    * @param key           musical key
    * @param degree        markov chain degree
-   * @param timeSignature time signature
+   * @param noteDuration  note duration
    * @return array of two filenames, first staccato then midi
    */
-  public String[] getGenerationFileNames(String key, int degree, String timeSignature) {
-    String timeSigForFileName = timeSignature.replace("/", "-");
-    String fileName = String.format("%s(%s)-degree%s-%s", key, timeSigForFileName, degree,
+  public String[] getGenerationFileNames(String key, int degree, String noteDuration) {
+    String fileName = String.format("%s(%s)-degree%s-%s", key, noteDuration, degree,
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
     return new String[] { String.format("%s.staccato", fileName), String.format("%s.MID", fileName) };
   }

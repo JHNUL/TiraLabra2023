@@ -37,7 +37,7 @@ public class Trie {
    * Searches the Trie for the note sequence.
    * </p>
    * <p>
-   * Returns the final note only if the whole sequence exists and there are no more notes after.
+   * Returns the final note or null if the sequence does not exist.
    * </p>
    *
    * @param key sequence of note strings to search

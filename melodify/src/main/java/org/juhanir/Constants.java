@@ -91,11 +91,6 @@ public class Constants {
   };
 
   /**
-   * Time signatures to use in the generated results.
-   */
-  public static final List<String> timeSignatures = List.of("4/4", "6/8");
-
-  /**
    * Note durations to use in the generated results.
    */
   public static final List<String> noteDurations = List.of("sixteenth", "eighth", "quarter");
