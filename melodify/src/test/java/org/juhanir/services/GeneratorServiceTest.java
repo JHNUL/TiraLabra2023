@@ -197,7 +197,14 @@ public class GeneratorServiceTest {
     GeneratorService generator = new GeneratorService(trie, new Random());
     int[] melody = new int[] { 1, 2, 3, 4 };
     String res = generator.toStaccatoString(melody, "quarter");
-    String expected = String.format("T%s 25q 26q 27q 28q", Constants.PLAYBACK_TEMPO);
+    String expected = String.format(
+        "T%s %sq %sq %sq %sq",
+        Constants.PLAYBACK_TEMPO,
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[0],
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[1],
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[2],
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[3]
+    );
     assertEquals(expected, res);
   }
 
@@ -207,7 +214,14 @@ public class GeneratorServiceTest {
     GeneratorService generator = new GeneratorService(trie, new Random());
     int[] melody = new int[] { 1, 2, 3, 4 };
     String res = generator.toStaccatoString(melody, "eighth");
-    String expected = String.format("T%s 25i 26i 27i 28i", Constants.PLAYBACK_TEMPO);
+    String expected = String.format(
+        "T%s %si %si %si %si",
+        Constants.PLAYBACK_TEMPO,
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[0],
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[1],
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[2],
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[3]
+    );
     assertEquals(expected, res);
   }
 
@@ -217,7 +231,14 @@ public class GeneratorServiceTest {
     GeneratorService generator = new GeneratorService(trie, new Random());
     int[] melody = new int[] { 1, 2, 3, 4 };
     String res = generator.toStaccatoString(melody, "sixteenth");
-    String expected = String.format("T%s 25s 26s 27s 28s", Constants.PLAYBACK_TEMPO);
+    String expected = String.format(
+        "T%s %ss %ss %ss %ss",
+        Constants.PLAYBACK_TEMPO,
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[0],
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[1],
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[2],
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[3]
+    );
     assertEquals(expected, res);
   }
 
