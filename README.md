@@ -4,7 +4,7 @@
 
 Assignment for University of Helsinki CS Data Structures and Algorithms lab.
 
-The application will read MusicXML files as training data to populate a stochastic model that is used to predict the next note given a current note or a sequence of preceding notes. The model is using a Markov Chain of user-defined degree for the prediction.
+The application will read MusicXML files as training data to populate a stochastic model that is used to predict the next note. The model is using a Markov Chain of user-defined degree for the prediction.
 
 ## Documentation
 
@@ -32,13 +32,15 @@ Prerequisites:
 
 Tested on the following operating systems: Debian 12, Windows 10 (using Git Bash)
 
-Run the following commands in the repository root to start the application:
+Run the following commands in the repository root to start the application (or use targets in makefile):
 ```sh
-# Unzip training data (must run before starting the application)
-./scripts/prepare_data.sh
+# NOTE! must unzip training data before starting the application
+# Args to script are classical or irish (genre of music in dataset)
+# ./scripts/prepare_data.sh classical
+./scripts/prepare_data.sh irish
 
 # Install dependencies
-mvn install -f melodify/pom.xml
+mvn clean install -f melodify/pom.xml
 
 # Start application
 mvn clean javafx:run -f melodify/pom.xml
@@ -68,15 +70,15 @@ data/
 
 ### Usage
 
-After starting the application the training data is loaded and user can select a key and the degree of the Markov's Chain to use for training the model. Lower degrees (two to six-ish) allow for more adventuring and tend to produce more interesting melodies. In practice, the higher the degree the closer it should be to training data and more likely it will find a sequence that has no following notes (learned from an ending of a song) if the generation is long enough. Current training data package contains mostly Irish folk songs in different keys. This might come across the generated melodies.
+After starting the application training data is loaded and user can select a key and the degree of the Markov Chain to use for training the model. Lower degrees (two to six-ish) allow for more adventuring and tend to produce more interesting melodies. In practice, the higher the degree the closer it should be to training data and more likely it will find a sequence that has no following notes (learned from an ending of a song) if the generation is long enough.
 
 ![training](/docs/images/howto_train.png)
 
-After setting the parameters and training the model the generate button becomes enabled. Note duration controls whether the generation is quarter, eighth or sixteenth notes. The generation needs to be seeded with an initial sequence that is the length of the selected Markov Chain degree (three in the example here). The application generates this automatically starting from the base note of the key and then picking the most common next note until the initial sequence is created after which every next note follows the probability distribution. Generated melodies will be written to the `data/output` folder for playback in the app and also saved in MIDI format.
+After setting the parameters and training the model the generate button becomes enabled. Note duration tells the app to generate quarter, eighth or sixteenth notes. Generated melodies will be written to the `data/output` folder for playback in the app and also saved in MIDI format.
 
 ![generating](/docs/images/howto_generate.png)
 
-Generation should be more or less instantaneous and the file should become visible in the dropdown. Once a file is selected playback can be started.
+The generation is seeded with an initial sequence that is the length of the selected Markov Chain degree (three in the example here). The application generates the initial sequence automatically starting from the base note of the key and then picking the most common next note until the initial sequence is created after which every next note follows the probability distribution. Generation should be more or less instantaneous and the file should become visible in the dropdown. Once a file is selected playback can be started.
 
 ![playback](/docs/images/howto_playback.png)
 

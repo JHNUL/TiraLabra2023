@@ -6,7 +6,7 @@ Project is implemented in Java. In addition I can do code review for projects im
 
 ## Topic of the project
 
-This project uses Markov Chain to predict the next note in a melody.
+This project uses a Markov Chain to predict the next note in a melody.
 
 ## Data structures and algorithms used
 

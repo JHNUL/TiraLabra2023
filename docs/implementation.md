@@ -20,7 +20,7 @@
 
 #### Domain
 - Trie is the main data structure of the application. It contains sequences of melodies from the training data based on the degree of Markov Chain selected by the user, e.g. 2nd degree -> all 3-tuples in the training data are saved.
-- TrieNode is a node saved in the Trie. All nodes keep a list of children, their own note value (except root node which has no value) and count of occurrences in a sequence based on which the probability distribution is calculated.
+- TrieNode is a node saved in the Trie. All nodes keep a list of children, their own note value (except root node which has no value) and count of occurrences based on which the probability distribution is calculated.
 
 #### Utils
 - FileIo contains wrappers for filesystem access methods.
@@ -32,15 +32,18 @@ Starting from the root node, each child is looked up by accessing a fixed-size a
 In the worst case no key inserted to the trie shares a prefix with another key so the space complexity is **O(key_len * number_of_keys)**. Each node created to the trie by inserting a key also holds a fixed-size array to keep references to its children, whether or not it has any (this is to make lookup faster).
 
 The genaration works so that for each new note the following steps are taken (see implementation in [GeneratorService.java](/melodify/src/main/java/org/juhanir/services/GeneratorService.java)):
-- lookup is made to the Trie with a search key **O(key_len)** that is a sequence of notes whose length is equal to the Markov Chain degree
-- return the node that represents the final note of the search key, it contains a reference array to its children
+- lookup is made to the Trie with a search key that is a sequence of notes whose length is equal to the Markov Chain degree **O(key_len)**
+- lookup returns the node that represents the final note of the search key, it contains a reference array to its children
 - calculate a probability distribution over the children **O(child_array_size)**
 - do a weighted random selection of the children **O(child_array_size)**
 
 ## Bugs, gripes and general shortcomings
-- Could read zip files directly
-- The integrated playback is sub-optimal, starts in a slighly out-of-sync manner
-- UI looks unappealing
+- Doesn't take mode (dorian, lydian etc) from training data into consideration
+- Zip files need unpacking, could be read directly
+- The integrated playback is clunky, starts and stops in a slighly out-of-sync manner
+- Data folder structure is static, could be dynamic via a filesystem browser
+- Training data files could be read concurrently instead of serially to speed up the app
+- UX is sub-optimal
 
 ## Sources
 - https://en.wikipedia.org/wiki/Markov_chain

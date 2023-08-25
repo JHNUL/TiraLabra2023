@@ -13,4 +13,4 @@ Allowed higher degrees of Markov Chains, up to 30. Testing with data from differ
 |3|increasing unit test coverage|
 |1|fixing fs access for jar and mvn|
 |6|documentation, test coverage, testing with more training data|
-|||
+|14||

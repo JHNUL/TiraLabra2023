@@ -1,8 +1,14 @@
-dataset:
-	./scripts/prepare_data.sh
+DATA_SET=irish
+CLEAN=no
 
-clean_start:
-	./scripts/clean_start.sh
+dataset:
+	./scripts/prepare_data.sh $(DATA_SET)
+
+install:
+	mvn clean install -f melodify/pom.xml
+
+start:
+	./scripts/start.sh $(CLEAN)
 
 build:
 	./scripts/build.sh
