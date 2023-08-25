@@ -32,7 +32,7 @@ As the generated melodies are produced by weighted random selection, it is not p
 
 ### Performace tests
 
-None at the moment, the trie lookup and insert operations might be somehow tested to be linear dependent on the key size? At least generations are almost instantaneous from the UI.
+None as discussed with the course instructor. Trie operations are linear to key size and generation is linear to generation length (more details at [implementation docs](/docs/implementation.md)) and not really subject to performance testing as there is no comparison of algorithms.
 
 ### User Interface tests
 
