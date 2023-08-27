@@ -10,8 +10,8 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,7 +55,7 @@ public class FileIo {
           .collect(Collectors.toList());
     } catch (Exception e) {
       fileLogger.error(e);
-      return new ArrayList<>();
+      return Collections.emptyList();
     }
   }
 
@@ -76,7 +76,7 @@ public class FileIo {
           .collect(Collectors.toList());
     } catch (Exception e) {
       fileLogger.error(e);
-      return new ArrayList<>();
+      return Collections.emptyList();
     }
   }
 

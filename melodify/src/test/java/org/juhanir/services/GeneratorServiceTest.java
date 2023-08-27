@@ -203,8 +203,7 @@ public class GeneratorServiceTest {
         (Constants.OCTAVE_LOWER_BOUND * 12) + melody[0],
         (Constants.OCTAVE_LOWER_BOUND * 12) + melody[1],
         (Constants.OCTAVE_LOWER_BOUND * 12) + melody[2],
-        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[3]
-    );
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[3]);
     assertEquals(expected, res);
   }
 
@@ -220,8 +219,7 @@ public class GeneratorServiceTest {
         (Constants.OCTAVE_LOWER_BOUND * 12) + melody[0],
         (Constants.OCTAVE_LOWER_BOUND * 12) + melody[1],
         (Constants.OCTAVE_LOWER_BOUND * 12) + melody[2],
-        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[3]
-    );
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[3]);
     assertEquals(expected, res);
   }
 
@@ -237,8 +235,7 @@ public class GeneratorServiceTest {
         (Constants.OCTAVE_LOWER_BOUND * 12) + melody[0],
         (Constants.OCTAVE_LOWER_BOUND * 12) + melody[1],
         (Constants.OCTAVE_LOWER_BOUND * 12) + melody[2],
-        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[3]
-    );
+        (Constants.OCTAVE_LOWER_BOUND * 12) + melody[3]);
     assertEquals(expected, res);
   }
 
@@ -247,8 +244,23 @@ public class GeneratorServiceTest {
     Trie trie = new Trie();
     GeneratorService generator = new GeneratorService(trie, new Random());
     String[] res = generator.getGenerationFileNames("C", 2, "quarter");
-    assertTrue(res[0].matches("C\\(quarter\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.staccato"));
-    assertTrue(res[1].matches("C\\(quarter\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.MID"));
+    assertTrue(res[0]
+        .matches("C\\(quarter\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.staccato"));
+    assertTrue(
+        res[1].matches("C\\(quarter\\)-degree2-[0-9]{2}-[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{2}\\.[0-9]{3}\\.MID"));
+  }
+
+  @Test
+  void predictSequenceContinuesToMaxLength() {
+    Trie testTrie = new Trie();
+    testTrie.insert(new int[] { 3, 2, 2 });
+    testTrie.insert(new int[] { 2, 2, 2 });
+    testTrie.insert(new int[] { 2, 2, 2 });
+    GeneratorService generator = new GeneratorService(testTrie, new Random());
+    int[] prefix = new int[] { 3, 2 };
+    int[] generation = generator.predictSequence(prefix, 10);
+    int[] expected = new int[] { 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
+    assertArrayEquals(generation, expected);
   }
 
   @Nested

@@ -46,7 +46,7 @@ public class TrieNode {
   }
 
   public boolean hasChildren() {
-    return Arrays.stream(this.children).filter(Objects::nonNull).count() > 0;
+    return this.childCount > 0;
   }
 
   public TrieNode getChild(int value) {
