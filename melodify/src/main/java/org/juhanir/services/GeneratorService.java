@@ -4,9 +4,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Random;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.juhanir.Constants;
 import org.juhanir.domain.Trie;
 import org.juhanir.domain.TrieNode;
@@ -27,7 +26,8 @@ public class GeneratorService {
 
   /**
    * <p>
-   * Calculates the point in the array of probabilities where the cumulative probability passes the
+   * Calculates the point in the array of probabilities where the cumulative
+   * probability passes the
    * threshold.
    * </p>
    * <p>
@@ -51,14 +51,17 @@ public class GeneratorService {
 
   /**
    * <p>
-   * Predicts the next note of a prefix sequence. The prediction happens according to the
-   * probability distribution of the child notes of the last note in the input sequence.
+   * Predicts the next note of a prefix sequence. The prediction happens according
+   * to the
+   * probability distribution of the child notes of the last note in the input
+   * sequence.
    * </p>
    *
    * @param prefix sequence whose next note we are predicting
    * @return value of the note, -1 if no children
-   * @throws IllegalArgumentException if prefix has children whose probabilities do not add up to
-   *         one.
+   * @throws IllegalArgumentException if prefix has children whose probabilities
+   *                                  do not add up to
+   *                                  one.
    */
   public int predictNextNote(int[] prefix) {
     TrieNode note = this.trie.lookup(prefix);
@@ -103,7 +106,8 @@ public class GeneratorService {
 
   /**
    * <p>
-   * Get the base note of the given key from the most popular octave in the training data.
+   * Get the base note of the given key from the most popular octave in the
+   * training data.
    * </p>
    *
    * @param musicalKey name of the key, e.g. C, A#m etc
@@ -156,15 +160,17 @@ public class GeneratorService {
   /**
    * Get names for generated files.
    *
-   * @param key           musical key
-   * @param degree        markov chain degree
-   * @param noteDuration  note duration
+   * @param key          musical key
+   * @param degree       markov chain degree
+   * @param noteDuration note duration
    * @return array of two filenames, first staccato then midi
    */
   public String[] getGenerationFileNames(String key, int degree, String noteDuration) {
     String fileName = String.format("%s(%s)-degree%s-%s", key, noteDuration, degree,
         LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM-dd.HH.mm.ss.SSS")));
-    return new String[] { String.format("%s.staccato", fileName), String.format("%s.MID", fileName) };
+    return new String[] {
+        String.format("%s.staccato", fileName), String.format("%s.MID", fileName)
+    };
   }
 
 }

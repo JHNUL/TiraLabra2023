@@ -69,8 +69,10 @@ public class AppController {
   @FXML
   private ProgressIndicator progressIndicator;
 
-  private ObservableList<String> keys = FXCollections.observableList(FXCollections.observableArrayList());
-  private ObservableList<String> playbackFiles = FXCollections.observableList(FXCollections.observableArrayList());
+  private ObservableList<String> keys = FXCollections
+      .observableList(FXCollections.observableArrayList());
+  private ObservableList<String> playbackFiles = FXCollections
+      .observableList(FXCollections.observableArrayList());
   private StringProperty musicalKey = new SimpleStringProperty();
   private StringProperty playbackFile = new SimpleStringProperty();
   private StringProperty appMessage = new SimpleStringProperty();
@@ -107,8 +109,11 @@ public class AppController {
       protected Map<String, List<String>> call() throws Exception {
         updateMessage("Reading training data");
         FileIo reader = new FileIo();
-        List<String> sourceFiles = reader.getAllFilePathsInFolder(Constants.TRAINING_DATA_PATH, ".xml");
-        List<String> generatedFiles = reader.getAllFilePathsInFolder(Constants.OUTPUT_DATA_PATH, ".staccato").stream()
+        List<String> sourceFiles = reader
+            .getAllFilePathsInFolder(Constants.TRAINING_DATA_PATH, ".xml");
+        List<String> generatedFiles = reader
+            .getAllFilePathsInFolder(Constants.OUTPUT_DATA_PATH, ".staccato")
+            .stream()
             .map(filePath -> filePath.substring(filePath.lastIndexOf(File.separator) + 1))
             .collect(Collectors.toList());
         ScoreParser parser = new ScoreParser();

@@ -19,7 +19,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jfugue.pattern.Pattern;
@@ -80,8 +79,9 @@ public class AppEventHandler {
    * @param degreeField UI element
    */
   public void handleDegreeField(TextField degreeField) {
-    degreeField.setPromptText(
-        String.format("min %s max %s", Constants.MARKOV_CHAIN_DEGREE_MIN, Constants.MARKOV_CHAIN_DEGREE_MAX));
+    String txt = String.format(
+        "min %s max %s", Constants.MARKOV_CHAIN_DEGREE_MIN, Constants.MARKOV_CHAIN_DEGREE_MAX);
+    degreeField.setPromptText(txt);
     degreeField.textProperty().addListener((observable, oldValue, newValue) -> {
       canGenerate.set(false);
       try {
@@ -109,7 +109,8 @@ public class AppEventHandler {
    * @param melodyLengthField UI element
    */
   public void handleMelodyLengthField(TextField melodyLengthField) {
-    melodyLengthField.setPromptText(String.format("default %s", Constants.GENERATED_MELODY_DEFAULT_LEN));
+    melodyLengthField.setPromptText(
+        String.format("default %s", Constants.GENERATED_MELODY_DEFAULT_LEN));
     melodyLengthField.textProperty().addListener((observable, oldValue, newValue) -> {
       try {
         int value = Integer.parseInt(newValue.strip());
@@ -239,19 +240,21 @@ public class AppEventHandler {
         GeneratorService generator = new GeneratorService(trie, new Random());
         int startingNote = generator.getBaseNoteOfKey(musicalKey.get());
         if (startingNote < 0) {
-          this.appMessage
-              .set(String.format("ERROR: Could not generate melody starting with %s", this.musicalKey.get()));
+          this.appMessage.set(
+              String.format("ERROR: Could not generate melody starting with %s", this.musicalKey.get()));
         }
         int[] initialSequence = trie.getMostCommonSequenceStartingWith(startingNote, degree.get());
         int[] melody = generator.predictSequence(initialSequence, melodyLength.get());
         if (melody.length < melodyLength.get()) {
           this.appMessage.set(String.format("Generation stopped at %s notes", melody.length));
         }
-        String[] fileNames = generator.getGenerationFileNames(musicalKey.get(), degree.get(), noteDuration.get());
+        String[] fileNames = generator
+            .getGenerationFileNames(musicalKey.get(), degree.get(), noteDuration.get());
         FileIo fileUtil = new FileIo();
         String staccatoString = generator.toStaccatoString(melody, noteDuration.get());
         Pattern pattern = new Pattern(new Pattern(staccatoString));
-        fileUtil.writeToFile(Constants.OUTPUT_DATA_PATH, fileNames[0], pattern.getPattern().toString());
+        fileUtil.writeToFile(
+            Constants.OUTPUT_DATA_PATH, fileNames[0], pattern.getPattern().toString());
         fileUtil.saveMidiFile(Constants.OUTPUT_DATA_PATH, fileNames[1], pattern);
         playbackFiles.add(fileNames[0]);
       } catch (Exception e) {
@@ -279,7 +282,8 @@ public class AppEventHandler {
           @Override
           protected Void call() throws Exception {
             FileIo reader = new FileIo();
-            String staccatoString = reader.readFileAsString(Constants.OUTPUT_DATA_PATH, playbackFile.get());
+            String staccatoString = reader
+                .readFileAsString(Constants.OUTPUT_DATA_PATH, playbackFile.get());
             player.play(new Pattern(staccatoString));
             return null;
           }
@@ -354,7 +358,8 @@ public class AppEventHandler {
 
   private void setErrorMessage(Throwable e, String baseMessage) {
     String error = e.getMessage();
-    String msg = error != null && !error.isBlank() ? String.format("ERROR: %s: %s", baseMessage, error)
+    String msg = (error != null && !error.isBlank())
+        ? String.format("ERROR: %s: %s", baseMessage, error)
         : String.format("ERROR: %s", baseMessage);
     this.appMessage.set(msg);
   }
