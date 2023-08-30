@@ -32,7 +32,7 @@ Prerequisites:
 - JDK >= 17
 - maven >= 3.8.7
 
-Tested on the following operating systems: Debian 12, Windows 10 (using Git Bash)
+Tested on the following operating systems: Linux (Debian), Windows 10 (using Git Bash)
 
 Run the following commands in the repository root to start the application (or use targets in makefile):
 ```sh

@@ -24,7 +24,9 @@ public class Constants {
   public static final int NOTE_ARRAY_SIZE = (OCTAVE_UPPER_BOUND - OCTAVE_LOWER_BOUND + 1) * 12;
   public static final double EPSILON = 1e-10;
   public static final String TRAINING_DATA_PATH = System.getProperty("test") != null
-      && System.getProperty("test").equals("true") ? "melodify/src/test/resources" : "data/musicxml";
+      && System.getProperty("test").equals("true")
+          ? "melodify/src/test/resources"
+          : "data/musicxml";
   public static final String OUTPUT_DATA_PATH = "data/output";
 
   /**
@@ -36,8 +38,8 @@ public class Constants {
    * Where there is a whole step between notes the value is null.
    * </p>
    */
-  public static final List<String> noteNames = Arrays.asList("C", null, "D", null, "E", "F", null, "G", null, "A", null,
-      "B");
+  public static final List<String> noteNames = Arrays
+      .asList("C", null, "D", null, "E", "F", null, "G", null, "A", null, "B");
 
   /**
    * Modes that the application will accept from training data.

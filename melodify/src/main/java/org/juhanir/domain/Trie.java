@@ -17,9 +17,13 @@ public class Trie {
   }
 
   /**
-   * <p>Inserts a note sequence to the Trie. Sequence length follows the degree of the Markov Chain.
-   * Increments the <code>childCount</code> property of the parent and the <code>count</code> property
-   * of the added child.</p>
+   * <p>
+   * Inserts a note sequence to the Trie. Sequence length follows the degree of
+   * the Markov Chain.
+   * Increments the <code>childCount</code> property of the parent and the
+   * <code>count</code>
+   * property of the added child.
+   * </p>
    *
    * @param key sequence of note strings to save
    */
@@ -73,7 +77,8 @@ public class Trie {
     }
     // 0.0 for no children, otherwise check that probabilities sum up to one
     if (sum != 0.0 && Math.abs(1.0 - sum) > Constants.EPSILON) {
-      throw new IllegalArgumentException("Probabilities must sum up to one " + Arrays.toString(probabilities));
+      throw new IllegalArgumentException(
+          "Probabilities must sum up to one " + Arrays.toString(probabilities));
     }
     return probabilities;
   }
@@ -92,7 +97,7 @@ public class Trie {
    * the next note in the sequence is always the most common child.
    *
    * @param startingNote note that starts the sequence.
-   * @param length length of the sequence.
+   * @param length       length of the sequence.
    * @return sequence
    */
   public int[] getMostCommonSequenceStartingWith(int startingNote, int length) {
@@ -103,8 +108,10 @@ public class Trie {
     sequence[0] = startingNote;
     TrieNode node = this.root.getChildren()[startingNote];
     for (int i = 1; i < length; i++) {
-      TrieNode[] children = Arrays.stream(node.getChildren()).filter(Objects::nonNull).toArray(TrieNode[]::new);
-      TrieNode selected = Arrays.stream(children).max(Comparator.comparingInt(TrieNode::getCount)).orElse(null);
+      TrieNode[] children = Arrays.stream(node.getChildren()).filter(Objects::nonNull)
+          .toArray(TrieNode[]::new);
+      TrieNode selected = Arrays.stream(children).max(Comparator.comparingInt(TrieNode::getCount))
+          .orElse(null);
       if (selected == null) {
         return Arrays.copyOfRange(sequence, 0, i);
       }

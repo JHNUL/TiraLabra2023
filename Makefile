@@ -13,6 +13,9 @@ start:
 build:
 	./scripts/build.sh
 
+site:
+	mvn clean site -f melodify/pom.xml
+
 test:
 	mvn clean test -f melodify/pom.xml
 

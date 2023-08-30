@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jfugue.midi.MidiFileManager;
@@ -97,14 +96,15 @@ public class FileIo {
   }
 
   /**
-   * Write a MIDI file based on the provided jfugue Pattern
+   * Write a MIDI file based on the provided jfugue Pattern.
    *
    * @param folderPath    path to the folder
    * @param fileName      file name
    * @param melodyPattern jfugue Staccato pattern
    * @throws IOException if write fails
    */
-  public void saveMidiFile(String folderPath, String fileName, Pattern melodyPattern) throws IOException {
+  public void saveMidiFile(String folderPath, String fileName, Pattern melodyPattern)
+      throws IOException {
     String path = this.getFolderPath(folderPath);
     File file = new File(String.format("%s%s%s", path, File.separator, fileName));
     MidiFileManager.savePatternToMidi(melodyPattern, file);

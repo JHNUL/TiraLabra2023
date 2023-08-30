@@ -1,7 +1,5 @@
 package org.juhanir.domain;
 
-import java.util.Arrays;
-import java.util.Objects;
 import org.juhanir.Constants;
 
 /**
@@ -53,6 +51,13 @@ public class TrieNode {
     return this.children[value];
   }
 
+  /**
+   * Adds a child to the node. Increments the count property of
+   * the child if aalready exists. Also increment the childCount
+   * property of the node for probability distribution calculation.
+   *
+   * @param value the numerical value of the child
+   */
   public void addChild(int value) {
     if (this.children[value] == null) {
       this.children[value] = new TrieNode(value);
