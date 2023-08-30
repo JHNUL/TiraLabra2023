@@ -59,7 +59,7 @@ Build a jar:
 mvn clean compile package -f melodify/pom.xml
 ```
 
-The jar will expect the following folder structure to exist for data, the application will not try to create folders:
+**NOTE**: The jar will expect the following folder structure to exist for data, the application will not try to create folders:
 ```sh
 # data folder must be a sibling to the jar
 .
