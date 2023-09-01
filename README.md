@@ -8,6 +8,8 @@ The application will read MusicXML files as training data to populate a stochast
 
 Some example generations from the current datasets are included in the `examples` folder
 
+Final submission [here.](https://github.com/JHNUL/TiraLabra2023/releases/tag/final)
+
 ## Documentation
 
 - [Specification (määrittelydokumentti)](/docs/specifications.md)
