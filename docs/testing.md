@@ -39,5 +39,8 @@ None as discussed with the course instructor. Trie operations are linear to key 
 The project uses TestFX framework to test the running application by interacting with the UI and these are the only automated tests that target the UI layer. While the tests run, don't interfere with the UI. These tests are excluded from the maven lifecycle and can only be run manually:
 
 ```sh
+# remove existing generations or move them elsewhere before running the system test
+rm -f data/output/*.staccato
+rm -f data/output/*.MID
 mvn -DskipUItests=false clean test-compile failsafe:integration-test -f melodify/pom.xml
 ```
