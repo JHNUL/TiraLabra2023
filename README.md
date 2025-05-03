@@ -31,8 +31,8 @@ Select the commit with tag "weekN" to review the repository in the intended stat
 ## Instructions how to run
 
 Prerequisites:
-- JDK >= 17
-- maven >= 3.8.7
+- JDK = 17
+- maven = 3.9.9
 
 Tested on the following operating systems: Linux (Debian), Windows 10 (using Git Bash)
 
