@@ -5,4 +5,4 @@
 data/output/[A-Z]*
 **/logs
 **/shade
-**/*.local*
+**/*.idea
