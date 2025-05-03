@@ -17,6 +17,8 @@ jobs:
           architecture: 'x64'
           java-package: 'jdk'
           cache: 'maven'
+      - name: maven version check
+        run: mvn --version
       - name: Maven install
         run: mvn -DskipTests install
         working-directory: ./melodify
